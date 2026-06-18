@@ -1,13 +1,49 @@
-/**
- * Drizzle schema for Ameen eSIM.
- *
- * Phase 0: connection is wired, schema is intentionally empty.
- * Phase 1 adds: plans, orders, enquiries, faqs, content_blocks,
- * site_settings, install_guides, admin_users (see the build brief, section 6).
- *
- * Amounts are stored as integer pence. Use UUID ids and createdAt/updatedAt
- * timestamps on every table.
- */
+import {
+  boolean,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
-// TODO(ameen): Phase 1 — define tables here.
-export {};
+export const markupTypeEnum = pgEnum("markup_type", [
+  "percent",
+  "fixed",
+  "none",
+]);
+
+export const plans = pgTable("plans", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  country: text("country").notNull().default("SA"),
+  dataAmountMb: integer("data_amount_mb"),
+  validityDays: integer("validity_days").notNull(),
+  network: text("network"),
+  description: text("description").notNull(),
+  featureList: text("feature_list").array().notNull().default([]),
+  costPence: integer("cost_pence"),
+  markupType: markupTypeEnum("markup_type").notNull().default("none"),
+  markupValue: integer("markup_value"),
+  retailPricePence: integer("retail_price_pence"),
+  providerRefs: jsonb("provider_refs")
+    .$type<Record<string, string>>()
+    .notNull()
+    .default({}),
+  badge: text("badge"),
+  active: boolean("active").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type Plan = typeof plans.$inferSelect;
+export type NewPlan = typeof plans.$inferInsert;
