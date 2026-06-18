@@ -19,6 +19,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [open, setOpen] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
   const pathname = usePathname();
 
   // Close the mobile menu whenever the route changes.
@@ -26,8 +27,23 @@ export function Navbar() {
     setOpen(false);
   }, [pathname]);
 
+  // Elevate the bar once the page scrolls beneath it.
+  React.useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-cream/85 backdrop-blur supports-[backdrop-filter]:bg-cream/70">
+    <header
+      className={cn(
+        "sticky top-0 z-40 transition-[background-color,box-shadow,border-color] duration-300 ease-out-strong supports-[backdrop-filter]:bg-cream/60",
+        scrolled
+          ? "border-b border-line bg-cream/90 shadow-[0_1px_0_0_var(--line),0_8px_24px_-16px_rgba(25,32,46,0.45)] backdrop-blur-md"
+          : "border-b border-transparent bg-cream/0 backdrop-blur-sm"
+      )}
+    >
       <div className="container flex h-16 items-center justify-between gap-4">
         <Link
           href="/"

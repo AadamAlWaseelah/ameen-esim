@@ -44,8 +44,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${hankenGrotesk.variable}`}>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${hankenGrotesk.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
+        {/* Arm scroll-reveal before paint so enhanced entrances don't flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.add('js')",
+          }}
+        />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-navy focus:px-4 focus:py-2 focus:text-cream"

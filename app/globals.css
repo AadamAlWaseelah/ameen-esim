@@ -16,7 +16,10 @@
   --gold: #c9a961; /* interactive gold — accents, focus, links */
   --gold-deep: #a8863f; /* gold text on light bg where AA contrast is needed */
   --gold-pale: #e7d592; /* soft logo gold — decorative only, never small text */
-  --slate: #7c83a0; /* secondary text, muted UI */
+  --slate: #565d71; /* secondary text, muted UI — deepened from the logo's
+                       light-blue (#7C83A0) so body text clears WCAG AA (~6:1)
+                       on cream/paper. Use #7C83A0 only for decoration. */
+  --slate-soft: #7c83a0; /* the logo's light-blue — decorative use only */
   --cream: #faf8f2; /* warm surface background */
   --paper: #ffffff; /* cards / clean surfaces */
   --line: rgba(25, 32, 46, 0.1); /* hairline dividers */
@@ -44,8 +47,11 @@
   --ring: var(--gold);
   --radius: 0.75rem;
 
-  /* Motion (emil): custom curves, stronger than the CSS defaults */
+  /* Motion: custom curves, stronger than the CSS defaults (emil + impeccable).
+     Exponential ease-outs for entrances; no bounce/elastic. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
@@ -90,6 +96,31 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /*
+    Scroll-reveal as progressive enhancement. Content is visible by default;
+    the hidden start state only applies once JS adds `.js` to <html> (via a
+    blocking inline script, so no flash) AND the user hasn't asked for reduced
+    motion. If JS fails or motion is reduced, sections render fully visible.
+  */
+  @media (prefers-reduced-motion: no-preference) {
+    .js [data-reveal] {
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 0.65s var(--ease-out-expo),
+        transform 0.65s var(--ease-out-expo);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    .js [data-reveal].is-revealed {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   /* 1px gold hairline divider — premium alternative to grey borders. */

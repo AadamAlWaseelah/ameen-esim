@@ -8,15 +8,16 @@ import { cn } from "@/lib/utils";
 // Hover effects gated behind a pointer/hover media query in Tailwind would need
 // a plugin; instead we keep hover subtle and rely on transform for press.
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-[transform,background-color,color,border-color] duration-150 ease-out-strong active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-[transform,background-color,color,border-color,box-shadow] duration-200 ease-out-strong active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary:
-          "bg-navy text-cream hover:bg-navy-700 shadow-sm",
-        gold: "bg-gold text-navy hover:bg-gold-pale shadow-sm",
+        primary: "bg-navy text-cream hover:bg-navy-700 shadow-sm",
+        gold: "bg-gold text-navy shadow-sm hover:bg-gold-pale hover:shadow-[0_8px_24px_-10px_rgba(201,169,97,0.7)]",
         outline:
           "border border-navy/20 bg-transparent text-navy hover:bg-navy/5",
+        "outline-light":
+          "border border-cream/30 bg-cream/0 text-cream hover:bg-cream/10",
         ghost: "bg-transparent text-navy hover:bg-navy/5",
         link: "text-gold-deep underline-offset-4 hover:underline",
       },
