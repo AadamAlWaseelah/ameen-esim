@@ -1,101 +1,105 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Wifi, MailCheck, ShieldCheck } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+const STEPS = [
+  {
+    icon: Wifi,
+    title: "Pick your plan",
+    body: "Choose a Saudi data plan that matches your trip — by data and by days.",
+  },
+  {
+    icon: MailCheck,
+    title: "Get it by email",
+    body: "Your eSIM QR code arrives instantly. No SIM swap, no posting, no waiting.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Activate on arrival",
+    body: "Scan the QR in Saudi Arabia and you're online. Honest data, clearly stated.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <>
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="container py-20 sm:py-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <p
+              className="animate-fade-up text-sm font-medium uppercase tracking-[0.18em] text-gold-deep"
+              style={{ animationDelay: "0ms" }}
+            >
+              By Al-Waseelah Tours
+            </p>
+            <h1
+              className="animate-fade-up mt-5 text-balance text-4xl leading-[1.05] text-navy sm:text-5xl md:text-6xl"
+              style={{ animationDelay: "60ms" }}
+            >
+              Stay connected for your Umrah &amp; Hajj.
+            </h1>
+            <p
+              className="animate-fade-up mx-auto mt-6 max-w-xl text-balance text-lg leading-relaxed text-slate"
+              style={{ animationDelay: "120ms" }}
+            >
+              Saudi data eSIMs for pilgrims — delivered to your inbox in minutes.
+              Data-only, no phone number, and we tell you exactly what you&apos;re
+              buying.
+            </p>
+            <div
+              className="animate-fade-up mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+              style={{ animationDelay: "180ms" }}
+            >
+              <Button asChild size="lg">
+                <Link href="/plans">Browse plans</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/how-it-works">How it works</Link>
+              </Button>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </section>
+
+      {/* How it works teaser */}
+      <section className="container pb-8">
+        <div className="grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-3">
+          {STEPS.map((step, i) => (
+            <div
+              key={step.title}
+              className="animate-fade-up bg-paper p-7"
+              style={{ animationDelay: `${240 + i * 50}ms` }}
+            >
+              <span className="inline-flex size-11 items-center justify-center rounded-md bg-cream text-gold-deep">
+                <step.icon className="size-5" aria-hidden />
+              </span>
+              <h3 className="mt-4 text-lg text-navy">{step.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate">
+                {step.body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Honesty strip */}
+      <section className="container py-16">
+        <div className="rounded-lg border border-line bg-paper p-8 sm:p-10">
+          <h2 className="text-2xl text-navy">Honest by default</h2>
+          <p className="mt-3 max-w-2xl leading-relaxed text-slate">
+            Saudi eSIMs are data-only — there&apos;s no phone number, and calling
+            apps can be restricted on local networks. Around the Haram at peak
+            prayer times, networks get congested. We&apos;ll always tell you the
+            truth about coverage and &ldquo;unlimited&rdquo; data before you buy.
+          </p>
+          <p className="mt-6 text-sm text-slate">
+            Building in phases — this is the Phase 0 scaffold.{" "}
+            {/* TODO(ameen): remove once full home (Phase 4) ships */}
+          </p>
+        </div>
+      </section>
+    </>
   );
 }

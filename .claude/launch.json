@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ameen-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Users/aadam/Projects/ameen-esim", "run", "dev"],
+      "port": 3000
+    }
+  ]
+}

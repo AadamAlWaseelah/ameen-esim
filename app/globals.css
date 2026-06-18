@@ -2,26 +2,113 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Ameen eSIM design tokens.
+  Brand colours sampled from the logo. Gold is pale by design, so --gold-deep
+  exists for accessible gold text/UI on light surfaces. See PLACEHOLDERS.md /
+  the build brief for usage rules.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand palette */
+  --navy: #19202e; /* primary / ink */
+  --navy-700: #232c3e; /* raised surfaces on navy, hover */
+  --gold: #c9a961; /* interactive gold — accents, focus, links */
+  --gold-deep: #a8863f; /* gold text on light bg where AA contrast is needed */
+  --gold-pale: #e7d592; /* soft logo gold — decorative only, never small text */
+  --slate: #7c83a0; /* secondary text, muted UI */
+  --cream: #faf8f2; /* warm surface background */
+  --paper: #ffffff; /* cards / clean surfaces */
+  --line: rgba(25, 32, 46, 0.1); /* hairline dividers */
+  --line-gold: rgba(201, 169, 97, 0.35); /* gold hairline for emphasis */
+
+  /* Semantic tokens (shadcn-compatible: components use bg-primary etc.) */
+  --background: var(--cream);
+  --foreground: var(--navy);
+  --card: var(--paper);
+  --card-foreground: var(--navy);
+  --popover: var(--paper);
+  --popover-foreground: var(--navy);
+  --primary: var(--navy);
+  --primary-foreground: var(--cream);
+  --secondary: var(--navy-700);
+  --secondary-foreground: var(--cream);
+  --muted: #efece4;
+  --muted-foreground: var(--slate);
+  --accent: var(--gold);
+  --accent-foreground: var(--navy);
+  --destructive: #b4231f;
+  --destructive-foreground: #ffffff;
+  --border: var(--line);
+  --input: rgba(25, 32, 46, 0.14);
+  --ring: var(--gold);
+  --radius: 0.75rem;
+
+  /* Motion (emil): custom curves, stronger than the CSS defaults */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: hsl(0 0% 0% / 0); /* reset; real borders use border-border */
+    border-color: var(--border);
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "ss01", "cv01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headings use the display face with a higher optical size. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), Georgia, serif;
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+  }
+
+  /* Tabular figures for prices and any aligned numerals. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Visible, on-brand focus for keyboard users (WCAG 2.1 AA). */
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* 1px gold hairline divider — premium alternative to grey borders. */
+  .hairline {
+    border-color: var(--line);
+  }
+  .hairline-gold {
+    border-color: var(--line-gold);
+  }
+}
+
+/* Reduced motion: keep opacity/colour, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
