@@ -42,19 +42,46 @@ export function Footer() {
       </div>
 
       <div className="border-t border-cream/10">
-        <div className="container flex flex-col gap-3 py-8 text-xs leading-relaxed text-cream/60">
-          <p>
-            Ameen eSIM is a trading name of Al-Waseelah Tours Ltd, a company
-            registered in England &amp; Wales (company no.{" "}
-            {"{{COMPANY_NUMBER}}"}). Registered office:{" "}
-            {"{{REGISTERED_ADDRESS}}"}.
-          </p>
-          <p>
-            Registered with the Information Commissioner&apos;s Office (ICO),
-            reference {"{{ICO_NUMBER}}"}. Ameen eSIM resells third-party
-            data-only eSIMs; service is network-dependent.
-          </p>
-          <p className="text-cream/50">© {year} Al-Waseelah Tours Ltd. All rights reserved.</p>
+        <div className="container py-10 text-sm leading-relaxed text-cream/60 sm:text-base">
+          <div className="space-y-5 border-b border-cream/10 pb-9">
+            <p>
+              <strong className="font-semibold text-cream">
+                Al-Waseelah Tours Ltd
+              </strong>{" "}
+              - Registered in England &amp; Wales, Company No. 16268888.
+              Ameen eSIM is a trading name of Al-Waseelah Tours Ltd.
+            </p>
+            <p>
+              Registered office: 65 Berkeley Road, Yardley, Birmingham, West
+              Midlands, B25 8NW.
+            </p>
+            <p>
+              Flights in Al-Waseelah Tours packages are ATOL-protected through
+              our licensed flight partner. You will receive your ATOL Certificate
+              at the time of booking, naming the ATOL holder protecting your
+              trip. Find out more at{" "}
+              <a
+                href="https://www.caa.co.uk/atol-protection"
+                className="text-cream underline decoration-cream/45 underline-offset-4 transition-colors hover:text-gold-pale"
+                rel="noreferrer"
+                target="_blank"
+              >
+                www.caa.co.uk/atol-protection
+              </a>
+              . Ameen eSIM purchases are data-only digital products and are not
+              flight-inclusive package holidays.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4 pt-8 text-sm text-cream/45 sm:flex-row sm:items-center sm:justify-between">
+            <p>© {year} Al-Waseelah Tours Ltd. All rights reserved.</p>
+            <Link
+              href="/admin/plans"
+              className="transition-colors hover:text-gold-pale"
+            >
+              Staff login
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -11,8 +11,8 @@ Status legend: outstanding / resolved
 
 | Token | Where it's used | Status |
 | --- | --- | --- |
-| `{{COMPANY_NUMBER}}` | Footer; legal pages (Phase 4) | outstanding |
-| `{{REGISTERED_ADDRESS}}` | Footer; legal pages (Phase 4) | outstanding |
+| `{{COMPANY_NUMBER}}` | Legal pages (Phase 4) | resolved in footer: 16268888 |
+| `{{REGISTERED_ADDRESS}}` | Legal pages (Phase 4) | resolved in footer: 65 Berkeley Road, Yardley, Birmingham, West Midlands, B25 8NW |
 | `{{ICO_NUMBER}}` | Footer; Privacy Policy (Phase 4) | outstanding |
 | Legal page drafts (Privacy, Terms, Refund, Cookies) | `/privacy`, `/terms`, `/refund-policy`, `/cookies` | Phase 4 draft only; solicitor review required |
 
@@ -49,7 +49,7 @@ Status legend: outstanding / resolved
 | Item | Where | Status |
 | --- | --- | --- |
 | `DATABASE_URL` (Neon) | `.env.local` | outstanding; see `DEPLOY.md` |
-| Vercel project + domain | hosting | outstanding; see `DEPLOY.md` |
+| Vercel project + domain | hosting | resolved for preview: `https://ameen-esim.vercel.app` |
 | `NEXT_PUBLIC_SITE_URL` | metadata / canonical | outstanding; set to live domain on deploy |
 | GitHub remote | `git remote -v` | outstanding; `gh` CLI is not installed |
 
@@ -74,4 +74,4 @@ Status legend: outstanding / resolved
 
 ---
 
-_Last updated: Phase 1 catalogue._
+_Last updated: footer company details._
