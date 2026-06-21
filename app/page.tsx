@@ -1,8 +1,13 @@
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
+import { TrustBar } from "@/components/site/trust-bar";
+import { PlanCard } from "@/components/plans/plan-card";
+import { listPublicPlans } from "@/lib/plans/store";
+
+export const dynamic = "force-dynamic";
 
 const STEPS = [
   {
@@ -29,7 +34,16 @@ const HONEST_FACTS = [
   "Networks congest near the Haram at peak prayer times",
 ];
 
-export default function Home() {
+function isFeatured(badge: string | null) {
+  return Boolean(badge && badge.toLowerCase().includes("popular"));
+}
+
+export default async function Home() {
+  const plans = await listPublicPlans();
+  const featuredPlans = [...plans]
+    .sort((a, b) => Number(isFeatured(b.badge)) - Number(isFeatured(a.badge)))
+    .slice(0, 3);
+
   return (
     <>
       {/* Hero — a contained navy panel on the cream page. */}
@@ -50,10 +64,7 @@ export default function Home() {
 
           <div className="mx-auto max-w-3xl text-center">
             <p className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-3.5 py-1.5 text-sm text-gold-pale">
-              <span
-                aria-hidden
-                className="inline-block size-1.5 rotate-45 bg-gold"
-              />
+              <span aria-hidden className="inline-block size-1.5 rotate-45 bg-gold" />
               By Al-Waseelah Tours · UK Umrah operator
             </p>
 
@@ -96,8 +107,15 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Trust signals — honest credibility, Trust & Authority pattern. */}
+      <section className="container pt-12 sm:pt-16">
+        <Reveal>
+          <TrustBar />
+        </Reveal>
+      </section>
+
       {/* How it works — a real 3-step sequence, so numbering earns its place. */}
-      <section className="container py-20 sm:py-28">
+      <section className="container py-20 sm:py-24">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl text-navy sm:text-4xl">Online in three steps</h2>
           <p className="mt-3 text-pretty leading-relaxed text-slate">
@@ -128,8 +146,38 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Popular plans teaser — pulls real catalogue data. */}
+      {featuredPlans.length ? (
+        <section className="container pb-4">
+          <Reveal className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-xl">
+              <h2 className="text-3xl text-navy sm:text-4xl">Popular plans</h2>
+              <p className="mt-3 text-pretty leading-relaxed text-slate">
+                A few Saudi data eSIMs to start with. Prices are clearly marked as
+                pending until our supplier and margin are confirmed.
+              </p>
+            </div>
+            <Link
+              href="/plans"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-gold-deep underline-offset-4 hover:underline"
+            >
+              View all plans
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </Reveal>
+
+          <div className="mt-10 grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredPlans.map((plan, index) => (
+              <Reveal key={plan.id} delay={index * 60}>
+                <PlanCard plan={plan} featured={isFeatured(plan.badge)} />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {/* Honest by default — editorial panel, gold hairline accent. */}
-      <section className="container pb-24">
+      <section className="container py-20 sm:py-24">
         <Reveal className="overflow-hidden rounded-[1.75rem] border border-line bg-paper">
           <div className="h-1 w-full bg-gradient-to-r from-gold-pale via-gold to-gold-deep" />
           <div className="grid gap-10 p-8 sm:p-12 lg:grid-cols-[1.1fr_1fr] lg:items-center">
@@ -147,12 +195,36 @@ export default function Home() {
                   <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-gold/15 text-gold-deep">
                     <Check className="size-3.5" aria-hidden />
                   </span>
-                  <span className="text-pretty leading-snug text-navy">
-                    {fact}
-                  </span>
+                  <span className="text-pretty leading-snug text-navy">{fact}</span>
                 </li>
               ))}
             </ul>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* Final CTA */}
+      <section className="container pb-24">
+        <Reveal className="relative isolate overflow-hidden rounded-[1.75rem] bg-navy px-6 py-14 text-center text-cream sm:px-10 sm:py-16">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[280px] w-[520px] max-w-[120%] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-50 blur-3xl"
+            style={{
+              background:
+                "radial-gradient(closest-side, rgba(201,169,97,0.30), transparent)",
+            }}
+          />
+          <h2 className="text-balance text-3xl text-cream sm:text-4xl">
+            Sorted before you fly.
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-pretty leading-relaxed text-cream/75">
+            Choose a plan, get your QR by email, and land in Saudi Arabia already
+            connected.
+          </p>
+          <div className="mt-8">
+            <Button asChild size="lg" variant="gold">
+              <Link href="/plans">Browse plans</Link>
+            </Button>
           </div>
         </Reveal>
       </section>

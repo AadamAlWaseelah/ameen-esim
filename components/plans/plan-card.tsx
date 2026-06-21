@@ -1,39 +1,67 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, CalendarDays, Signal } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarDays, Signal, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { formatDataAmount, formatMoney } from "@/lib/money";
 import { getActiveProviderId } from "@/lib/esim";
 import { getPlanProviderRef } from "@/lib/plans/store";
 import type { PlanRecord } from "@/lib/plans/types";
 
-export function PlanCard({ plan }: { plan: PlanRecord }) {
+export function PlanCard({
+  plan,
+  featured = false,
+}: {
+  plan: PlanRecord;
+  featured?: boolean;
+}) {
   const providerId = getActiveProviderId();
   const providerRef = getPlanProviderRef(plan, providerId);
   const priceKnown = plan.retailPricePence != null;
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-paper shadow-sm transition-[border-color,box-shadow,transform] duration-200 ease-out-expo hover:border-gold/45 hover:shadow-md">
+    <article
+      className={cn(
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl bg-paper transition-[border-color,box-shadow,transform] duration-200 ease-out-expo",
+        featured
+          ? "border-2 border-gold shadow-[0_18px_40px_-24px_rgba(168,134,63,0.55)] lg:-translate-y-1"
+          : "border border-line shadow-sm hover:-translate-y-0.5 hover:border-gold/45 hover:shadow-md"
+      )}
+    >
+      {featured ? (
+        <div className="flex items-center justify-center gap-1.5 bg-gold py-1.5 text-xs font-semibold uppercase tracking-wide text-navy">
+          <Star className="size-3.5 fill-navy" aria-hidden />
+          Most chosen by pilgrims
+        </div>
+      ) : null}
+
       <div className="flex items-start justify-between gap-4 border-b border-line p-5">
         <div>
-          {plan.badge ? (
+          {plan.badge && !featured ? (
             <p className="mb-3 inline-flex rounded-full border border-gold/30 bg-gold/10 px-2.5 py-1 text-xs font-medium text-gold-deep">
               {plan.badge}
             </p>
           ) : null}
-          <h2 className="text-2xl text-navy">{plan.title}</h2>
+          <h2 className="font-display text-2xl text-navy">{plan.title}</h2>
           <p className="mt-1 text-sm text-slate">{plan.subtitle}</p>
         </div>
-        <p className="tnum shrink-0 text-right text-2xl font-semibold text-navy">
-          {formatMoney(plan.retailPricePence)}
-        </p>
+        <div className="shrink-0 text-right">
+          <p className="tnum text-2xl font-semibold text-navy">
+            {formatMoney(plan.retailPricePence)}
+          </p>
+          {priceKnown ? (
+            <p className="text-xs text-slate">one-off</p>
+          ) : null}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 p-5 text-sm">
         <div className="rounded-xl border border-line bg-cream/70 p-3">
           <Signal className="mb-2 size-4 text-gold-deep" aria-hidden />
-          <p className="font-medium text-navy">{formatDataAmount(plan.dataAmountMb)}</p>
-          <p className="text-slate">Data allowance</p>
+          <p className="font-medium text-navy">
+            {formatDataAmount(plan.dataAmountMb)}
+          </p>
+          <p className="text-slate">Data</p>
         </div>
         <div className="rounded-xl border border-line bg-cream/70 p-3">
           <CalendarDays className="mb-2 size-4 text-gold-deep" aria-hidden />
@@ -56,11 +84,14 @@ export function PlanCard({ plan }: { plan: PlanRecord }) {
           <Button
             asChild
             className="w-full"
-            variant={priceKnown ? "primary" : "outline"}
+            variant={featured ? "gold" : priceKnown ? "primary" : "outline"}
           >
             <Link href={`/plans/${plan.slug}`}>
               {priceKnown ? "View plan" : "View details"}
-              <ArrowRight className="size-4" aria-hidden />
+              <ArrowRight
+                className="size-4 transition-transform duration-200 ease-out-expo group-hover:translate-x-0.5"
+                aria-hidden
+              />
             </Link>
           </Button>
         </div>
