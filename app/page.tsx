@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
 import { TrustBar } from "@/components/site/trust-bar";
 import { EsimDevice } from "@/components/site/esim-device";
+import { HaramainGlobe } from "@/components/site/haramain-globe";
 import { PlanCard } from "@/components/plans/plan-card";
 import { listPublicPlans } from "@/lib/plans/store";
 
@@ -138,6 +139,63 @@ export default async function Home() {
       <section className="container pt-12 sm:pt-16">
         <Reveal>
           <TrustBar />
+        </Reveal>
+      </section>
+
+      {/* Global reach — animated globe, the world connecting to the Haramain. */}
+      <section className="container pt-16 sm:pt-20">
+        <Reveal className="relative isolate overflow-hidden rounded-[1.75rem] bg-navy text-cream">
+          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+            <div
+              className="absolute right-[-10%] top-[-10%] h-[420px] w-[520px] max-w-[120%] rounded-full opacity-50 blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(closest-side, rgba(201,169,97,0.28), transparent)",
+              }}
+            />
+          </div>
+
+          <div className="grid items-center gap-6 p-8 sm:p-12 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="text-center lg:text-left">
+              <p className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-3.5 py-1.5 text-sm text-gold-pale">
+                <span aria-hidden className="inline-block size-1.5 rotate-45 bg-gold" />
+                Pilgrims from every corner
+              </p>
+              <h2 className="mt-6 text-balance text-3xl leading-[1.05] text-cream sm:text-4xl lg:text-5xl">
+                The whole world, connected to the{" "}
+                <span className="text-gold-pale">Haramain</span>.
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-pretty leading-relaxed text-cream/75 lg:mx-0">
+                Wherever your journey begins, you arrive in Makkah and Madinah
+                already online — the same eSIM, the same simple setup, no roaming
+                bills.
+              </p>
+              <div className="mt-7 flex flex-wrap justify-center gap-2 lg:justify-start">
+                {["Instant QR by email", "Works on 215+ devices", "No roaming bills"].map(
+                  (chip) => (
+                    <span
+                      key={chip}
+                      className="rounded-full border border-cream/15 bg-cream/5 px-3 py-1 text-sm text-cream/80"
+                    >
+                      {chip}
+                    </span>
+                  ),
+                )}
+              </div>
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+                <Button asChild size="lg" variant="gold">
+                  <Link href="/plans">Browse plans</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline-light">
+                  <Link href="/compatibility">Check my device</Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="relative mx-auto aspect-square w-full max-w-[520px]">
+              <HaramainGlobe />
+            </div>
+          </div>
         </Reveal>
       </section>
 
