@@ -22,12 +22,22 @@ export function PlanCard({
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl bg-paper transition-[border-color,box-shadow,transform] duration-200 ease-out-expo",
+        "sheen group relative flex h-full flex-col overflow-hidden rounded-2xl bg-paper transition-[border-color,box-shadow,transform] duration-200 ease-out-expo",
         featured
-          ? "border-2 border-gold shadow-[0_18px_40px_-24px_rgba(168,134,63,0.55)] lg:-translate-y-1"
-          : "border border-line shadow-sm hover:-translate-y-0.5 hover:border-gold/45 hover:shadow-md"
+          ? "border-2 border-gold shadow-[0_18px_44px_-22px_rgba(168,134,63,0.6)] lg:-translate-y-1"
+          : "border border-line shadow-sm hover:-translate-y-1 hover:border-gold/45 hover:shadow-[0_20px_44px_-26px_rgba(25,32,46,0.5)]"
       )}
     >
+      {featured ? (
+        <div
+          aria-hidden
+          className="animate-glow-pulse pointer-events-none absolute -inset-px -z-10 rounded-2xl blur-md"
+          style={{
+            background:
+              "radial-gradient(60% 60% at 50% 0%, rgba(201,169,97,0.5), transparent)",
+          }}
+        />
+      ) : null}
       {featured ? (
         <div className="flex items-center justify-center gap-1.5 bg-gold py-1.5 text-xs font-semibold uppercase tracking-wide text-navy">
           <Star className="size-3.5 fill-navy" aria-hidden />

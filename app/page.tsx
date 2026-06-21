@@ -1,9 +1,11 @@
 import Link from "next/link";
+import QRCode from "qrcode";
 import { ArrowRight, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
 import { TrustBar } from "@/components/site/trust-bar";
+import { EsimDevice } from "@/components/site/esim-device";
 import { PlanCard } from "@/components/plans/plan-card";
 import { listPublicPlans } from "@/lib/plans/store";
 
@@ -44,65 +46,90 @@ export default async function Home() {
     .sort((a, b) => Number(isFeatured(b.badge)) - Number(isFeatured(a.badge)))
     .slice(0, 3);
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://ameenesim.com";
+  const heroQr = await QRCode.toDataURL(siteUrl, {
+    errorCorrectionLevel: "M",
+    margin: 0,
+    width: 320,
+    color: { dark: "#19202e", light: "#ffffff" },
+  });
+
   return (
     <>
-      {/* Hero — a contained navy panel on the cream page. */}
+      {/* Hero — navy panel with animated gold aurora + product mockup. */}
       <section className="container pt-6 sm:pt-10">
-        <div className="relative isolate overflow-hidden rounded-[1.75rem] bg-navy px-6 py-20 text-cream sm:rounded-[2rem] sm:px-10 sm:py-28">
-          {/* Decorative framing: gold glow + soft mihrab arches. */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="relative isolate overflow-hidden rounded-[1.75rem] bg-navy px-6 py-16 text-cream sm:rounded-[2rem] sm:px-10 sm:py-20 lg:py-24">
+          {/* Animated aurora glow + soft mihrab arches. */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
             <div
-              className="absolute left-1/2 top-0 h-[420px] w-[680px] max-w-[120%] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-60 blur-3xl"
+              className="animate-aurora absolute -left-[10%] top-[-20%] h-[460px] w-[560px] rounded-full opacity-70 blur-3xl"
               style={{
                 background:
-                  "radial-gradient(closest-side, rgba(201,169,97,0.30), transparent)",
+                  "radial-gradient(closest-side, rgba(201,169,97,0.35), transparent)",
               }}
             />
-            <div className="absolute bottom-[-32%] left-1/2 h-[150%] w-[120%] max-w-[1200px] -translate-x-1/2 rounded-t-[48%] border-t border-gold/10" />
-            <div className="absolute bottom-[-32%] left-1/2 h-[128%] w-[94%] max-w-[1000px] -translate-x-1/2 rounded-t-[48%] border-t border-gold/10" />
+            <div
+              className="animate-aurora-slow absolute right-[-15%] top-[10%] h-[420px] w-[520px] rounded-full opacity-50 blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(closest-side, rgba(231,213,146,0.28), transparent)",
+              }}
+            />
+            <div className="absolute bottom-[-34%] left-1/2 h-[150%] w-[120%] max-w-[1200px] -translate-x-1/2 rounded-t-[48%] border-t border-gold/10" />
+            <div className="absolute bottom-[-34%] left-1/2 h-[128%] w-[94%] max-w-[1000px] -translate-x-1/2 rounded-t-[48%] border-t border-gold/10" />
           </div>
 
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-3.5 py-1.5 text-sm text-gold-pale">
-              <span aria-hidden className="inline-block size-1.5 rotate-45 bg-gold" />
-              By Al-Waseelah Tours · UK Umrah operator
-            </p>
+          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="text-center lg:text-left">
+              <p className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-3.5 py-1.5 text-sm text-gold-pale">
+                <span aria-hidden className="inline-block size-1.5 rotate-45 bg-gold" />
+                By Al-Waseelah Tours · UK Umrah operator
+              </p>
 
-            <h1
-              className="animate-fade-up mt-7 text-balance text-4xl leading-[1.04] tracking-[-0.02em] text-cream sm:text-5xl md:text-6xl"
-              style={{ animationDelay: "60ms" }}
-            >
-              Stay <span className="text-gold-pale">connected</span> for your
-              Umrah &amp; Hajj.
-            </h1>
+              <h1
+                className="animate-fade-up mt-7 text-balance text-4xl leading-[1.03] tracking-[-0.02em] text-cream sm:text-5xl lg:text-6xl"
+                style={{ animationDelay: "60ms" }}
+              >
+                Stay <span className="text-gold-pale">connected</span> for your
+                Umrah &amp; Hajj.
+              </h1>
 
-            <p
-              className="animate-fade-up mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-cream/75"
-              style={{ animationDelay: "120ms" }}
-            >
-              Saudi data eSIMs for pilgrims — delivered to your inbox in minutes.
-              Data-only, no phone number, and we tell you exactly what
-              you&apos;re buying.
-            </p>
+              <p
+                className="animate-fade-up mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-cream/75 lg:mx-0"
+                style={{ animationDelay: "120ms" }}
+              >
+                Saudi data eSIMs for pilgrims — delivered to your inbox in
+                minutes. Data-only, no phone number, and we tell you exactly what
+                you&apos;re buying.
+              </p>
 
-            <div
-              className="animate-fade-up mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
-              style={{ animationDelay: "180ms" }}
-            >
-              <Button asChild size="lg" variant="gold">
-                <Link href="/plans">Browse plans</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline-light">
-                <Link href="/how-it-works">How it works</Link>
-              </Button>
+              <div
+                className="animate-fade-up mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start"
+                style={{ animationDelay: "180ms" }}
+              >
+                <Button asChild size="lg" variant="gold">
+                  <Link href="/plans">Browse plans</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline-light">
+                  <Link href="/how-it-works">How it works</Link>
+                </Button>
+              </div>
+
+              <p
+                className="animate-fade-up mt-7 text-sm text-cream/55"
+                style={{ animationDelay: "240ms" }}
+              >
+                Delivered by email · No account needed · Pay in GBP
+              </p>
             </div>
 
-            <p
-              className="animate-fade-up mt-7 text-sm text-cream/55"
-              style={{ animationDelay: "240ms" }}
+            <div
+              className="animate-fade-up flex justify-center lg:justify-end"
+              style={{ animationDelay: "200ms" }}
             >
-              Delivered by email · No account needed · Pay in GBP
-            </p>
+              <EsimDevice qrDataUri={heroQr} />
+            </div>
           </div>
         </div>
       </section>
