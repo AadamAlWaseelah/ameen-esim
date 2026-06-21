@@ -105,7 +105,18 @@ export default async function PlanDetailPage({
             <TruthNote
               icon={<Smartphone className="size-4" aria-hidden />}
               title="Check your phone first"
-              body="Older phones and some locked devices do not support eSIM. Check compatibility before buying."
+              body={
+                <>
+                  Older phones and some locked devices do not support eSIM.{" "}
+                  <Link
+                    href="/compatibility"
+                    className="font-medium text-gold-deep underline-offset-4 hover:underline"
+                  >
+                    Check your device
+                  </Link>{" "}
+                  before buying.
+                </>
+              }
             />
             <TruthNote
               icon={<MessageCircleWarning className="size-4" aria-hidden />}
@@ -140,7 +151,7 @@ function TruthNote({
 }: {
   icon: ReactNode;
   title: string;
-  body: string;
+  body: ReactNode;
 }) {
   return (
     <div className="flex gap-3">

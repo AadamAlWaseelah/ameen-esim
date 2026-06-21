@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const PRODUCT_LINKS = [
   { href: "/plans", label: "Plans" },
+  { href: "/compatibility", label: "Device check" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/coverage", label: "Coverage" },
   { href: "/faq", label: "FAQ" },
@@ -48,28 +49,33 @@ export function Footer() {
               <strong className="font-semibold text-cream">
                 Al-Waseelah Tours Ltd
               </strong>{" "}
-              - Registered in England &amp; Wales, Company No. 16268888.
-              Ameen eSIM is a trading name of Al-Waseelah Tours Ltd.
+              &mdash; registered in England &amp; Wales, company no. 16268888.
+              Ameen eSIM is a trading name of Al-Waseelah Tours Ltd. Registered
+              office: 65 Berkeley Road, Yardley, Birmingham, West Midlands,
+              B25 8NW.
             </p>
             <p>
-              Registered office: 65 Berkeley Road, Yardley, Birmingham, West
-              Midlands, B25 8NW.
-            </p>
-            <p>
-              Flights in Al-Waseelah Tours packages are ATOL-protected through
-              our licensed flight partner. You will receive your ATOL Certificate
-              at the time of booking, naming the ATOL holder protecting your
-              trip. Find out more at{" "}
-              <a
-                href="https://www.caa.co.uk/atol-protection"
+              Ameen eSIM resells third-party, data-only eSIMs for use in Saudi
+              Arabia. Data plans carry no phone number, and speeds and coverage
+              are network-dependent. Always check your phone is{" "}
+              <Link
+                href="/compatibility"
                 className="text-cream underline decoration-cream/45 underline-offset-4 transition-colors hover:text-gold-pale"
-                rel="noreferrer"
-                target="_blank"
               >
-                www.caa.co.uk/atol-protection
+                eSIM compatible
+              </Link>{" "}
+              before you buy.
+            </p>
+            <p className="text-cream/45">
+              Registered with the Information Commissioner&apos;s Office (ICO),
+              reference {"{{ICO_NUMBER}}"}. Questions? Email{" "}
+              <a
+                href="mailto:{{SUPPORT_EMAIL}}"
+                className="text-cream underline decoration-cream/45 underline-offset-4 transition-colors hover:text-gold-pale"
+              >
+                {"{{SUPPORT_EMAIL}}"}
               </a>
-              . Ameen eSIM purchases are data-only digital products and are not
-              flight-inclusive package holidays.
+              .
             </p>
           </div>
 
