@@ -7,6 +7,7 @@ import { Reveal } from "@/components/site/reveal";
 import { TrustBar } from "@/components/site/trust-bar";
 import { EsimDevice } from "@/components/site/esim-device";
 import { HaramainGlobe } from "@/components/site/haramain-globe";
+import { HaramainGalleryImage } from "@/components/site/haramain-gallery-image";
 import { PlanCard } from "@/components/plans/plan-card";
 import { listPublicPlans } from "@/lib/plans/store";
 
@@ -194,6 +195,24 @@ export default async function Home() {
 
             <div className="relative mx-auto aspect-square w-full max-w-[520px]">
               <HaramainGlobe />
+
+              {/* Flanking holy-site photos — hover (or tap) reveals the name. */}
+              <HaramainGalleryImage
+                src="/gallery/madinah.jpg"
+                alt="Al-Masjid an-Nabawi in Madinah at dusk"
+                title="Masjid al-Nabawi"
+                subtitle="Madinah"
+                tiltClassName="-rotate-3"
+                className="absolute left-0 top-1 z-20 h-32 w-24 sm:h-40 sm:w-28 lg:h-48 lg:w-36"
+              />
+              <HaramainGalleryImage
+                src="/gallery/makkah.jpg"
+                alt="Al-Masjid al-Haram and the Kaaba in Makkah"
+                title="Masjid al-Haram"
+                subtitle="Makkah"
+                tiltClassName="rotate-3"
+                className="absolute bottom-1 left-0 z-20 h-32 w-24 sm:h-40 sm:w-28 lg:h-48 lg:w-36"
+              />
             </div>
           </div>
         </Reveal>

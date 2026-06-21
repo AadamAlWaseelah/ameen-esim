@@ -3,14 +3,7 @@
 import { useEffect } from "react";
 import type { StyleSpecification } from "maplibre-gl";
 
-import {
-  Map,
-  MapMarker,
-  MarkerContent,
-  MapArc,
-  useMap,
-  type MapArcDatum,
-} from "@/components/ui/map";
+import { Map, MapArc, useMap, type MapArcDatum } from "@/components/ui/map";
 
 // --- Geography -------------------------------------------------------------
 
@@ -44,14 +37,51 @@ const ARCS: MapArcDatum[] = [
   { id: "haramain", from: MAKKAH, to: MADINAH },
 ];
 
-// Brand-coloured globe: navy ocean, raised-navy land, faint gold borders.
+// Build an approximate geographic circle (radius in km) as a GeoJSON polygon.
+function circlePolygon(
+  [lng, lat]: [number, number],
+  radiusKm: number,
+  steps = 72,
+): GeoJSON.Feature<GeoJSON.Polygon> {
+  const dLat = radiusKm / 110.574;
+  const dLng = radiusKm / (111.32 * Math.cos((lat * Math.PI) / 180));
+  const ring: [number, number][] = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const t = (i / steps) * 2 * Math.PI;
+    ring.push([lng + dLng * Math.cos(t), lat + dLat * Math.sin(t)]);
+  }
+  return { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [ring] } };
+}
+
+function fc(
+  features: GeoJSON.Feature[],
+): GeoJSON.FeatureCollection {
+  return { type: "FeatureCollection", features };
+}
+
+const HARAMAIN_GLOW = fc([
+  circlePolygon(MAKKAH, 320),
+  circlePolygon(MADINAH, 320),
+]);
+const HARAMAIN_CORE = fc([
+  circlePolygon(MAKKAH, 130),
+  circlePolygon(MADINAH, 130),
+]);
+const HARAMAIN_POINTS = fc([
+  { type: "Feature", properties: {}, geometry: { type: "Point", coordinates: MAKKAH } },
+  { type: "Feature", properties: {}, geometry: { type: "Point", coordinates: MADINAH } },
+]);
+
+// Brand-coloured globe: navy ocean, raised-navy land, faint gold borders, and a
+// green-tinted Haramain region (the Prophet's green-dome colour) over Makkah &
+// Madinah — no text labels; the flanking photos name the two sites.
 const GLOBE_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    countries: {
-      type: "geojson",
-      data: "/geo/countries-110m.geojson",
-    },
+    countries: { type: "geojson", data: "/geo/countries-110m.geojson" },
+    "haramain-glow": { type: "geojson", data: HARAMAIN_GLOW },
+    "haramain-core": { type: "geojson", data: HARAMAIN_CORE },
+    "haramain-points": { type: "geojson", data: HARAMAIN_POINTS },
   },
   layers: [
     { id: "ocean", type: "background", paint: { "background-color": "#121a28" } },
@@ -65,9 +95,30 @@ const GLOBE_STYLE: StyleSpecification = {
       id: "land-outline",
       type: "line",
       source: "countries",
+      paint: { "line-color": "rgba(201,169,97,0.28)", "line-width": 0.6 },
+    },
+    {
+      id: "haramain-glow",
+      type: "fill",
+      source: "haramain-glow",
+      paint: { "fill-color": "#2fae74", "fill-opacity": 0.16 },
+    },
+    {
+      id: "haramain-core",
+      type: "fill",
+      source: "haramain-core",
+      paint: { "fill-color": "#34b27b", "fill-opacity": 0.34 },
+    },
+    {
+      id: "haramain-dots",
+      type: "circle",
+      source: "haramain-points",
       paint: {
-        "line-color": "rgba(201,169,97,0.28)",
-        "line-width": 0.6,
+        "circle-radius": 3.6,
+        "circle-color": "#69e6ab",
+        "circle-stroke-color": "rgba(255,255,255,0.75)",
+        "circle-stroke-width": 1,
+        "circle-opacity": 0.95,
       },
     },
   ],
@@ -89,15 +140,7 @@ function GlobeBehaviour() {
         "horizon-fog-blend": 0.6,
         "fog-color": "#0e1420",
         "fog-ground-blend": 0.4,
-        "atmosphere-blend": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          0,
-          0.85,
-          6,
-          0,
-        ],
+        "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 0.85, 6, 0],
       });
     } catch {
       // setSky unsupported — globe still renders fine.
@@ -113,7 +156,6 @@ function GlobeBehaviour() {
       const dt = now - last;
       last = now;
       const c = map.getCenter();
-      // ~3.6°/sec — calm, premium drift.
       map.setCenter([c.lng + 0.06 * (dt / 16.67), c.lat]);
       raf = requestAnimationFrame(spin);
     };
@@ -136,30 +178,6 @@ function GlobeBehaviour() {
   }, [map, isLoaded]);
 
   return null;
-}
-
-function HaramainMarker({
-  coord,
-  label,
-}: {
-  coord: [number, number];
-  label: string;
-}) {
-  return (
-    <MapMarker longitude={coord[0]} latitude={coord[1]}>
-      <MarkerContent>
-        <div className="flex flex-col items-center gap-1">
-          <span className="rounded-full border border-gold/40 bg-navy/80 px-2 py-0.5 text-[11px] font-medium text-gold-pale backdrop-blur-sm">
-            {label}
-          </span>
-          <span className="relative flex size-3 items-center justify-center">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold/60" />
-            <span className="relative inline-flex size-2.5 rounded-full border border-cream/70 bg-gold" />
-          </span>
-        </div>
-      </MarkerContent>
-    </MapMarker>
-  );
 }
 
 export function HaramainGlobeImpl() {
@@ -200,9 +218,6 @@ export function HaramainGlobeImpl() {
           "line-opacity": 0.7,
         }}
       />
-
-      <HaramainMarker coord={MAKKAH} label="Makkah" />
-      <HaramainMarker coord={MADINAH} label="Madinah" />
     </Map>
   );
 }
