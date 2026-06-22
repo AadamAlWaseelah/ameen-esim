@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect } from "react";
-import type { StyleSpecification } from "maplibre-gl";
+import type { StyleSpecification, GeoJSONSource } from "maplibre-gl";
 
-import { Map, MapArc, useMap, type MapArcDatum } from "@/components/ui/map";
+import { Map, useMap } from "@/components/ui/map";
 
 // --- Geography -------------------------------------------------------------
 
 const MAKKAH: [number, number] = [39.8262, 21.4225];
 const MADINAH: [number, number] = [39.6142, 24.4686];
+
+// Approach gateways: Madinah-bound arcs route through a point NORTH of Madinah
+// (so they enter from above); Makkah-bound arcs through a point SOUTH of Makkah
+// (entering from below). This keeps the two bundles from overlapping.
+const GATE_MADINAH: [number, number] = [39.6, 27.6];
+const GATE_MAKKAH: [number, number] = [39.9, 17.4];
 
 const ORIGINS: { name: string; coord: [number, number]; toMadinah?: boolean }[] =
   [
@@ -28,18 +34,90 @@ const ORIGINS: { name: string; coord: [number, number]; toMadinah?: boolean }[] 
     { name: "Jakarta", coord: [106.8456, -6.2088], toMadinah: true },
   ];
 
-// Origin -> Haramain. Coordinate order (origin first) makes the flowing dash
-// march toward the centre.
-const ARCS: MapArcDatum[] = [
-  ...ORIGINS.map((o) => ({
-    id: o.name,
-    from: o.coord,
-    to: o.toMadinah ? MADINAH : MAKKAH,
-  })),
-  { id: "haramain", from: MAKKAH, to: MADINAH },
-];
+type ArcDef = {
+  id: string;
+  from: [number, number];
+  control: [number, number];
+  to: [number, number];
+};
 
-// Approximate geographic circle (radius in km) as a GeoJSON polygon.
+// Fan the shared gateway out per-arc so beams stay distinct as they approach.
+function buildArcDefs(): ArcDef[] {
+  const madinah = ORIGINS.filter((o) => o.toMadinah);
+  const makkah = ORIGINS.filter((o) => !o.toMadinah);
+
+  const gatewayControl = (
+    index: number,
+    count: number,
+    gate: [number, number],
+  ): [number, number] => {
+    const spread = 1.6;
+    const offset = (index - (count - 1) / 2) * spread;
+    return [gate[0] + offset, gate[1]];
+  };
+
+  const defs: ArcDef[] = [];
+  madinah.forEach((o, i) =>
+    defs.push({
+      id: o.name,
+      from: o.coord,
+      to: MADINAH,
+      control: gatewayControl(i, madinah.length, GATE_MADINAH),
+    }),
+  );
+  makkah.forEach((o, i) =>
+    defs.push({
+      id: o.name,
+      from: o.coord,
+      to: MAKKAH,
+      control: gatewayControl(i, makkah.length, GATE_MAKKAH),
+    }),
+  );
+  return defs;
+}
+
+const ARC_DEFS = buildArcDefs();
+const ARC_SAMPLES = 128;
+
+// Quadratic Bézier through an explicit control point.
+function bezierPath(
+  p0: [number, number],
+  c: [number, number],
+  p2: [number, number],
+  steps = ARC_SAMPLES,
+): [number, number][] {
+  const pts: [number, number][] = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps;
+    const inv = 1 - t;
+    pts.push([
+      inv * inv * p0[0] + 2 * inv * t * c[0] + t * t * p2[0],
+      inv * inv * p0[1] + 2 * inv * t * c[1] + t * t * p2[1],
+    ]);
+  }
+  return pts;
+}
+
+const ARC_PATHS = ARC_DEFS.map((d) => ({
+  id: d.id,
+  coords: bezierPath(d.from, d.control, d.to),
+}));
+
+function lineFeature(
+  coords: [number, number][],
+  id: string,
+): GeoJSON.Feature<GeoJSON.LineString> {
+  return { type: "Feature", properties: { id }, geometry: { type: "LineString", coordinates: coords } };
+}
+
+function fc<T extends GeoJSON.Geometry>(
+  features: GeoJSON.Feature<T>[],
+): GeoJSON.FeatureCollection<T> {
+  return { type: "FeatureCollection", features };
+}
+
+// --- Haramain green region (the Prophet's green-dome colour) ---------------
+
 function circlePolygon(
   [lng, lat]: [number, number],
   radiusKm: number,
@@ -55,20 +133,13 @@ function circlePolygon(
   return { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [ring] } };
 }
 
-function fc(features: GeoJSON.Feature[]): GeoJSON.FeatureCollection {
-  return { type: "FeatureCollection", features };
-}
-
 const HARAMAIN_GLOW = fc([circlePolygon(MAKKAH, 320), circlePolygon(MADINAH, 320)]);
 const HARAMAIN_CORE = fc([circlePolygon(MAKKAH, 130), circlePolygon(MADINAH, 130)]);
-const HARAMAIN_POINTS = fc([
+const HARAMAIN_POINTS = fc<GeoJSON.Point>([
   { type: "Feature", properties: {}, geometry: { type: "Point", coordinates: MAKKAH } },
   { type: "Feature", properties: {}, geometry: { type: "Point", coordinates: MADINAH } },
 ]);
 
-// Brand-coloured globe: navy ocean, raised-navy land, faint gold borders, and a
-// green-tinted Haramain region (the Prophet's green-dome colour) over Makkah &
-// Madinah — no text labels; the flanking photos name the two sites.
 const GLOBE_STYLE: StyleSpecification = {
   version: 8,
   sources: {
@@ -113,11 +184,10 @@ const GLOBE_STYLE: StyleSpecification = {
   ],
 };
 
-// --- Atmosphere -----------------------------------------------------------
+// --- Atmosphere ------------------------------------------------------------
 
 function GlobeSky() {
   const { map, isLoaded } = useMap();
-
   useEffect(() => {
     if (!map || !isLoaded) return;
     try {
@@ -134,70 +204,122 @@ function GlobeSky() {
       // setSky unsupported — globe still renders fine.
     }
   }, [map, isLoaded]);
-
   return null;
 }
 
-// --- Flowing pulse along the arcs (marching dash toward the centre) --------
+// --- Static paths + single travelling comet per arc ------------------------
 
-const DASH_SEQUENCE: number[][] = [
-  [0, 4, 3],
-  [0.5, 4, 2.5],
-  [1, 4, 2],
-  [1.5, 4, 1.5],
-  [2, 4, 1],
-  [2.5, 4, 0.5],
-  [3, 4, 0],
-  [0, 0.5, 3, 3.5],
-  [0, 1, 3, 3],
-  [0, 1.5, 3, 2.5],
-  [0, 2, 3, 2],
-  [0, 2.5, 3, 1.5],
-  [0, 3, 3, 1],
-  [0, 3.5, 3, 0.5],
-];
+const COMET_TAIL = 0.16; // fraction of the path length
+const COMET_PERIOD = 5.2; // seconds per traversal
+const COMET_GAP = 0.18; // fraction of cycle the comet is "off"
 
-function ArcFlow({ layerId }: { layerId: string }) {
+function GlobeArcs() {
   const { map, isLoaded } = useMap();
 
   useEffect(() => {
     if (!map || !isLoaded) return;
 
-    const setDash = (value: number[]) => {
-      if (map.getLayer(layerId)) {
-        map.setPaintProperty(layerId, "line-dasharray", value);
+    const basePaths = ARC_PATHS.map((p) => lineFeature(p.coords, p.id));
+
+    if (!map.getSource("arcs")) {
+      map.addSource("arcs", { type: "geojson", data: fc(basePaths) });
+      map.addLayer({
+        id: "arcs-glow",
+        type: "line",
+        source: "arcs",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#e7d592", "line-width": 4, "line-opacity": 0.08, "line-blur": 3 },
+      });
+      map.addLayer({
+        id: "arcs-base",
+        type: "line",
+        source: "arcs",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#c9a961", "line-width": 1, "line-opacity": 0.28 },
+      });
+    }
+
+    if (!map.getSource("comets")) {
+      map.addSource("comets", {
+        type: "geojson",
+        lineMetrics: true,
+        data: fc<GeoJSON.LineString>([]),
+      });
+      map.addLayer({
+        id: "comets",
+        type: "line",
+        source: "comets",
+        layout: { "line-cap": "round" },
+        paint: {
+          "line-width": 2.6,
+          "line-blur": 1,
+          // tail (transparent) -> bright head along each comet segment
+          "line-gradient": [
+            "interpolate",
+            ["linear"],
+            ["line-progress"],
+            0,
+            "rgba(246,232,184,0)",
+            0.65,
+            "rgba(246,232,184,0.35)",
+            1,
+            "#fff4cf",
+          ],
+        },
+      });
+    }
+
+    const cleanupLayers = () => {
+      for (const id of ["comets", "arcs-base", "arcs-glow"]) {
+        if (map.getLayer(id)) map.removeLayer(id);
       }
+      if (map.getSource("comets")) map.removeSource("comets");
+      if (map.getSource("arcs")) map.removeSource("arcs");
     };
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      setDash([0, 4, 3]); // static dotted hint, no motion
-      return;
-    }
+    if (reduce) return cleanupLayers;
+
+    // Stagger each comet's phase so they don't bunch at the centre together.
+    const phases = ARC_PATHS.map((_, i) => (i * 0.6180339887) % 1);
+    const cometSource = map.getSource("comets") as GeoJSONSource;
 
     let raf = 0;
-    let step = -1;
-    const animate = (t: number) => {
-      const s = Math.floor((t / 55) % DASH_SEQUENCE.length);
-      if (s !== step) {
-        setDash(DASH_SEQUENCE[s]);
-        step = s;
-      }
-      raf = requestAnimationFrame(animate);
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = (now - start) / 1000;
+      const features: GeoJSON.Feature<GeoJSON.LineString>[] = [];
+
+      ARC_PATHS.forEach((path, i) => {
+        const cycle = (elapsed / COMET_PERIOD + phases[i]) % 1;
+        if (cycle > 1 - COMET_GAP) return; // brief off-beat, then re-fire
+        const head = cycle / (1 - COMET_GAP); // 0..1 head progress
+        const n = path.coords.length - 1;
+        const hi = Math.round(head * n);
+        const ti = Math.max(0, Math.floor((head - COMET_TAIL) * n));
+        if (hi - ti < 1) return;
+        features.push(lineFeature(path.coords.slice(ti, hi + 1), path.id));
+      });
+
+      cometSource.setData(fc(features));
+      raf = requestAnimationFrame(tick);
     };
 
     const onVisibility = () => {
       cancelAnimationFrame(raf);
-      if (!document.hidden) raf = requestAnimationFrame(animate);
+      if (!document.hidden) raf = requestAnimationFrame(tick);
     };
 
-    raf = requestAnimationFrame(animate);
+    raf = requestAnimationFrame(tick);
     document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVisibility);
+      cleanupLayers();
     };
-  }, [map, isLoaded, layerId]);
+  }, [map, isLoaded]);
 
   return null;
 }
@@ -207,57 +329,14 @@ export function HaramainGlobeImpl() {
     <Map
       styles={{ light: GLOBE_STYLE, dark: GLOBE_STYLE }}
       projection={{ type: "globe" }}
-      // Stationary, centred on the Haramain (Saudi Arabia) so the convergence
-      // is always the focal point — no spinning into the dark ocean side.
+      // Stationary, centred on the Haramain so the convergence is always front.
       viewport={{ center: [40.5, 23], zoom: 1.65 }}
       interactive={false}
       attributionControl={false}
       className="[&_.maplibregl-ctrl-attrib]:hidden"
     >
       <GlobeSky />
-
-      {/* Soft glow halo beneath the lines */}
-      <MapArc
-        id="arcs-glow"
-        data={ARCS}
-        curvature={0.32}
-        samples={48}
-        interactive={false}
-        paint={{
-          "line-color": "#e7d592",
-          "line-width": 4,
-          "line-opacity": 0.1,
-          "line-blur": 3,
-        }}
-      />
-      {/* Always-visible faint path */}
-      <MapArc
-        id="arcs-base"
-        data={ARCS}
-        curvature={0.32}
-        samples={48}
-        interactive={false}
-        paint={{
-          "line-color": "#c9a961",
-          "line-width": 1,
-          "line-opacity": 0.32,
-        }}
-      />
-      {/* Bright animated pulse flowing toward the centre */}
-      <MapArc
-        id="arcs-flow"
-        data={ARCS}
-        curvature={0.32}
-        samples={48}
-        interactive={false}
-        paint={{
-          "line-color": "#f0dca0",
-          "line-width": 1.7,
-          "line-opacity": 0.95,
-          "line-dasharray": [0, 4, 3],
-        }}
-      />
-      <ArcFlow layerId="arc-layer-arcs-flow" />
+      <GlobeArcs />
     </Map>
   );
 }
