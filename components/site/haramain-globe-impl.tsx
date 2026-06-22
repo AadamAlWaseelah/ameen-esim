@@ -28,6 +28,8 @@ const ORIGINS: { name: string; coord: [number, number]; toMadinah?: boolean }[] 
     { name: "Jakarta", coord: [106.8456, -6.2088], toMadinah: true },
   ];
 
+// Origin -> Haramain. Coordinate order (origin first) makes the flowing dash
+// march toward the centre.
 const ARCS: MapArcDatum[] = [
   ...ORIGINS.map((o) => ({
     id: o.name,
@@ -37,7 +39,7 @@ const ARCS: MapArcDatum[] = [
   { id: "haramain", from: MAKKAH, to: MADINAH },
 ];
 
-// Build an approximate geographic circle (radius in km) as a GeoJSON polygon.
+// Approximate geographic circle (radius in km) as a GeoJSON polygon.
 function circlePolygon(
   [lng, lat]: [number, number],
   radiusKm: number,
@@ -53,20 +55,12 @@ function circlePolygon(
   return { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [ring] } };
 }
 
-function fc(
-  features: GeoJSON.Feature[],
-): GeoJSON.FeatureCollection {
+function fc(features: GeoJSON.Feature[]): GeoJSON.FeatureCollection {
   return { type: "FeatureCollection", features };
 }
 
-const HARAMAIN_GLOW = fc([
-  circlePolygon(MAKKAH, 320),
-  circlePolygon(MADINAH, 320),
-]);
-const HARAMAIN_CORE = fc([
-  circlePolygon(MAKKAH, 130),
-  circlePolygon(MADINAH, 130),
-]);
+const HARAMAIN_GLOW = fc([circlePolygon(MAKKAH, 320), circlePolygon(MADINAH, 320)]);
+const HARAMAIN_CORE = fc([circlePolygon(MAKKAH, 130), circlePolygon(MADINAH, 130)]);
 const HARAMAIN_POINTS = fc([
   { type: "Feature", properties: {}, geometry: { type: "Point", coordinates: MAKKAH } },
   { type: "Feature", properties: {}, geometry: { type: "Point", coordinates: MADINAH } },
@@ -85,12 +79,7 @@ const GLOBE_STYLE: StyleSpecification = {
   },
   layers: [
     { id: "ocean", type: "background", paint: { "background-color": "#121a28" } },
-    {
-      id: "land",
-      type: "fill",
-      source: "countries",
-      paint: { "fill-color": "#243149" },
-    },
+    { id: "land", type: "fill", source: "countries", paint: { "fill-color": "#243149" } },
     {
       id: "land-outline",
       type: "line",
@@ -124,14 +113,13 @@ const GLOBE_STYLE: StyleSpecification = {
   ],
 };
 
-// --- Behaviour: atmosphere + slow auto-rotation ---------------------------
+// --- Atmosphere -----------------------------------------------------------
 
-function GlobeBehaviour() {
+function GlobeSky() {
   const { map, isLoaded } = useMap();
 
   useEffect(() => {
     if (!map || !isLoaded) return;
-
     try {
       map.setSky({
         "sky-color": "#0b0f17",
@@ -145,37 +133,71 @@ function GlobeBehaviour() {
     } catch {
       // setSky unsupported — globe still renders fine.
     }
+  }, [map, isLoaded]);
+
+  return null;
+}
+
+// --- Flowing pulse along the arcs (marching dash toward the centre) --------
+
+const DASH_SEQUENCE: number[][] = [
+  [0, 4, 3],
+  [0.5, 4, 2.5],
+  [1, 4, 2],
+  [1.5, 4, 1.5],
+  [2, 4, 1],
+  [2.5, 4, 0.5],
+  [3, 4, 0],
+  [0, 0.5, 3, 3.5],
+  [0, 1, 3, 3],
+  [0, 1.5, 3, 2.5],
+  [0, 2, 3, 2],
+  [0, 2.5, 3, 1.5],
+  [0, 3, 3, 1],
+  [0, 3.5, 3, 0.5],
+];
+
+function ArcFlow({ layerId }: { layerId: string }) {
+  const { map, isLoaded } = useMap();
+
+  useEffect(() => {
+    if (!map || !isLoaded) return;
+
+    const setDash = (value: number[]) => {
+      if (map.getLayer(layerId)) {
+        map.setPaintProperty(layerId, "line-dasharray", value);
+      }
+    };
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
+    if (reduce) {
+      setDash([0, 4, 3]); // static dotted hint, no motion
+      return;
+    }
 
     let raf = 0;
-    let last = performance.now();
-
-    const spin = (now: number) => {
-      const dt = now - last;
-      last = now;
-      const c = map.getCenter();
-      map.setCenter([c.lng + 0.06 * (dt / 16.67), c.lat]);
-      raf = requestAnimationFrame(spin);
+    let step = -1;
+    const animate = (t: number) => {
+      const s = Math.floor((t / 55) % DASH_SEQUENCE.length);
+      if (s !== step) {
+        setDash(DASH_SEQUENCE[s]);
+        step = s;
+      }
+      raf = requestAnimationFrame(animate);
     };
 
     const onVisibility = () => {
       cancelAnimationFrame(raf);
-      if (!document.hidden) {
-        last = performance.now();
-        raf = requestAnimationFrame(spin);
-      }
+      if (!document.hidden) raf = requestAnimationFrame(animate);
     };
 
-    raf = requestAnimationFrame(spin);
+    raf = requestAnimationFrame(animate);
     document.addEventListener("visibilitychange", onVisibility);
-
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [map, isLoaded]);
+  }, [map, isLoaded, layerId]);
 
   return null;
 }
@@ -185,14 +207,16 @@ export function HaramainGlobeImpl() {
     <Map
       styles={{ light: GLOBE_STYLE, dark: GLOBE_STYLE }}
       projection={{ type: "globe" }}
-      viewport={{ center: [42, 20], zoom: 1.55 }}
+      // Stationary, centred on the Haramain (Saudi Arabia) so the convergence
+      // is always the focal point — no spinning into the dark ocean side.
+      viewport={{ center: [40.5, 23], zoom: 1.65 }}
       interactive={false}
       attributionControl={false}
       className="[&_.maplibregl-ctrl-attrib]:hidden"
     >
-      <GlobeBehaviour />
+      <GlobeSky />
 
-      {/* Glow pass beneath the crisp arcs */}
+      {/* Soft glow halo beneath the lines */}
       <MapArc
         id="arcs-glow"
         data={ARCS}
@@ -202,22 +226,38 @@ export function HaramainGlobeImpl() {
         paint={{
           "line-color": "#e7d592",
           "line-width": 4,
-          "line-opacity": 0.12,
+          "line-opacity": 0.1,
           "line-blur": 3,
         }}
       />
+      {/* Always-visible faint path */}
       <MapArc
-        id="arcs"
+        id="arcs-base"
         data={ARCS}
         curvature={0.32}
         samples={48}
         interactive={false}
         paint={{
           "line-color": "#c9a961",
-          "line-width": 1.2,
-          "line-opacity": 0.7,
+          "line-width": 1,
+          "line-opacity": 0.32,
         }}
       />
+      {/* Bright animated pulse flowing toward the centre */}
+      <MapArc
+        id="arcs-flow"
+        data={ARCS}
+        curvature={0.32}
+        samples={48}
+        interactive={false}
+        paint={{
+          "line-color": "#f0dca0",
+          "line-width": 1.7,
+          "line-opacity": 0.95,
+          "line-dasharray": [0, 4, 3],
+        }}
+      />
+      <ArcFlow layerId="arc-layer-arcs-flow" />
     </Map>
   );
 }
