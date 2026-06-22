@@ -1,14 +1,6 @@
 import Link from "next/link";
 import QRCode from "qrcode";
-import {
-  ArrowRight,
-  Check,
-  MailCheck,
-  QrCode,
-  Signal,
-  Smartphone,
-  Wallet,
-} from "lucide-react";
+import { ArrowRight, Check, MailCheck, Smartphone, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
@@ -17,43 +9,11 @@ import { EsimDevice } from "@/components/site/esim-device";
 import { HaramainGlobe } from "@/components/site/haramain-globe";
 import { HaramainGalleryImage } from "@/components/site/haramain-gallery-image";
 import { DestinationsMarquee } from "@/components/site/destinations-marquee";
+import { HowItWorks } from "@/components/site/how-it-works";
 import { PlanCard } from "@/components/plans/plan-card";
 import { listPublicPlans } from "@/lib/plans/store";
 
 export const dynamic = "force-dynamic";
-
-const STEPS = [
-  {
-    icon: Signal,
-    title: "Pick your plan",
-    body: "Choose a Saudi data plan that matches your trip — by data and by days.",
-    benefits: [
-      "Plans from light browsing to heavy use",
-      "One clear price in GBP",
-      "Throttling & coverage stated upfront",
-    ],
-  },
-  {
-    icon: MailCheck,
-    title: "Get it by email",
-    body: "Your eSIM QR code arrives in minutes — no SIM card in the post.",
-    benefits: [
-      "Install before you fly",
-      "Nothing to collect or swap",
-      "Resend any time from your order",
-    ],
-  },
-  {
-    icon: QrCode,
-    title: "Activate on arrival",
-    body: "Scan the QR in Saudi Arabia and you're online in moments.",
-    benefits: [
-      "Scan once, connected on arrival",
-      "Works on 215+ eSIM-ready phones",
-      "Keep your home SIM in for calls",
-    ],
-  },
-];
 
 const HONEST_FACTS = [
   "Data-only — there's no phone number",
@@ -323,78 +283,8 @@ export default async function Home() {
         </Reveal>
       </section>
 
-      {/* How it works — dark band, numbered connector + benefit cards. */}
-      <section className="relative isolate mt-16 overflow-hidden bg-navy text-cream sm:mt-20">
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-navy via-[#0f1626] to-navy" />
-          <div
-            className="absolute left-1/2 top-[18%] h-[420px] w-[640px] max-w-[80%] -translate-x-1/2 rounded-full opacity-40 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(201,169,97,0.18), transparent)",
-            }}
-          />
-          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cream to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-cream to-transparent" />
-        </div>
-
-        <div className="container py-20 sm:py-28">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <p className="inline-flex items-center gap-2 rounded-full border border-cream/15 bg-cream/[0.06] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-gold-pale">
-              How it works
-            </p>
-            <h2 className="mt-5 text-balance text-3xl leading-[1.05] text-cream sm:text-4xl lg:text-5xl">
-              Online in three steps
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-pretty leading-relaxed text-cream/70">
-              No shop, no SIM card in the post. Buy before you fly and activate
-              when you land.
-            </p>
-          </Reveal>
-
-          {/* Numbered indicators on a connecting line (sm+). */}
-          <div className="relative mx-auto mt-14 max-w-5xl">
-            <div
-              aria-hidden
-              className="absolute left-[16.6%] right-[16.6%] top-5 hidden h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent sm:block"
-            />
-            <ol className="grid gap-6 sm:grid-cols-3 sm:gap-6 lg:gap-8">
-              {STEPS.map((step, i) => (
-                <Reveal as="li" key={step.title} delay={i * 90}>
-                  <div className="flex flex-col items-center">
-                    <span className="relative z-10 inline-flex size-10 items-center justify-center rounded-full border border-gold/40 bg-navy font-display text-lg text-gold-pale ring-4 ring-navy">
-                      {i + 1}
-                    </span>
-
-                    <div className="group mt-6 h-full w-full rounded-2xl border border-cream/10 bg-cream/[0.04] p-6 text-left transition-all duration-300 ease-out-strong hover:-translate-y-1 hover:border-gold/30 hover:bg-cream/[0.07]">
-                      <span className="inline-flex size-12 items-center justify-center rounded-xl bg-gold/15 text-gold-pale ring-1 ring-gold/25">
-                        <step.icon className="size-5" aria-hidden />
-                      </span>
-                      <h3 className="mt-5 text-xl text-cream">{step.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-cream/65">
-                        {step.body}
-                      </p>
-                      <ul className="mt-5 space-y-2.5 border-t border-cream/10 pt-5">
-                        {step.benefits.map((b) => (
-                          <li
-                            key={b}
-                            className="flex items-start gap-2.5 text-sm text-cream/75"
-                          >
-                            <span className="mt-0.5 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-[#34b27b]/20 text-[#69e6ab]">
-                              <Check className="size-2.5" aria-hidden />
-                            </span>
-                            {b}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </ol>
-          </div>
-        </div>
-      </section>
+      {/* How it works — light two-column with a scroll-fill timeline. */}
+      <HowItWorks qrDataUri={heroQr} />
 
       {/* Popular plans teaser — pulls real catalogue data. */}
       {featuredPlans.length ? (

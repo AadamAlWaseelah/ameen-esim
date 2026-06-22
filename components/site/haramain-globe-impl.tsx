@@ -222,11 +222,15 @@ function GlobeArcs() {
     const basePaths = ARC_PATHS.map((p) => lineFeature(p.coords, p.id));
 
     const removeAll = () => {
-      for (const id of ["comets", "arcs-base", "arcs-glow"]) {
-        if (map.getLayer(id)) map.removeLayer(id);
+      try {
+        for (const id of ["comets", "arcs-base", "arcs-glow"]) {
+          if (map.getLayer(id)) map.removeLayer(id);
+        }
+        if (map.getSource("comets")) map.removeSource("comets");
+        if (map.getSource("arcs")) map.removeSource("arcs");
+      } catch {
+        // Map already torn down (style removed during unmount) — nothing to do.
       }
-      if (map.getSource("comets")) map.removeSource("comets");
-      if (map.getSource("arcs")) map.removeSource("arcs");
     };
 
     // Idempotent + race-safe across StrictMode / Suspense double-mounts.
@@ -291,25 +295,25 @@ function GlobeArcs() {
     const start = performance.now();
 
     const tick = (now: number) => {
-      const src = map.getSource("comets") as GeoJSONSource | undefined;
-      if (src) {
-        const elapsed = (now - start) / 1000;
-        const features: GeoJSON.Feature<GeoJSON.LineString>[] = [];
-        ARC_PATHS.forEach((path, i) => {
-          const cycle = (elapsed / COMET_PERIOD + phases[i]) % 1;
-          if (cycle > 1 - COMET_GAP) return; // brief off-beat, then re-fire
-          const head = cycle / (1 - COMET_GAP); // 0..1 head progress
-          const n = path.coords.length - 1;
-          const hi = Math.round(head * n);
-          const ti = Math.max(0, Math.floor((head - COMET_TAIL) * n));
-          if (hi - ti < 1) return;
-          features.push(lineFeature(path.coords.slice(ti, hi + 1), path.id));
-        });
-        try {
+      try {
+        const src = map.getSource("comets") as GeoJSONSource | undefined;
+        if (src) {
+          const elapsed = (now - start) / 1000;
+          const features: GeoJSON.Feature<GeoJSON.LineString>[] = [];
+          ARC_PATHS.forEach((path, i) => {
+            const cycle = (elapsed / COMET_PERIOD + phases[i]) % 1;
+            if (cycle > 1 - COMET_GAP) return; // brief off-beat, then re-fire
+            const head = cycle / (1 - COMET_GAP); // 0..1 head progress
+            const n = path.coords.length - 1;
+            const hi = Math.round(head * n);
+            const ti = Math.max(0, Math.floor((head - COMET_TAIL) * n));
+            if (hi - ti < 1) return;
+            features.push(lineFeature(path.coords.slice(ti, hi + 1), path.id));
+          });
           src.setData(fc(features));
-        } catch {
-          // source removed mid-frame during a remount — ignore
         }
+      } catch {
+        // map/source torn down mid-frame during a remount — ignore
       }
       raf = requestAnimationFrame(tick);
     };
