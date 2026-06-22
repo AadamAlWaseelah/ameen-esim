@@ -41,7 +41,9 @@ const TONE: Record<"gold" | "green", string> = {
 
 export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
   const listRef = useRef<HTMLOListElement>(null);
+  const markerRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const [progress, setProgress] = useState(0);
+  const [track, setTrack] = useState({ top: 0, height: 0 });
 
   // Scroll-linked progress: fills the timeline as the section moves up through
   // the viewport. Scroll-driven (not autoplay), so it's fine under reduced motion.
@@ -50,9 +52,19 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
     const update = () => {
       const el = listRef.current;
       if (!el) return;
+      const firstMarker = markerRefs.current[0];
+      const lastMarker = markerRefs.current[STEPS.length - 1];
+      if (!firstMarker || !lastMarker) return;
+
       const rect = el.getBoundingClientRect();
+      const firstRect = firstMarker.getBoundingClientRect();
+      const lastRect = lastMarker.getBoundingClientRect();
+      const top = firstRect.top - rect.top + firstRect.height / 2;
+      const end = lastRect.top - rect.top + lastRect.height / 2;
+      const height = Math.max(0, end - top);
       const vh = window.innerHeight || 1;
-      const p = (vh * 0.55 - rect.top) / (rect.height || 1);
+      const p = (vh * 0.55 - (rect.top + top)) / (height || 1);
+      setTrack({ top, height });
       setProgress(Math.min(1, Math.max(0, p)));
     };
     const onScroll = () => {
@@ -100,24 +112,28 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
           {/* Track + animated fill */}
           <div
             aria-hidden
-            className="absolute left-[1.375rem] top-5 w-0.5 rounded-full bg-line"
-            style={{ bottom: "1.25rem" }}
+            className="absolute left-[1.375rem] w-0.5 rounded-full bg-[#8FC3A2]/25"
+            style={{ top: track.top, height: track.height }}
           />
           <div
             aria-hidden
-            className="absolute left-[1.375rem] top-5 w-0.5 rounded-full bg-gradient-to-b from-gold to-gold-deep"
-            style={{ height: `calc(${progress} * (100% - 2.5rem))` }}
+            className="absolute left-[1.375rem] w-0.5 rounded-full bg-gradient-to-b from-[#8FC3A2] to-[#2f8f5b]"
+            style={{ top: track.top, height: progress * track.height }}
           />
 
           {STEPS.map((step, i) => {
-            const active = progress >= (i + 0.5) / STEPS.length;
+            const active =
+              progress >= (STEPS.length === 1 ? 0 : i / (STEPS.length - 1));
             return (
               <li key={step.title} className="relative flex gap-5">
                 <span
+                  ref={(node) => {
+                    markerRefs.current[i] = node;
+                  }}
                   className={cn(
                     "relative z-10 mt-1 grid size-11 shrink-0 place-items-center rounded-full border bg-cream font-mono text-sm tabular-nums transition-colors duration-300",
                     active
-                      ? "border-gold text-gold-deep"
+                      ? "border-[#8FC3A2] text-[#2f8f5b]"
                       : "border-line text-slate/70",
                   )}
                 >
@@ -128,7 +144,7 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
                   className={cn(
                     "flex-1 rounded-2xl border bg-paper p-5 transition-all duration-300 ease-out-strong",
                     active
-                      ? "border-gold/40 shadow-md"
+                      ? "border-[#8FC3A2]/55 shadow-md"
                       : "border-line shadow-sm",
                   )}
                 >
