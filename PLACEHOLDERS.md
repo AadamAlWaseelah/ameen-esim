@@ -30,7 +30,7 @@ Status legend: outstanding / resolved
 | --- | --- | --- |
 | Wholesale cost per plan | `plans.costPence` | outstanding; Phase 1 seed uses `null` |
 | Markup type/value & retail price | `plans`, `/admin/plans` | outstanding; basic admin fields exist, owner must set final values |
-| Final public prices | `/plans`, `/plans/[slug]` | outstanding; render as `PRICE TBD` until supplier/margin are confirmed |
+| Final public prices | `/plans`, `/plans/[slug]` | resolved from `eSim Pricing.csv`; USD variant prices converted at 0.75 GBP/USD and rounded to nearest 50p |
 
 ## eSIM Provider
 
@@ -39,7 +39,7 @@ Status legend: outstanding / resolved
 | Active provider choice | `ESIM_PROVIDER` env | outstanding; defaults to `mock` |
 | Provider credentials | `.env.local` | outstanding; fill only the active provider |
 | Mock provider | `lib/esim/providers/mock.ts` | resolved for Phase 1; catalogue + QR provisioning work |
-| Provider plan refs (`providerRefs`) | `plans` table; `/admin/plans` | Mock refs seeded; real provider refs are TODO placeholders |
+| Provider plan refs (`providerRefs`) | `plans` table; `/admin/plans` | Mock refs seeded from CSV slugs; real provider refs are TODO placeholders |
 | Airalo adapter implementation | `lib/esim/providers/airalo.ts` | stub throws `NotConfiguredError` until credentials/endpoints are confirmed |
 | Maya Mobile adapter implementation | `lib/esim/providers/maya.ts` | stub throws `NotConfiguredError` until credentials/endpoints are confirmed |
 | eSIM Access adapter implementation | `lib/esim/providers/esimaccess.ts` | stub throws `NotConfiguredError` until credentials/endpoints are confirmed |
@@ -70,8 +70,8 @@ Status legend: outstanding / resolved
 | Hero headline / sub-promise | Home (`app/page.tsx`) | placeholder copy in place |
 | Footer one-line promise | `components/site/footer.tsx` | placeholder copy in place |
 | FAQ, install guides, content blocks | DB seed (Phase 4) | placeholders |
-| Plan descriptions and network text | `lib/plans/seed.ts`, `/plans/[slug]` | provider/network confirmation required |
+| Plan descriptions and network text | `lib/plans/seed.ts`, `/plans/[slug]` | network confirmation still required |
 
 ---
 
-_Last updated: footer company details._
+_Last updated: CSV pricing import._
