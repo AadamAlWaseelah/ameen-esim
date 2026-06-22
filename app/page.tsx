@@ -1,6 +1,6 @@
 import Link from "next/link";
 import QRCode from "qrcode";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, MailCheck, Smartphone, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
@@ -37,6 +37,32 @@ const HONEST_FACTS = [
   "Calling apps can be limited on Saudi networks",
   "Networks congest near the Haram at peak prayer times",
 ];
+
+const GLOBE_FEATURES = [
+  {
+    icon: MailCheck,
+    tone: "gold" as const,
+    title: "Instant QR by email",
+    body: "Your eSIM lands in your inbox within minutes of paying.",
+  },
+  {
+    icon: Smartphone,
+    tone: "green" as const,
+    title: "Works on 215+ devices",
+    body: "Modern eSIM iPhones, Samsung Galaxy, Google Pixel and more.",
+  },
+  {
+    icon: Wallet,
+    tone: "gold" as const,
+    title: "No roaming bills",
+    body: "One clear price in GBP — no account, no subscription.",
+  },
+];
+
+const FEATURE_TONE: Record<"gold" | "green", string> = {
+  gold: "bg-gold/15 text-gold-pale ring-1 ring-gold/25",
+  green: "bg-[#34b27b]/15 text-[#69e6ab] ring-1 ring-[#34b27b]/25",
+};
 
 function isFeatured(badge: string | null) {
   return Boolean(badge && badge.toLowerCase().includes("popular"));
@@ -143,77 +169,111 @@ export default async function Home() {
         </Reveal>
       </section>
 
-      {/* Global reach — animated globe, the world connecting to the Haramain. */}
-      <section className="container pt-16 sm:pt-20">
-        <Reveal className="relative isolate overflow-hidden rounded-[1.75rem] bg-navy text-cream">
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-            <div
-              className="absolute right-[-10%] top-[-10%] h-[420px] w-[520px] max-w-[120%] rounded-full opacity-50 blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(closest-side, rgba(201,169,97,0.28), transparent)",
-              }}
-            />
+      {/* Global reach — full-bleed tech band: the world connecting to the Haramain. */}
+      <section className="relative isolate mt-16 overflow-hidden bg-navy text-cream sm:mt-20">
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-b from-navy via-[#0f1626] to-navy" />
+          <div
+            className="absolute right-[8%] top-1/2 h-[520px] w-[620px] max-w-[60%] -translate-y-1/2 rounded-full opacity-50 blur-3xl"
+            style={{
+              background:
+                "radial-gradient(closest-side, rgba(201,169,97,0.22), transparent)",
+            }}
+          />
+          <div
+            className="absolute -bottom-1/4 left-[2%] h-[420px] w-[520px] max-w-[55%] rounded-full opacity-40 blur-3xl"
+            style={{
+              background:
+                "radial-gradient(closest-side, rgba(52,178,123,0.16), transparent)",
+            }}
+          />
+          {/* Faint tech grid, masked to fade at the edges. */}
+          <div
+            className="absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
+              backgroundSize: "52px 52px",
+              maskImage:
+                "radial-gradient(ellipse at center, black, transparent 75%)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse at center, black, transparent 75%)",
+            }}
+          />
+        </div>
+
+        <Reveal className="container grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="text-center lg:text-left">
+            <p className="inline-flex items-center gap-2.5 rounded-full border border-cream/15 bg-cream/[0.06] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-gold-pale backdrop-blur-sm">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34b27b]/70" />
+                <span className="relative inline-flex size-2 rounded-full bg-[#34b27b]" />
+              </span>
+              Pilgrims from every corner
+            </p>
+
+            <h2 className="mt-6 text-balance text-4xl leading-[1.02] tracking-[-0.02em] text-cream sm:text-5xl lg:text-6xl">
+              The whole world, connected to the{" "}
+              <span className="text-gold-pale">Haramain</span>.
+            </h2>
+
+            <p className="mx-auto mt-5 max-w-xl text-pretty leading-relaxed text-cream/70 lg:mx-0">
+              Wherever your journey begins, you arrive in Makkah and Madinah
+              already online — the same eSIM, the same simple setup, no roaming
+              bills.
+            </p>
+
+            <ul className="mx-auto mt-8 grid max-w-xl gap-3 text-left lg:mx-0">
+              {GLOBE_FEATURES.map((f) => (
+                <li
+                  key={f.title}
+                  className="group flex items-start gap-4 rounded-2xl border border-cream/10 bg-cream/[0.04] p-4 transition-colors duration-200 ease-out-strong hover:border-gold/30 hover:bg-cream/[0.07]"
+                >
+                  <span
+                    className={`inline-flex size-11 shrink-0 items-center justify-center rounded-xl ${FEATURE_TONE[f.tone]}`}
+                  >
+                    <f.icon className="size-5" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="font-semibold text-cream">{f.title}</p>
+                    <p className="mt-0.5 text-sm leading-relaxed text-cream/60">
+                      {f.body}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+              <Button asChild size="lg" variant="gold">
+                <Link href="/plans">Browse plans</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline-light">
+                <Link href="/compatibility">Check my device</Link>
+              </Button>
+            </div>
           </div>
 
-          <div className="grid items-center gap-6 p-8 sm:p-12 lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="text-center lg:text-left">
-              <p className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-3.5 py-1.5 text-sm text-gold-pale">
-                <span aria-hidden className="inline-block size-1.5 rotate-45 bg-gold" />
-                Pilgrims from every corner
-              </p>
-              <h2 className="mt-6 text-balance text-3xl leading-[1.05] text-cream sm:text-4xl lg:text-5xl">
-                The whole world, connected to the{" "}
-                <span className="text-gold-pale">Haramain</span>.
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-pretty leading-relaxed text-cream/75 lg:mx-0">
-                Wherever your journey begins, you arrive in Makkah and Madinah
-                already online — the same eSIM, the same simple setup, no roaming
-                bills.
-              </p>
-              <div className="mt-7 flex flex-wrap justify-center gap-2 lg:justify-start">
-                {["Instant QR by email", "Works on 215+ devices", "No roaming bills"].map(
-                  (chip) => (
-                    <span
-                      key={chip}
-                      className="rounded-full border border-cream/15 bg-cream/5 px-3 py-1 text-sm text-cream/80"
-                    >
-                      {chip}
-                    </span>
-                  ),
-                )}
-              </div>
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
-                <Button asChild size="lg" variant="gold">
-                  <Link href="/plans">Browse plans</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline-light">
-                  <Link href="/compatibility">Check my device</Link>
-                </Button>
-              </div>
-            </div>
+          <div className="relative mx-auto aspect-square w-full max-w-[540px]">
+            <HaramainGlobe />
 
-            <div className="relative mx-auto aspect-square w-full max-w-[520px]">
-              <HaramainGlobe />
-
-              {/* Flanking holy-site photos — hover (or tap) reveals the name. */}
-              <HaramainGalleryImage
-                src="/gallery/madinah.jpg"
-                alt="Al-Masjid an-Nabawi in Madinah at dusk"
-                title="Masjid al-Nabawi"
-                subtitle="Madinah"
-                tiltClassName="-rotate-3"
-                className="absolute left-0 top-1 z-20 h-32 w-24 sm:h-40 sm:w-28 lg:h-48 lg:w-36"
-              />
-              <HaramainGalleryImage
-                src="/gallery/makkah.jpg"
-                alt="Al-Masjid al-Haram and the Kaaba in Makkah"
-                title="Masjid al-Haram"
-                subtitle="Makkah"
-                tiltClassName="rotate-3"
-                className="absolute bottom-1 left-0 z-20 h-32 w-24 sm:h-40 sm:w-28 lg:h-48 lg:w-36"
-              />
-            </div>
+            {/* Flanking holy-site photos — hover (or tap) reveals the name. */}
+            <HaramainGalleryImage
+              src="/gallery/madinah.jpg"
+              alt="Al-Masjid an-Nabawi in Madinah at dusk"
+              title="Masjid al-Nabawi"
+              subtitle="Madinah"
+              tiltClassName="-rotate-3"
+              className="absolute left-0 top-1 z-20 h-32 w-24 sm:h-40 sm:w-28 lg:h-48 lg:w-36"
+            />
+            <HaramainGalleryImage
+              src="/gallery/makkah.jpg"
+              alt="Al-Masjid al-Haram and the Kaaba in Makkah"
+              title="Masjid al-Haram"
+              subtitle="Makkah"
+              tiltClassName="rotate-3"
+              className="absolute bottom-1 right-0 z-20 h-32 w-24 sm:h-40 sm:w-28 lg:h-48 lg:w-36"
+            />
           </div>
         </Reveal>
       </section>

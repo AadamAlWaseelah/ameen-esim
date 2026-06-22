@@ -13,8 +13,8 @@ const MADINAH: [number, number] = [39.6142, 24.4686];
 // Approach gateways: Madinah-bound arcs route through a point NORTH of Madinah
 // (so they enter from above); Makkah-bound arcs through a point SOUTH of Makkah
 // (entering from below). This keeps the two bundles from overlapping.
-const GATE_MADINAH: [number, number] = [39.6, 27.6];
-const GATE_MAKKAH: [number, number] = [39.9, 17.4];
+const GATE_MADINAH: [number, number] = [39.4, 31];
+const GATE_MAKKAH: [number, number] = [40.1, 13.5];
 
 const ORIGINS: { name: string; coord: [number, number]; toMadinah?: boolean }[] =
   [
@@ -51,7 +51,7 @@ function buildArcDefs(): ArcDef[] {
     count: number,
     gate: [number, number],
   ): [number, number] => {
-    const spread = 1.6;
+    const spread = 2.3;
     const offset = (index - (count - 1) / 2) * spread;
     return [gate[0] + offset, gate[1]];
   };
@@ -209,7 +209,7 @@ function GlobeSky() {
 
 // --- Static paths + single travelling comet per arc ------------------------
 
-const COMET_TAIL = 0.16; // fraction of the path length
+const COMET_TAIL = 0.2; // fraction of the path length
 const COMET_PERIOD = 5.2; // seconds per traversal
 const COMET_GAP = 0.18; // fraction of cycle the comet is "off"
 
@@ -221,55 +221,7 @@ function GlobeArcs() {
 
     const basePaths = ARC_PATHS.map((p) => lineFeature(p.coords, p.id));
 
-    if (!map.getSource("arcs")) {
-      map.addSource("arcs", { type: "geojson", data: fc(basePaths) });
-      map.addLayer({
-        id: "arcs-glow",
-        type: "line",
-        source: "arcs",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#e7d592", "line-width": 4, "line-opacity": 0.08, "line-blur": 3 },
-      });
-      map.addLayer({
-        id: "arcs-base",
-        type: "line",
-        source: "arcs",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#c9a961", "line-width": 1, "line-opacity": 0.28 },
-      });
-    }
-
-    if (!map.getSource("comets")) {
-      map.addSource("comets", {
-        type: "geojson",
-        lineMetrics: true,
-        data: fc<GeoJSON.LineString>([]),
-      });
-      map.addLayer({
-        id: "comets",
-        type: "line",
-        source: "comets",
-        layout: { "line-cap": "round" },
-        paint: {
-          "line-width": 2.6,
-          "line-blur": 1,
-          // tail (transparent) -> bright head along each comet segment
-          "line-gradient": [
-            "interpolate",
-            ["linear"],
-            ["line-progress"],
-            0,
-            "rgba(246,232,184,0)",
-            0.65,
-            "rgba(246,232,184,0.35)",
-            1,
-            "#fff4cf",
-          ],
-        },
-      });
-    }
-
-    const cleanupLayers = () => {
+    const removeAll = () => {
       for (const id of ["comets", "arcs-base", "arcs-glow"]) {
         if (map.getLayer(id)) map.removeLayer(id);
       }
@@ -277,32 +229,88 @@ function GlobeArcs() {
       if (map.getSource("arcs")) map.removeSource("arcs");
     };
 
+    // Idempotent + race-safe across StrictMode / Suspense double-mounts.
+    try {
+      removeAll();
+
+    map.addSource("arcs", { type: "geojson", data: fc(basePaths) });
+    map.addLayer({
+      id: "arcs-glow",
+      type: "line",
+      source: "arcs",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: { "line-color": "#e7d592", "line-width": 4, "line-opacity": 0.08, "line-blur": 3 },
+    });
+    map.addLayer({
+      id: "arcs-base",
+      type: "line",
+      source: "arcs",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: { "line-color": "#c9a961", "line-width": 1, "line-opacity": 0.28 },
+    });
+
+    map.addSource("comets", {
+      type: "geojson",
+      lineMetrics: true,
+      data: fc<GeoJSON.LineString>([]),
+    });
+    map.addLayer({
+      id: "comets",
+      type: "line",
+      source: "comets",
+      layout: { "line-cap": "round" },
+      paint: {
+        "line-width": 2.6,
+        "line-blur": 1,
+        // tail (transparent) -> bright head along each comet segment
+        "line-gradient": [
+          "interpolate",
+          ["linear"],
+          ["line-progress"],
+          0,
+          "rgba(246,232,184,0)",
+          0.65,
+          "rgba(246,232,184,0.35)",
+          1,
+          "#fff4cf",
+        ],
+      },
+    });
+    } catch {
+      // A concurrent StrictMode / Suspense mount is mid-setup and owns the
+      // layers; this run can safely skip — the surviving mount renders them.
+    }
+
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return cleanupLayers;
+    if (reduce) return removeAll;
 
     // Stagger each comet's phase so they don't bunch at the centre together.
     const phases = ARC_PATHS.map((_, i) => (i * 0.6180339887) % 1);
-    const cometSource = map.getSource("comets") as GeoJSONSource;
 
     let raf = 0;
     const start = performance.now();
 
     const tick = (now: number) => {
-      const elapsed = (now - start) / 1000;
-      const features: GeoJSON.Feature<GeoJSON.LineString>[] = [];
-
-      ARC_PATHS.forEach((path, i) => {
-        const cycle = (elapsed / COMET_PERIOD + phases[i]) % 1;
-        if (cycle > 1 - COMET_GAP) return; // brief off-beat, then re-fire
-        const head = cycle / (1 - COMET_GAP); // 0..1 head progress
-        const n = path.coords.length - 1;
-        const hi = Math.round(head * n);
-        const ti = Math.max(0, Math.floor((head - COMET_TAIL) * n));
-        if (hi - ti < 1) return;
-        features.push(lineFeature(path.coords.slice(ti, hi + 1), path.id));
-      });
-
-      cometSource.setData(fc(features));
+      const src = map.getSource("comets") as GeoJSONSource | undefined;
+      if (src) {
+        const elapsed = (now - start) / 1000;
+        const features: GeoJSON.Feature<GeoJSON.LineString>[] = [];
+        ARC_PATHS.forEach((path, i) => {
+          const cycle = (elapsed / COMET_PERIOD + phases[i]) % 1;
+          if (cycle > 1 - COMET_GAP) return; // brief off-beat, then re-fire
+          const head = cycle / (1 - COMET_GAP); // 0..1 head progress
+          const n = path.coords.length - 1;
+          const hi = Math.round(head * n);
+          const ti = Math.max(0, Math.floor((head - COMET_TAIL) * n));
+          if (hi - ti < 1) return;
+          features.push(lineFeature(path.coords.slice(ti, hi + 1), path.id));
+        });
+        try {
+          src.setData(fc(features));
+        } catch {
+          // source removed mid-frame during a remount — ignore
+        }
+      }
       raf = requestAnimationFrame(tick);
     };
 
@@ -317,7 +325,7 @@ function GlobeArcs() {
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVisibility);
-      cleanupLayers();
+      removeAll();
     };
   }, [map, isLoaded]);
 
