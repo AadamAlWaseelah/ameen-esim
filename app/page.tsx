@@ -8,6 +8,7 @@ import { TrustBar } from "@/components/site/trust-bar";
 import { EsimDevice } from "@/components/site/esim-device";
 import { HaramainGlobe } from "@/components/site/haramain-globe";
 import { HaramainGalleryImage } from "@/components/site/haramain-gallery-image";
+import { DestinationsMarquee } from "@/components/site/destinations-marquee";
 import { PlanCard } from "@/components/plans/plan-card";
 import { listPublicPlans } from "@/lib/plans/store";
 
@@ -200,9 +201,12 @@ export default async function Home() {
                 "radial-gradient(ellipse at center, black, transparent 75%)",
             }}
           />
+          {/* Soft gradient transitions into the cream page (no hard edges). */}
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cream to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-cream to-transparent" />
         </div>
 
-        <Reveal className="container grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-[0.95fr_1.05fr]">
+        <Reveal className="container grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="text-center lg:text-left">
             <p className="inline-flex items-center gap-2.5 rounded-full border border-cream/15 bg-cream/[0.06] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-gold-pale backdrop-blur-sm">
               <span className="relative flex size-2">
@@ -275,6 +279,24 @@ export default async function Home() {
               className="absolute bottom-1 right-0 z-20 h-32 w-24 sm:h-40 sm:w-28 lg:h-48 lg:w-36"
             />
           </div>
+        </Reveal>
+      </section>
+
+      {/* Departure cities — infinite marquee of where pilgrims set out from. */}
+      <section className="bg-cream py-16 sm:py-20">
+        <div className="container">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl text-navy sm:text-4xl">
+              Wherever your journey begins
+            </h2>
+            <p className="mt-3 text-pretty leading-relaxed text-slate">
+              Pilgrims set out from every corner of the world — Ameen keeps you
+              connected the moment you land in Saudi Arabia.
+            </p>
+          </Reveal>
+        </div>
+        <Reveal className="container mt-10 sm:mt-12">
+          <DestinationsMarquee />
         </Reveal>
       </section>
 
