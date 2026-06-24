@@ -80,6 +80,12 @@ function renderHtml(order: Order, support: string): string {
       <img src="${order.qrImageDataUri}" alt="eSIM QR code" width="240" height="240" style="border:1px solid #e7e3da;border-radius:12px" />
     </div>
 
+    <p style="background:#fbf7ec;border:1px solid #e8d9a8;border-radius:8px;padding:12px;color:#19202E;font-size:14px;margin:0 0 20px">
+      💡 When your phone asks you to name the plan, label it
+      <strong>&ldquo;Ameen eSIM&rdquo;</strong> so it's easy to find. You can
+      rename it any time in your mobile-data settings.
+    </p>
+
     <h2 style="font-size:16px;margin:0 0 8px">Install manually</h2>
     <p style="color:#5b6473;font-size:14px;margin:0 0 4px">If you can't scan the code, add the eSIM manually with:</p>
     <table style="width:100%;border-collapse:collapse;font-size:13px;background:#faf8f4;border-radius:8px">

@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { RefreshCw, Save, Trash2, Wand2 } from "lucide-react";
+import { LogOut, RefreshCw, Save, Trash2, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { formatDataAmount, formatMoney } from "@/lib/money";
@@ -188,22 +188,32 @@ export function AdminPlansClient() {
     }
   }
 
+  async function logout() {
+    await fetch("/api/admin/login", { method: "DELETE" });
+    window.location.href = "/admin/login";
+  }
+
   return (
     <main className="container py-10 sm:py-14">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-gold-deep">Phase 1 admin</p>
+          <p className="text-sm font-medium text-gold-deep">Admin</p>
           <h1 className="mt-2 text-4xl text-navy">Plans</h1>
           <p className="mt-3 max-w-2xl text-slate">
             Full CRUD, pricing controls and provider-ref mapping. Pull the live
-            catalogue, then click a package to map it onto a plan. Unprotected
-            until Clerk lands in Phase 3.
+            catalogue, then click a package to map it onto a plan.
           </p>
         </div>
-        <Button onClick={pullCatalogue} variant="outline">
-          <RefreshCw className="size-4" aria-hidden />
-          Pull catalogue
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={pullCatalogue} variant="outline">
+            <RefreshCw className="size-4" aria-hidden />
+            Pull catalogue
+          </Button>
+          <Button onClick={logout} variant="ghost">
+            <LogOut className="size-4" aria-hidden />
+            Log out
+          </Button>
+        </div>
       </div>
 
       {message ? (
