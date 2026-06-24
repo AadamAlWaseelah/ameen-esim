@@ -2,7 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { getOrderByStripeSession } from "@/lib/orders/store";
+import { refreshProvisioning } from "@/lib/orders/provision";
 import { formatMoney } from "@/lib/money";
+
+import { AutoRefresh } from "./auto-refresh";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +17,13 @@ export default async function CheckoutSuccessPage({
   searchParams: { session_id?: string };
 }) {
   const sessionId = searchParams?.session_id;
-  const order = sessionId ? await getOrderByStripeSession(sessionId) : null;
+  let order = sessionId ? await getOrderByStripeSession(sessionId) : null;
+
+  // If the eSIM was still allocating when the webhook ran, finish it now (and
+  // on each refresh) so the QR appears as soon as the provider has it ready.
+  if (order && order.status === "provisioning") {
+    order = (await refreshProvisioning(order.id)) ?? order;
+  }
 
   return (
     <main className="container py-12 sm:py-20">
@@ -43,9 +52,11 @@ export default async function CheckoutSuccessPage({
           <div className="mt-5 rounded-2xl border border-line bg-paper p-6 text-navy">
             <p className="font-medium">Provisioning your eSIM…</p>
             <p className="mt-2 text-sm text-slate">
-              This usually takes a few seconds. Refresh this page, or check your
-              email — we&apos;ll send the QR code the moment it&apos;s ready.
+              This usually takes a few seconds — this page will update
+              automatically. We&apos;ll also email the QR code the moment
+              it&apos;s ready.
             </p>
+            <AutoRefresh seconds={5} />
           </div>
         )}
 

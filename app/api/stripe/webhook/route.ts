@@ -13,6 +13,10 @@ import { getStripe } from "@/lib/stripe";
 // Stripe signature verification needs the Node runtime and the raw body.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Provisioning polls the provider for the allocated eSIM; give it headroom
+// (Vercel clamps to the plan's max). Anything still pending is parked as
+// `provisioning` and finished by the success page / re-check.
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;

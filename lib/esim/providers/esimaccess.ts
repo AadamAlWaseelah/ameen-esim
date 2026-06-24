@@ -76,7 +76,14 @@ function getCredentials() {
   return { accessCode: accessCode as string, secretKey: secretKey as string };
 }
 
-async function request<T>(path: string, body: Record<string, unknown>): Promise<T> {
+// Low-level call: throws only on transport / non-JSON / HTTP errors. A
+// business-level `success:false` (HTTP 200) is returned to the caller, because
+// for some endpoints (e.g. esim/query right after ordering) it just means
+// "not ready yet", not a failure.
+async function requestRaw<T>(
+  path: string,
+  body: Record<string, unknown>,
+): Promise<EnvelopeResponse<T>> {
   const { accessCode, secretKey } = getCredentials();
   const baseUrl = (process.env.ESIMACCESS_BASE_URL ?? DEFAULT_BASE_URL).replace(
     /\/$/,
@@ -103,7 +110,7 @@ async function request<T>(path: string, body: Record<string, unknown>): Promise<
     );
   }
 
-  if (!res.ok || json.success === false) {
+  if (!res.ok) {
     throw new Error(
       `eSIM Access ${path} failed (HTTP ${res.status}): ${
         json.errorMsg ?? json.errorCode ?? "unknown error"
@@ -111,6 +118,19 @@ async function request<T>(path: string, body: Record<string, unknown>): Promise<
     );
   }
 
+  return json;
+}
+
+// Strict call: also throws when the API reports a business-level failure.
+async function request<T>(path: string, body: Record<string, unknown>): Promise<T> {
+  const json = await requestRaw<T>(path, body);
+  if (json.success === false) {
+    throw new Error(
+      `eSIM Access ${path} failed: ${
+        json.errorMsg ?? json.errorCode ?? "unknown error"
+      }`,
+    );
+  }
   return json.obj as T;
 }
 
@@ -181,8 +201,8 @@ async function buildProvisioned(
 async function queryProfiles(params: {
   orderNo?: string;
   iccid?: string;
-}): Promise<ApiEsimProfile[]> {
-  const obj = await request<{ esimList?: ApiEsimProfile[] }>(
+}): Promise<{ profiles: ApiEsimProfile[]; pending: boolean }> {
+  const env = await requestRaw<{ esimList?: ApiEsimProfile[] }>(
     "/api/v1/open/esim/query",
     {
       orderNo: params.orderNo,
@@ -190,7 +210,13 @@ async function queryProfiles(params: {
       pager: { pageNum: 1, pageSize: 20 },
     },
   );
-  return obj?.esimList ?? [];
+  // success:false here means allocation is still in progress (e.g. "the
+  // batchOrder has been getting resource, total:[1], success:[0]") — the order
+  // is fine, the eSIM just isn't ready yet. Surface that as `pending`.
+  if (env.success === false) {
+    return { profiles: [], pending: true };
+  }
+  return { profiles: env.obj?.esimList ?? [], pending: false };
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -242,8 +268,11 @@ export const esimAccessProvider: EsimProvider = {
     }
 
     // 3) Allocation can be near-instant but is sometimes async — poll briefly.
+    //    A "pending" response is expected here, not an error; if it's still not
+    //    ready when we give up, the order is recorded as provisioning (with its
+    //    orderNo) and completed later via getOrderStatus.
     for (let attempt = 0; attempt < 6; attempt += 1) {
-      const profiles = await queryProfiles({ orderNo });
+      const { profiles } = await queryProfiles({ orderNo });
       const ready = profiles.find((p) => p.ac);
       if (ready) return buildProvisioned(ready, orderNo, "delivered");
       await sleep(1500);
@@ -260,15 +289,19 @@ export const esimAccessProvider: EsimProvider = {
   },
 
   async getOrderStatus(providerOrderRef: string): Promise<ProvisionedEsim> {
-    const profiles = await queryProfiles({ orderNo: providerOrderRef });
+    const { profiles, pending } = await queryProfiles({
+      orderNo: providerOrderRef,
+    });
     const ready = profiles.find((p) => p.ac);
     if (ready) return buildProvisioned(ready, providerOrderRef, "delivered");
 
+    // Still allocating (pending) or allocated-but-no-LPA-yet → provisioning.
+    // Only treat a definitively empty, non-pending result as failed.
     return {
       providerOrderRef,
       lpaString: "",
       qrImageDataUri: "",
-      status: profiles.length ? "provisioning" : "failed",
+      status: pending || profiles.length ? "provisioning" : "failed",
     };
   },
 
