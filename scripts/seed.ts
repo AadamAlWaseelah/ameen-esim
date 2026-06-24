@@ -1,4 +1,7 @@
-import "dotenv/config";
+import { config } from "dotenv";
+// Prefer .env.local (where the Neon URL lives), fall back to .env.
+config({ path: ".env.local" });
+config({ path: ".env" });
 
 import { getDb } from "../lib/db";
 import { plans } from "../lib/db/schema";
