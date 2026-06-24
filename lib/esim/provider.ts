@@ -1,4 +1,5 @@
 import type {
+  BalanceInfo,
   OrderRequest,
   ProviderPlan,
   ProvisionedEsim,
@@ -11,6 +12,8 @@ export interface EsimProvider {
   createOrder(input: OrderRequest): Promise<ProvisionedEsim>;
   getOrderStatus(providerOrderRef: string): Promise<ProvisionedEsim>;
   getUsage?(iccid: string): Promise<UsageInfo | null>;
+  // Reseller/account balance — used by the /api/esim/health auth sanity check.
+  getBalance?(): Promise<BalanceInfo>;
 }
 
 export class NotConfiguredError extends Error {

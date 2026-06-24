@@ -42,3 +42,12 @@ export interface UsageInfo {
   totalMb: number | null;
   expiresAt?: string;
 }
+
+export interface BalanceInfo {
+  // Best-effort numeric balance in major currency units (e.g. 12.34), or null
+  // if the provider response shape couldn't be mapped to a known field.
+  amount: number | null;
+  currency: string;
+  // The raw provider response, so an unexpected shape can be verified by eye.
+  raw: unknown;
+}

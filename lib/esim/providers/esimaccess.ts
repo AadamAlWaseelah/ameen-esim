@@ -2,6 +2,7 @@ import QRCode from "qrcode";
 
 import { NotConfiguredError, type EsimProvider } from "../provider";
 import type {
+  BalanceInfo,
   OrderRequest,
   OrderStatus,
   ProviderPlan,
@@ -268,6 +269,34 @@ export const esimAccessProvider: EsimProvider = {
       lpaString: "",
       qrImageDataUri: "",
       status: profiles.length ? "provisioning" : "failed",
+    };
+  },
+
+  // Reseller balance. Path and field name verified live against a real
+  // account (returned {balance: 0}). Units assumed to match package prices
+  // (1/10000 USD) but unconfirmed while the balance is 0 — the raw object is
+  // returned so the divisor can be checked once the account is funded.
+  async getBalance(): Promise<BalanceInfo> {
+    const obj = await request<Record<string, unknown>>(
+      "/api/v1/open/balance/query",
+      {},
+    );
+    const rawAmount =
+      typeof obj?.balance === "number"
+        ? obj.balance
+        : typeof obj?.amount === "number"
+          ? obj.amount
+          : null;
+    const currency =
+      typeof obj?.currencyCode === "string"
+        ? obj.currencyCode
+        : typeof obj?.currency === "string"
+          ? obj.currency
+          : "USD";
+    return {
+      amount: rawAmount !== null ? rawAmount / PRICE_UNITS_PER_USD : null,
+      currency,
+      raw: obj,
     };
   },
 };

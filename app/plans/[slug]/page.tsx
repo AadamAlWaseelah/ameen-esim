@@ -8,10 +8,11 @@ import {
   Smartphone,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { formatDataAmount, formatMoney } from "@/lib/money";
 import { getActiveProviderId } from "@/lib/esim";
 import { getPlanBySlug, getPlanProviderRef } from "@/lib/plans/store";
+
+import { BuyButton } from "./buy-button";
 
 export const dynamic = "force-dynamic";
 
@@ -28,15 +29,19 @@ export async function generateMetadata({
 
 export default async function PlanDetailPage({
   params,
+  searchParams,
 }: {
   params: { slug: string };
+  searchParams: { cancelled?: string };
 }) {
   const plan = await getPlanBySlug(params.slug);
   if (!plan || !plan.active) notFound();
 
   const providerId = getActiveProviderId();
   const providerRef = getPlanProviderRef(plan, providerId);
+  const mapped = Boolean(providerRef) && !providerRef!.startsWith("TODO");
   const priceKnown = plan.retailPricePence != null;
+  const cancelled = searchParams?.cancelled === "1";
 
   return (
     <main className="container py-10 sm:py-16">
@@ -90,16 +95,25 @@ export default async function PlanDetailPage({
             GBP only. Final prices are pending supplier and margin confirmation.
           </p>
 
-          {!providerRef ? (
+          {!mapped ? (
             <div className="mt-5 rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
               Missing provider mapping for {providerId}. This plan is not ready
               for checkout.
             </div>
           ) : null}
 
-          <Button className="mt-6 w-full" size="lg" disabled={!priceKnown || !providerRef}>
-            {priceKnown ? "Buy eSIM" : "Price pending"}
-          </Button>
+          {cancelled ? (
+            <div className="mt-5 rounded-xl border border-gold/30 bg-gold/10 p-4 text-sm text-navy">
+              Checkout was cancelled — you have not been charged. You can try
+              again whenever you&apos;re ready.
+            </div>
+          ) : null}
+
+          <BuyButton
+            slug={plan.slug}
+            disabled={!priceKnown || !mapped}
+            label={priceKnown ? "Buy eSIM" : "Price pending"}
+          />
 
           <div className="mt-6 space-y-4 border-t border-line pt-6">
             <TruthNote

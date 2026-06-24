@@ -68,4 +68,8 @@ export const mockProvider: EsimProvider = {
   async getUsage() {
     return null;
   },
+
+  async getBalance() {
+    return { amount: 1000, currency: "USD", raw: { mock: true } };
+  },
 };
