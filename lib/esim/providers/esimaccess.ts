@@ -121,7 +121,8 @@ function mapPackage(pkg: ApiPackage): ProviderPlan {
     .join(" / ");
 
   return {
-    providerRef: pkg.slug ?? pkg.packageCode ?? "",
+    // packageCode is the orderable identifier (createOrder looks it up).
+    providerRef: pkg.packageCode ?? pkg.slug ?? "",
     title: pkg.name ?? pkg.packageCode ?? "Saudi eSIM",
     country: pkg.location ?? "SA",
     // null = unlimited / uncapped

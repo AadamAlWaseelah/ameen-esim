@@ -1,11 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { RefreshCw, Save, Trash2 } from "lucide-react";
+import { RefreshCw, Save, Trash2, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { formatDataAmount, formatMoney } from "@/lib/money";
-import type { ProviderPlan } from "@/lib/esim";
+import type { ProviderId, ProviderPlan } from "@/lib/esim";
 import type { PlanRecord } from "@/lib/plans/types";
 
 type DraftPlan = {
@@ -13,6 +13,7 @@ type DraftPlan = {
   slug: string;
   title: string;
   subtitle: string;
+  country: string;
   dataAmountMb: string;
   validityDays: string;
   network: string;
@@ -35,6 +36,7 @@ const blankDraft: DraftPlan = {
   slug: "",
   title: "",
   subtitle: "",
+  country: "SA",
   dataAmountMb: "",
   validityDays: "15",
   network: "Zain / STC placeholder",
@@ -53,13 +55,22 @@ const blankDraft: DraftPlan = {
   esimaccessRef: "",
 };
 
+const REF_KEY: Record<ProviderId, keyof DraftPlan> = {
+  mock: "mockRef",
+  airalo: "airaloRef",
+  maya: "mayaRef",
+  esimaccess: "esimaccessRef",
+};
+
 export function AdminPlansClient() {
   const [plans, setPlans] = useState<PlanRecord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<DraftPlan>(blankDraft);
   const [catalogue, setCatalogue] = useState<ProviderPlan[]>([]);
+  const [catalogueProvider, setCatalogueProvider] = useState<ProviderId | "">("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const selected = useMemo(
     () => plans.find((plan) => plan.id === selectedId) ?? null,
@@ -74,6 +85,25 @@ export function AdminPlansClient() {
     setDraft(selected ? draftFromPlan(selected) : blankDraft);
   }, [selected]);
 
+  // --- live pricing helper -------------------------------------------------
+  const cost = Number(draft.costPence) || 0;
+  const retail = Number(draft.retailPricePence) || 0;
+  const profit = retail - cost;
+  const marginPct = retail > 0 ? Math.round((profit / retail) * 1000) / 10 : null;
+  const suggestedRetail = useMemo(() => {
+    const value = Number(draft.markupValue);
+    if (!cost || !value) return null;
+    if (draft.markupType === "percent") return Math.round(cost * (1 + value / 100));
+    if (draft.markupType === "fixed") return cost + value;
+    return null;
+  }, [cost, draft.markupType, draft.markupValue]);
+
+  function applyMarkup() {
+    if (suggestedRetail != null) {
+      setDraft((d) => ({ ...d, retailPricePence: String(suggestedRetail) }));
+    }
+  }
+
   async function loadPlans() {
     setLoading(true);
     const response = await fetch("/api/admin/plans", { cache: "no-store" });
@@ -83,36 +113,67 @@ export function AdminPlansClient() {
   }
 
   async function pullCatalogue() {
-    setMessage("Pulling catalogue...");
-    const response = await fetch("/api/admin/plans?catalogue=1");
-    const data = (await response.json()) as {
-      providerId: string;
-      catalogue: ProviderPlan[];
-    };
-    setCatalogue(data.catalogue);
-    setMessage(`Pulled ${data.catalogue.length} ${data.providerId} plans.`);
+    setMessage("Pulling catalogue…");
+    try {
+      const response = await fetch("/api/admin/plans?catalogue=1");
+      const data = (await response.json()) as {
+        providerId: ProviderId;
+        catalogue: ProviderPlan[];
+        error?: string;
+      };
+      if (!response.ok) {
+        setMessage(data.error ?? "Catalogue pull failed.");
+        return;
+      }
+      setCatalogue(data.catalogue);
+      setCatalogueProvider(data.providerId);
+      setMessage(`Pulled ${data.catalogue.length} ${data.providerId} plans.`);
+    } catch {
+      setMessage("Catalogue pull failed (network error).");
+    }
+  }
+
+  // Map a pulled catalogue package into the draft (ref + helpful prefills).
+  function applyCatalogueItem(item: ProviderPlan) {
+    if (!catalogueProvider) return;
+    setDraft((d) => ({
+      ...d,
+      [REF_KEY[catalogueProvider]]: item.providerRef,
+      // Prefill blanks to speed up creating a new plan from a package.
+      title: d.title || item.title,
+      dataAmountMb:
+        d.dataAmountMb || (item.dataAmountMb != null ? String(item.dataAmountMb) : ""),
+      validityDays: d.validityDays || String(item.validityDays),
+      network: d.network && d.network !== blankDraft.network ? d.network : item.network ?? d.network,
+      costPence:
+        d.costPence || (item.wholesalePricePence != null ? String(item.wholesalePricePence) : ""),
+    }));
+    setMessage(`Set ${catalogueProvider} ref → ${item.providerRef}`);
   }
 
   async function savePlan(event: FormEvent) {
     event.preventDefault();
-    const payload = payloadFromDraft(draft);
-    const response = await fetch(
-      selectedId ? `/api/admin/plans/${selectedId}` : "/api/admin/plans",
-      {
-        method: selectedId ? "PATCH" : "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
+    setSaving(true);
+    try {
+      const payload = payloadFromDraft(draft);
+      const response = await fetch(
+        selectedId ? `/api/admin/plans/${selectedId}` : "/api/admin/plans",
+        {
+          method: selectedId ? "PATCH" : "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        setMessage(data.error ?? "Plan save failed.");
+        return;
       }
-    );
-
-    if (!response.ok) {
-      const data = (await response.json()) as { error?: string };
-      setMessage(data.error ?? "Plan save failed.");
-      return;
+      setMessage(selectedId ? "Plan updated." : "Plan created.");
+      await loadPlans();
+    } finally {
+      setSaving(false);
     }
-
-    setMessage(selectedId ? "Plan updated." : "Plan created.");
-    await loadPlans();
   }
 
   async function removePlan() {
@@ -134,8 +195,9 @@ export function AdminPlansClient() {
           <p className="text-sm font-medium text-gold-deep">Phase 1 admin</p>
           <h1 className="mt-2 text-4xl text-navy">Plans</h1>
           <p className="mt-3 max-w-2xl text-slate">
-            Basic CRUD and provider reference mapping. This page is intentionally
-            unprotected until Clerk lands in Phase 3.
+            Full CRUD, pricing controls and provider-ref mapping. Pull the live
+            catalogue, then click a package to map it onto a plan. Unprotected
+            until Clerk lands in Phase 3.
           </p>
         </div>
         <Button onClick={pullCatalogue} variant="outline">
@@ -163,50 +225,70 @@ export function AdminPlansClient() {
             </Button>
           </div>
           <div className="mt-4 space-y-3">
-            {loading ? <p className="text-sm text-slate">Loading...</p> : null}
-            {plans.map((plan) => (
-              <button
-                key={plan.id}
-                type="button"
-                onClick={() => setSelectedId(plan.id)}
-                className={`w-full rounded-xl border p-4 text-left transition-colors ${
-                  selectedId === plan.id
-                    ? "border-gold bg-gold/10"
-                    : "border-line bg-cream/60 hover:border-gold/40"
-                }`}
-              >
-                <span className="flex items-start justify-between gap-3">
-                  <span>
-                    <span className="block font-medium text-navy">
-                      {plan.title}
+            {loading ? <p className="text-sm text-slate">Loading…</p> : null}
+            {plans.map((plan) => {
+              return (
+                <button
+                  key={plan.id}
+                  type="button"
+                  onClick={() => setSelectedId(plan.id)}
+                  className={`w-full rounded-xl border p-4 text-left transition-colors ${
+                    selectedId === plan.id
+                      ? "border-gold bg-gold/10"
+                      : "border-line bg-cream/60 hover:border-gold/40"
+                  }`}
+                >
+                  <span className="flex items-start justify-between gap-3">
+                    <span>
+                      <span className="block font-medium text-navy">
+                        {plan.title}
+                        {!plan.active ? (
+                          <span className="ml-2 text-xs text-slate">(hidden)</span>
+                        ) : null}
+                      </span>
+                      <span className="mt-1 block text-sm text-slate">
+                        {formatDataAmount(plan.dataAmountMb)} / {plan.validityDays}{" "}
+                        days
+                      </span>
                     </span>
-                    <span className="mt-1 block text-sm text-slate">
-                      {formatDataAmount(plan.dataAmountMb)} /{" "}
-                      {plan.validityDays} days
+                    <span className="tnum text-sm font-medium text-navy">
+                      {formatMoney(plan.retailPricePence)}
                     </span>
                   </span>
-                  <span className="tnum text-sm font-medium text-navy">
-                    {formatMoney(plan.retailPricePence)}
-                  </span>
-                </span>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
 
           {catalogue.length ? (
             <div className="mt-6 border-t border-line pt-5">
-              <h3 className="font-medium text-navy">Provider catalogue</h3>
-              <div className="mt-3 space-y-2">
+              <h3 className="font-medium text-navy">
+                {catalogueProvider} catalogue
+              </h3>
+              <p className="mt-1 text-xs text-slate">
+                Click “Use” to set the {catalogueProvider} ref on the plan you’re
+                editing.
+              </p>
+              <div className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-1">
                 {catalogue.map((item) => (
                   <div
                     key={item.providerRef}
-                    className="rounded-xl border border-line bg-cream/70 p-3 text-sm"
+                    className="flex items-start justify-between gap-2 rounded-xl border border-line bg-cream/70 p-3 text-sm"
                   >
-                    <p className="font-medium text-navy">{item.title}</p>
-                    <p className="text-slate">
-                      {item.providerRef} | {formatDataAmount(item.dataAmountMb)} |{" "}
-                      {item.validityDays} days
-                    </p>
+                    <div>
+                      <p className="font-medium text-navy">{item.title}</p>
+                      <p className="text-slate">
+                        {item.providerRef} · {formatDataAmount(item.dataAmountMb)} ·{" "}
+                        {item.validityDays} days
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => applyCatalogueItem(item)}
+                      className="shrink-0 rounded-lg border border-gold/40 px-2.5 py-1 text-xs font-medium text-gold-deep transition-colors hover:bg-gold/10"
+                    >
+                      Use
+                    </button>
                   </div>
                 ))}
               </div>
@@ -229,9 +311,9 @@ export function AdminPlansClient() {
                   Delete
                 </Button>
               ) : null}
-              <Button type="submit">
+              <Button type="submit" disabled={saving}>
                 <Save className="size-4" aria-hidden />
-                Save
+                {saving ? "Saving…" : "Save"}
               </Button>
             </div>
           </div>
@@ -240,15 +322,13 @@ export function AdminPlansClient() {
             <Field label="Title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
             <Field label="Slug" value={draft.slug} onChange={(slug) => setDraft({ ...draft, slug })} />
             <Field label="Subtitle" value={draft.subtitle} onChange={(subtitle) => setDraft({ ...draft, subtitle })} />
+            <Field label="Country code" value={draft.country} onChange={(country) => setDraft({ ...draft, country })} />
             <Field label="Network" value={draft.network} onChange={(network) => setDraft({ ...draft, network })} />
+            <Field label="Badge" value={draft.badge} onChange={(badge) => setDraft({ ...draft, badge })} />
             <Field label="Data MB (blank = unlimited)" value={draft.dataAmountMb} onChange={(dataAmountMb) => setDraft({ ...draft, dataAmountMb })} />
             <Field label="Validity days" value={draft.validityDays} onChange={(validityDays) => setDraft({ ...draft, validityDays })} />
-            <Field label="Retail price pence" value={draft.retailPricePence} onChange={(retailPricePence) => setDraft({ ...draft, retailPricePence })} />
-            <Field label="Cost pence" value={draft.costPence} onChange={(costPence) => setDraft({ ...draft, costPence })} />
-            <Field label="Markup value" value={draft.markupValue} onChange={(markupValue) => setDraft({ ...draft, markupValue })} />
-            <Field label="Badge" value={draft.badge} onChange={(badge) => setDraft({ ...draft, badge })} />
             <Field label="Sort order" value={draft.sortOrder} onChange={(sortOrder) => setDraft({ ...draft, sortOrder })} />
-            <label className="flex items-center gap-2 rounded-xl border border-line bg-cream/50 px-3 py-2 text-sm text-navy">
+            <label className="flex items-center gap-2 self-end rounded-xl border border-line bg-cream/50 px-3 py-2.5 text-sm text-navy">
               <input
                 type="checkbox"
                 checked={draft.active}
@@ -256,11 +336,74 @@ export function AdminPlansClient() {
                   setDraft({ ...draft, active: event.currentTarget.checked })
                 }
               />
-              Active
+              Active (visible in store)
             </label>
           </div>
 
-          <label className="mt-4 block">
+          {/* Pricing & margin */}
+          <div className="mt-6 rounded-2xl border border-line bg-cream/50 p-4">
+            <h3 className="font-medium text-navy">Pricing</h3>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <Field label="Cost pence (wholesale)" value={draft.costPence} onChange={(costPence) => setDraft({ ...draft, costPence })} />
+              <Field label="Retail price pence" value={draft.retailPricePence} onChange={(retailPricePence) => setDraft({ ...draft, retailPricePence })} />
+              <Select
+                label="Markup type"
+                value={draft.markupType}
+                onChange={(markupType) =>
+                  setDraft({ ...draft, markupType: markupType as DraftPlan["markupType"] })
+                }
+                options={[
+                  { value: "none", label: "None" },
+                  { value: "percent", label: "Percent (%)" },
+                  { value: "fixed", label: "Fixed (pence)" },
+                ]}
+              />
+              <Field
+                label={
+                  draft.markupType === "percent"
+                    ? "Markup value (%)"
+                    : "Markup value (pence)"
+                }
+                value={draft.markupValue}
+                onChange={(markupValue) => setDraft({ ...draft, markupValue })}
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+              <span className="text-slate">
+                Cost <span className="tnum font-medium text-navy">{formatMoney(cost || null)}</span>
+              </span>
+              <span className="text-slate">
+                Retail <span className="tnum font-medium text-navy">{formatMoney(retail || null)}</span>
+              </span>
+              <span className="text-slate">
+                Profit{" "}
+                <span
+                  className={`tnum font-medium ${profit >= 0 ? "text-navy" : "text-destructive"}`}
+                >
+                  {formatMoney(retail ? profit : null)}
+                </span>
+              </span>
+              <span className="text-slate">
+                Margin{" "}
+                <span className="tnum font-medium text-navy">
+                  {marginPct != null ? `${marginPct}%` : "—"}
+                </span>
+              </span>
+              {suggestedRetail != null ? (
+                <button
+                  type="button"
+                  onClick={applyMarkup}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-gold/40 px-2.5 py-1 text-xs font-medium text-gold-deep transition-colors hover:bg-gold/10"
+                >
+                  <Wand2 className="size-3.5" aria-hidden />
+                  Apply markup → {formatMoney(suggestedRetail)}
+                </button>
+              ) : null}
+            </div>
+          </div>
+
+          <label className="mt-6 block">
             <span className="text-sm font-medium text-navy">Description</span>
             <textarea
               value={draft.description}
@@ -288,6 +431,10 @@ export function AdminPlansClient() {
 
           <div className="mt-6 rounded-2xl border border-line bg-cream/50 p-4">
             <h3 className="font-medium text-navy">Provider refs</h3>
+            <p className="mt-1 text-xs text-slate">
+              The package code each provider uses to fulfil this plan. The plan is
+              hidden from sale if the active provider’s ref is blank.
+            </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <Field label="Mock" value={draft.mockRef} onChange={(mockRef) => setDraft({ ...draft, mockRef })} />
               <Field label="Airalo" value={draft.airaloRef} onChange={(airaloRef) => setDraft({ ...draft, airaloRef })} />
@@ -316,8 +463,37 @@ function Field({
       <input
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}
-        className="mt-1 w-full rounded-xl border border-line bg-cream/50 px-3 py-2 text-sm text-navy"
+        className="mt-1 w-full rounded-xl border border-line bg-cream/50 px-3 py-2 text-sm text-navy focus-visible:border-gold/50"
       />
+    </label>
+  );
+}
+
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-medium text-navy">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.currentTarget.value)}
+        className="mt-1 w-full rounded-xl border border-line bg-cream/50 px-3 py-2 text-sm text-navy"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }
@@ -328,6 +504,7 @@ function draftFromPlan(plan: PlanRecord): DraftPlan {
     slug: plan.slug,
     title: plan.title,
     subtitle: plan.subtitle ?? "",
+    country: plan.country,
     dataAmountMb: plan.dataAmountMb?.toString() ?? "",
     validityDays: plan.validityDays.toString(),
     network: plan.network ?? "",
@@ -352,7 +529,7 @@ function payloadFromDraft(draft: DraftPlan) {
     slug: draft.slug,
     title: draft.title,
     subtitle: draft.subtitle,
-    country: "SA",
+    country: draft.country,
     dataAmountMb: draft.dataAmountMb,
     validityDays: draft.validityDays,
     network: draft.network,

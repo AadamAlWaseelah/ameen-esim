@@ -1,4 +1,9 @@
 import type { PlanRecord } from "./types";
+import esimaccessRefs from "./esimaccess-refs.json";
+
+// Real eSIM Access package codes, keyed by plan slug. Populated by
+// `npm run esim:map`; unmatched plans fall back to a TODO placeholder.
+const ESIMACCESS_REFS = esimaccessRefs as Record<string, string>;
 
 const now = new Date();
 
@@ -194,7 +199,7 @@ export const seedPlans: PlanRecord[] = csvPlans.map((plan, index) => ({
     mock: plan.csvSlug,
     airalo: `TODO_AIRALO_${plan.csvSlug}`,
     maya: `TODO_MAYA_${plan.csvSlug}`,
-    esimaccess: `TODO_ESIMACCESS_${plan.csvSlug}`,
+    esimaccess: ESIMACCESS_REFS[plan.slug] ?? `TODO_ESIMACCESS_${plan.csvSlug}`,
   },
   badge: plan.badge ?? null,
   active: true,
