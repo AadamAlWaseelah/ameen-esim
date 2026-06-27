@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SITE } from "@/lib/site-config";
+
 const PRODUCT_LINKS = [
   { href: "/plans", label: "Plans" },
   { href: "/compatibility", label: "Device check" },
@@ -68,12 +70,12 @@ export function Footer() {
             </p>
             <p className="text-cream/45">
               Registered with the Information Commissioner&apos;s Office (ICO),
-              reference {"{{ICO_NUMBER}}"}. Questions? Email{" "}
+              reference {SITE.icoNumber}. Questions? Email{" "}
               <a
-                href="mailto:{{SUPPORT_EMAIL}}"
+                href={`mailto:${SITE.supportEmail}`}
                 className="text-cream underline decoration-cream/45 underline-offset-4 transition-colors hover:text-gold-pale"
               >
-                {"{{SUPPORT_EMAIL}}"}
+                {SITE.supportEmail}
               </a>
               .
             </p>
