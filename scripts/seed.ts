@@ -14,35 +14,25 @@ async function main() {
   }
 
   const db = getDb();
+  // Non-destructive: only insert plans that don't exist yet. Existing plans are
+  // managed live via /admin (prices, mappings, badges, active state), so a
+  // re-seed must never clobber them. To intentionally reset a plan, delete it
+  // first or edit it in the admin.
+  let inserted = 0;
   for (const plan of seedPlans) {
-    await db
+    const rows = await db
       .insert(plans)
       .values(plan)
-      .onConflictDoUpdate({
-        target: plans.slug,
-        set: {
-          title: plan.title,
-          subtitle: plan.subtitle,
-          country: plan.country,
-          dataAmountMb: plan.dataAmountMb,
-          validityDays: plan.validityDays,
-          network: plan.network,
-          description: plan.description,
-          featureList: plan.featureList,
-          costPence: plan.costPence,
-          markupType: plan.markupType,
-          markupValue: plan.markupValue,
-          retailPricePence: plan.retailPricePence,
-          providerRefs: plan.providerRefs,
-          badge: plan.badge,
-          active: plan.active,
-          sortOrder: plan.sortOrder,
-          updatedAt: new Date(),
-        },
-      });
+      .onConflictDoNothing({ target: plans.slug })
+      .returning({ id: plans.id });
+    inserted += rows.length;
   }
 
-  console.log(`Seeded ${seedPlans.length} Ameen eSIM plans.`);
+  console.log(
+    `Seed complete: ${inserted} new plan(s) inserted, ${
+      seedPlans.length - inserted
+    } existing left untouched.`,
+  );
 }
 
 main().catch((error) => {
