@@ -8,8 +8,7 @@ export const SITE = {
   companyNumber: "16268888",
   address: "65 Berkeley Road, Yardley, Birmingham, West Midlands, B25 8NW",
   supportEmail: "alwaseelahtours@gmail.com",
-  // TODO(ameen): replace with the real ICO registration reference.
-  icoNumber: "{{ICO_NUMBER}}",
+  icoNumber: "ZB967070",
   country: "England & Wales",
   governingLaw: "England and Wales",
 } as const;
