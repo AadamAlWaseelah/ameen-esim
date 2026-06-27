@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarDays, Signal } from "lucide-react";
+import { CalendarDays, Globe, Signal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ export type BrowserPlan = {
   slug: string;
   title: string;
   subtitle: string | null;
+  country: string;
   dataAmountMb: number | null;
   validityDays: number;
   retailPricePence: number | null;
@@ -125,7 +126,7 @@ export function PlansBrowser({ plans }: { plans: BrowserPlan[] }) {
             ) : null}
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {group.items.map((plan) => (
               <PlanCard
                 key={plan.id}
@@ -167,6 +168,8 @@ function PlanCard({
 }) {
   const priceKnown = plan.retailPricePence != null;
   const popular = Boolean(plan.badge?.toLowerCase().includes("popular"));
+  const regional = plan.country !== "SA";
+  const tag = plan.badge ?? (regional ? plan.country : null);
 
   return (
     <div
@@ -175,9 +178,9 @@ function PlanCard({
         popular ? "border-navy" : "border-line",
       )}
     >
-      {plan.badge ? (
+      {tag ? (
         <span className="absolute right-4 top-4 rounded-md bg-gold/20 px-2 py-0.5 text-[11px] font-semibold text-gold-deep">
-          {plan.badge}
+          {tag}
         </span>
       ) : null}
 
@@ -192,6 +195,13 @@ function PlanCard({
         <CalendarDays className="size-3.5" aria-hidden />
         {daily ? "Daily pass" : `${plan.validityDays} days validity`}
       </p>
+
+      {regional ? (
+        <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate">
+          <Globe className="size-3.5" aria-hidden />
+          6 countries incl. Saudi Arabia
+        </p>
+      ) : null}
 
       {fup ? (
         <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate">

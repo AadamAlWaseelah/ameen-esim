@@ -40,28 +40,55 @@ export default async function PlansPage() {
     slug: plan.slug,
     title: plan.title,
     subtitle: plan.subtitle,
+    country: plan.country,
     dataAmountMb: plan.dataAmountMb,
     validityDays: plan.validityDays,
     retailPricePence: plan.retailPricePence,
     badge: plan.badge,
   }));
 
+  const saudiPlans = selectorPlans.filter((p) => p.country === "SA");
+  const gulfPlans = selectorPlans.filter(
+    (p) => p.country === "GCC" || p.country === "Gulf",
+  );
+
   return (
     <main className="container py-10 sm:py-16">
       <Reveal className="mx-auto max-w-2xl text-center">
         <h1 className="text-balance text-4xl text-navy sm:text-5xl">
-          Saudi data eSIM plans
+          Saudi &amp; Gulf data eSIM plans
         </h1>
         <p className="mt-4 text-pretty text-lg leading-relaxed text-slate">
-          One-off data eSIMs for your trip. Choose a daily allowance or a fixed
-          bundle, then check out in seconds — all plans are data-only and need
-          an eSIM-compatible phone.
+          One-off data eSIMs for your trip. Pick a Saudi Arabia plan, or a
+          Gulf-wide plan that also covers neighbouring countries — all data-only,
+          delivered in minutes, for any eSIM-compatible phone.
         </p>
       </Reveal>
 
       {selectorPlans.length ? (
-        <Reveal className="mt-12">
-          <PlansBrowser plans={selectorPlans} />
+        <Reveal className="mt-12 grid gap-x-10 gap-y-12 lg:grid-cols-[1.4fr,1fr]">
+          <div>
+            <h2 className="text-2xl text-navy">Saudi Arabia</h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-slate">
+              Data eSIMs for use within Saudi Arabia.
+            </p>
+            <div className="mt-6">
+              <PlansBrowser plans={saudiPlans} />
+            </div>
+          </div>
+
+          {gulfPlans.length ? (
+            <aside className="lg:border-l lg:border-line lg:pl-10">
+              <h2 className="text-2xl text-navy">Travelling across the Gulf?</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate">
+                One eSIM covering Saudi Arabia plus five Gulf neighbours — handy
+                if you transit through the UAE, Qatar or beyond.
+              </p>
+              <div className="mt-6">
+                <PlansBrowser plans={gulfPlans} />
+              </div>
+            </aside>
+          ) : null}
         </Reveal>
       ) : (
         <Reveal className="mx-auto mt-10 max-w-md rounded-2xl border border-line bg-paper p-10 text-center">

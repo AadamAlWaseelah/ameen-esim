@@ -173,7 +173,7 @@ const csvPlans: SeedInput[] = [
   },
 ];
 
-export const seedPlans: PlanRecord[] = csvPlans.map((plan, index) => ({
+const saudiSeed: PlanRecord[] = csvPlans.map((plan, index) => ({
   id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
   slug: plan.slug,
   title: plan.title,
@@ -207,3 +207,81 @@ export const seedPlans: PlanRecord[] = csvPlans.map((plan, index) => ({
   createdAt: now,
   updatedAt: now,
 }));
+
+// Regional (Multi-Area) eSIM Access plans that cover Saudi Arabia + Gulf
+// neighbours (Israel deliberately excluded). esimaccess refs are the live
+// package codes; mock mirrors them so the flow works without credentials.
+type RegionalInput = {
+  slug: string;
+  title: string;
+  region: "GCC" | "Gulf";
+  code: string;
+  dataMb: number;
+  days: number;
+  daily: boolean;
+  fup: boolean;
+  cost: number;
+  retail: number;
+};
+
+const REGION_COUNTRIES: Record<RegionalInput["region"], string[]> = {
+  GCC: ["Saudi Arabia", "UAE", "Qatar", "Kuwait", "Bahrain", "Oman"],
+  Gulf: ["Saudi Arabia", "UAE", "Qatar", "Kuwait", "Bahrain", "Iraq"],
+};
+
+const regionalInputs: RegionalInput[] = [
+  { slug: "gcc-1gb-7-days", title: "GCC 1GB", region: "GCC", code: "PPWBUY807", dataMb: 1024, days: 7, daily: false, fup: false, cost: 302, retail: 649 },
+  { slug: "gcc-2gb-per-day-fup-1mbps", title: "GCC 2GB/day", region: "GCC", code: "PMRXJQDH7", dataMb: 2048, days: 1, daily: true, fup: true, cost: 583, retail: 1199 },
+  { slug: "gcc-3gb-30-days", title: "GCC 3GB", region: "GCC", code: "P1CYRUDIH", dataMb: 3072, days: 30, daily: false, fup: false, cost: 875, retail: 1749 },
+  { slug: "gcc-5gb-30-days", title: "GCC 5GB", region: "GCC", code: "POQV6OEH1", dataMb: 5120, days: 30, daily: false, fup: false, cost: 1372, retail: 2749 },
+  { slug: "gcc-10gb-30-days", title: "GCC 10GB", region: "GCC", code: "PDMPCRCNJ", dataMb: 10240, days: 30, daily: false, fup: false, cost: 2504, retail: 5049 },
+  { slug: "gulf-500mb-per-day", title: "Gulf 500MB/day", region: "Gulf", code: "PW9U86NGE", dataMb: 512, days: 1, daily: true, fup: false, cost: 136, retail: 299 },
+  { slug: "gulf-1gb-7-days", title: "Gulf 1GB", region: "Gulf", code: "PTJX062PT", dataMb: 1024, days: 7, daily: false, fup: false, cost: 174, retail: 349 },
+  { slug: "gulf-1gb-per-day", title: "Gulf 1GB/day", region: "Gulf", code: "P40YDJ9WA", dataMb: 1024, days: 1, daily: true, fup: false, cost: 220, retail: 449 },
+  { slug: "gulf-3gb-30-days", title: "Gulf 3GB", region: "Gulf", code: "P8D7Q1CZY", dataMb: 3072, days: 30, daily: false, fup: false, cost: 515, retail: 1049 },
+  { slug: "gulf-5gb-30-days", title: "Gulf 5GB", region: "Gulf", code: "PK2BXX9B4", dataMb: 5120, days: 30, daily: false, fup: false, cost: 818, retail: 1649 },
+  { slug: "gulf-5gb-per-day", title: "Gulf 5GB/day", region: "Gulf", code: "PLK713DWL", dataMb: 5120, days: 1, daily: true, fup: false, cost: 818, retail: 1649 },
+  { slug: "gulf-10gb-30-days", title: "Gulf 10GB", region: "Gulf", code: "P9DH2MUN5", dataMb: 10240, days: 30, daily: false, fup: false, cost: 1666, retail: 3349 },
+  { slug: "gulf-10gb-per-day", title: "Gulf 10GB/day", region: "Gulf", code: "PLR26GSE7", dataMb: 10240, days: 1, daily: true, fup: false, cost: 1666, retail: 3349 },
+];
+
+const regionalSeed: PlanRecord[] = regionalInputs.map((p, i) => {
+  const countries = REGION_COUNTRIES[p.region];
+  const dataLabel = p.daily
+    ? `${p.dataMb >= 1024 ? `${Math.round(p.dataMb / 1024)}GB` : `${p.dataMb}MB`} per day`
+    : `${Math.round(p.dataMb / 1024)}GB total`;
+  return {
+    id: `00000000-0000-4000-8001-${String(i + 1).padStart(12, "0")}`,
+    slug: p.slug,
+    title: p.title,
+    subtitle: "Covers 6 Gulf countries incl. Saudi Arabia",
+    country: p.region,
+    dataAmountMb: p.dataMb,
+    validityDays: p.days,
+    network: "Roaming across the Gulf (4G/5G)",
+    description: `${p.title} multi-country data eSIM covering ${countries.join(", ")}. ${p.fup ? "High-speed allowance then 1Mbps fair-use. " : ""}Data-only eSIM; no phone number.`,
+    featureList: [
+      `Works in ${countries.join(", ")}`,
+      dataLabel,
+      `${p.days} day${p.days === 1 ? "" : "s"} validity`,
+      "Data-only eSIM, no phone number",
+    ],
+    costPence: p.cost,
+    markupType: "none",
+    markupValue: null,
+    retailPricePence: p.retail,
+    providerRefs: {
+      mock: p.code,
+      airalo: `TODO_AIRALO_${p.code}`,
+      maya: `TODO_MAYA_${p.code}`,
+      esimaccess: p.code,
+    },
+    badge: null,
+    active: true,
+    sortOrder: 200 + i,
+    createdAt: now,
+    updatedAt: now,
+  };
+});
+
+export const seedPlans: PlanRecord[] = [...saudiSeed, ...regionalSeed];
