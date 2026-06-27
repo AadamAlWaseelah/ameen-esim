@@ -3,8 +3,7 @@ import { MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
-import { PlanCard } from "@/components/plans/plan-card";
-import { getActiveProviderId } from "@/lib/esim";
+import { PlanSelector } from "@/components/plans/plan-selector";
 import { listPublicPlans } from "@/lib/plans/store";
 
 export const dynamic = "force-dynamic";
@@ -34,41 +33,38 @@ const FAQS = [
   },
 ];
 
-function isFeatured(badge: string | null) {
-  return Boolean(badge && badge.toLowerCase().includes("popular"));
-}
-
 export default async function PlansPage() {
   const plans = await listPublicPlans();
-  const providerId = getActiveProviderId();
+  const selectorPlans = plans.map((plan) => ({
+    id: plan.id,
+    slug: plan.slug,
+    title: plan.title,
+    subtitle: plan.subtitle,
+    dataAmountMb: plan.dataAmountMb,
+    validityDays: plan.validityDays,
+    retailPricePence: plan.retailPricePence,
+    badge: plan.badge,
+  }));
 
   return (
     <main className="container py-10 sm:py-16">
-      <Reveal className="max-w-3xl">
-        <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-sm font-medium text-gold-deep">
-          <span aria-hidden className="inline-block size-1.5 rotate-45 bg-gold" />
-          Active provider: {providerId}
-        </p>
+      <Reveal className="mx-auto max-w-2xl text-center">
         <h1 className="text-balance text-4xl text-navy sm:text-5xl">
           Saudi data eSIM plans
         </h1>
-        <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-slate">
-          One-off data eSIMs for your trip. Placeholder prices are clearly marked
-          until the wholesale provider and margin are confirmed — all plans are
-          data-only and need an eSIM-compatible phone.
+        <p className="mt-4 text-pretty text-lg leading-relaxed text-slate">
+          One-off data eSIMs for your trip. Choose a daily allowance or a fixed
+          bundle, then check out in seconds — all plans are data-only and need
+          an eSIM-compatible phone.
         </p>
       </Reveal>
 
-      {plans.length ? (
-        <div className="mt-12 grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {plans.map((plan, index) => (
-            <Reveal key={plan.id} delay={index * 50}>
-              <PlanCard plan={plan} featured={isFeatured(plan.badge)} />
-            </Reveal>
-          ))}
-        </div>
+      {selectorPlans.length ? (
+        <Reveal className="mt-10">
+          <PlanSelector plans={selectorPlans} />
+        </Reveal>
       ) : (
-        <Reveal className="mt-12 rounded-2xl border border-line bg-paper p-10 text-center">
+        <Reveal className="mx-auto mt-10 max-w-md rounded-2xl border border-line bg-paper p-10 text-center">
           <p className="font-medium text-navy">No plans available yet</p>
           <p className="mt-2 text-sm text-slate">
             Plans appear here once they&apos;re mapped to the active provider.
