@@ -1,1 +1,16 @@
-{}
+{
+  "saudi-500mb-per-day": "P3818ZAKH",
+  "saudi-1gb-per-day": "PH1C85GUN",
+  "saudi-1gb-per-day-fup-1mbps": "PW7DXG35X",
+  "saudi-1gb-7-days": "CKH277",
+  "saudi-2gb-per-day": "PTRB35F3U",
+  "saudi-2gb-per-day-fup-1mbps": "P3UHF4RX8",
+  "saudi-3gb-per-day-fup-1mbps": "PVEXXS543",
+  "saudi-3gb-15-days": "CKH278",
+  "saudi-3gb-30-days": "CKH036",
+  "saudi-5gb-30-days": "CKH279",
+  "saudi-10gb-per-day": "P2F7DWA8R",
+  "saudi-10gb-30-days": "CKH280",
+  "saudi-20gb-30-days": "CKH800",
+  "saudi-50gb-30-days": "CKH801"
+}
