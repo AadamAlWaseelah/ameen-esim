@@ -3,7 +3,7 @@ import { MessageCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
-import { PlanSelector } from "@/components/plans/plan-selector";
+import { PlansBrowser } from "@/components/plans/plans-browser";
 import { listPublicPlans } from "@/lib/plans/store";
 
 export const dynamic = "force-dynamic";
@@ -60,8 +60,8 @@ export default async function PlansPage() {
       </Reveal>
 
       {selectorPlans.length ? (
-        <Reveal className="mt-10">
-          <PlanSelector plans={selectorPlans} />
+        <Reveal className="mt-12">
+          <PlansBrowser plans={selectorPlans} />
         </Reveal>
       ) : (
         <Reveal className="mx-auto mt-10 max-w-md rounded-2xl border border-line bg-paper p-10 text-center">
