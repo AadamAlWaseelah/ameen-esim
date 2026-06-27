@@ -2,48 +2,54 @@
 // reduced-motion. Images are TEMPORARY placeholders — swap `src` for real
 // destination photos (see PLACEHOLDERS.md).
 
-type Destination = { city: string; country: string; src: string };
+type Destination = {
+  city: string;
+  country: string;
+  src: string;
+  objectPosition?: string;
+};
 
 const DESTINATIONS: Destination[] = [
   {
     city: "London",
     country: "United Kingdom",
-    src: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=1200&auto=format&fit=crop",
+    src: "/destinations/london.jpg",
+    objectPosition: "72% center",
   },
   {
     city: "Istanbul",
     country: "Türkiye",
-    src: "https://images.unsplash.com/photo-1472396961693-142e6e269027?q=80&w=1200&auto=format&fit=crop",
+    src: "/destinations/istanbul.jpg",
   },
   {
-    city: "Cairo",
-    country: "Egypt",
-    src: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=1200&auto=format&fit=crop",
+    city: "Islamabad",
+    country: "Pakistan",
+    src: "/destinations/islamabad.jpg",
   },
   {
     city: "Dubai",
     country: "United Arab Emirates",
-    src: "https://images.unsplash.com/photo-1482881497185-d4a9ddbe4151?q=80&w=1200&auto=format&fit=crop",
+    src: "/destinations/dubai.jpg",
   },
   {
-    city: "Kuala Lumpur",
-    country: "Malaysia",
-    src: "https://plus.unsplash.com/premium_photo-1673264933212-d78737f38e48?q=80&w=1200&auto=format&fit=crop",
+    city: "Makkah",
+    country: "Saudi Arabia",
+    src: "/destinations/makkah.jpg",
   },
   {
-    city: "Jakarta",
+    city: "Raja Ampat",
     country: "Indonesia",
-    src: "https://plus.unsplash.com/premium_photo-1711434824963-ca894373272e?q=80&w=1200&auto=format&fit=crop",
+    src: "/destinations/raja-ampat.jpg",
   },
   {
-    city: "Lagos",
-    country: "Nigeria",
-    src: "https://plus.unsplash.com/premium_photo-1675705721263-0bbeec261c49?q=80&w=1200&auto=format&fit=crop",
+    city: "Madinah",
+    country: "Saudi Arabia",
+    src: "/destinations/madinah.jpg",
   },
   {
-    city: "Karachi",
-    country: "Pakistan",
-    src: "https://images.unsplash.com/photo-1524799526615-766a9833dec0?q=80&w=1200&auto=format&fit=crop",
+    city: "Sylhet",
+    country: "Bangladesh",
+    src: "/destinations/sylhet.jpg",
   },
 ];
 
@@ -67,6 +73,7 @@ export function DestinationsMarquee() {
                 src={d.src}
                 alt={isClone ? "" : `${d.city}, ${d.country}`}
                 loading="lazy"
+                style={{ objectPosition: d.objectPosition }}
                 className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/15 to-transparent" />
