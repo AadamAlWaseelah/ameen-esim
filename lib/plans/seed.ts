@@ -181,7 +181,7 @@ const saudiSeed: PlanRecord[] = csvPlans.map((plan, index) => ({
   country: "SA",
   dataAmountMb: plan.dataAmountMb,
   validityDays: plan.validityDays,
-  network: "Saudi Arabia network - provider confirmation required",
+  network: "STC · 4G/5G",
   description: plan.fairUse
     ? `${plan.title} Saudi data eSIM from the supplier price list. ${plan.fairUse} Data-only eSIM; no phone number is included.`
     : `${plan.title} Saudi data eSIM from the supplier price list. Data-only eSIM; no phone number is included.`,

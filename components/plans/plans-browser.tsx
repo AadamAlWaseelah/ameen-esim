@@ -58,7 +58,13 @@ const GROUPS: Group[] = [
   },
 ];
 
-export function PlansBrowser({ plans }: { plans: BrowserPlan[] }) {
+export function PlansBrowser({
+  plans,
+  compact = false,
+}: {
+  plans: BrowserPlan[];
+  compact?: boolean;
+}) {
   const [showFup, setShowFup] = useState(false);
   const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +132,7 @@ export function PlansBrowser({ plans }: { plans: BrowserPlan[] }) {
             ) : null}
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className={compact ? "mt-5 grid gap-3" : "mt-5 grid gap-3 sm:grid-cols-2"}>
             {group.items.map((plan) => (
               <PlanCard
                 key={plan.id}

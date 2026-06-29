@@ -85,7 +85,7 @@ export default async function PlansPage() {
                 if you transit through the UAE, Qatar or beyond.
               </p>
               <div className="mt-6">
-                <PlansBrowser plans={gulfPlans} />
+                <PlansBrowser plans={gulfPlans} compact />
               </div>
             </aside>
           ) : null}
