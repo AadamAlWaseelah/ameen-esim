@@ -27,7 +27,7 @@ export type BrowserPlan = {
   badge: string | null;
 };
 
-type Accent = "green" | "navy";
+type Accent = "green" | "navy" | "blue";
 type Layout = "grid" | "row";
 
 // 1-day packages give a daily allowance; everything else is a fixed bundle.
@@ -138,9 +138,7 @@ export function PlansBrowser({
                 <span
                   className={cn(
                     "mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl",
-                    accent === "green"
-                      ? "bg-saudi-tint text-saudi"
-                      : "bg-gold/15 text-gold-deep",
+                    accentTintClass(accent),
                   )}
                 >
                   <GroupIcon className="size-4" aria-hidden />
@@ -206,9 +204,16 @@ function priceLabel(pence: number | null) {
 }
 
 function buyButtonClass(accent: Accent) {
-  return accent === "green"
-    ? "bg-saudi text-white hover:bg-saudi-deep"
-    : undefined;
+  if (accent === "green") return "bg-saudi text-white hover:bg-saudi-deep";
+  if (accent === "blue") return "bg-intl text-white hover:bg-intl-deep";
+  return undefined;
+}
+
+// Soft tinted chip background for the accent (group icons, country tags).
+function accentTintClass(accent: Accent) {
+  if (accent === "green") return "bg-saudi-tint text-saudi";
+  if (accent === "blue") return "bg-intl-tint text-intl";
+  return "bg-gold/15 text-gold-deep";
 }
 
 // Vertical card — Saudi grid (up to four across).
@@ -239,9 +244,7 @@ function PlanCard({
         <span
           className={cn(
             "absolute right-4 top-4 rounded-md px-2 py-0.5 text-[11px] font-semibold",
-            accent === "green"
-              ? "bg-saudi-tint text-saudi"
-              : "bg-gold/20 text-gold-deep",
+            accentTintClass(accent),
           )}
         >
           {tag}

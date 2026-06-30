@@ -284,4 +284,72 @@ const regionalSeed: PlanRecord[] = regionalInputs.map((p, i) => {
   };
 });
 
-export const seedPlans: PlanRecord[] = [...saudiSeed, ...regionalSeed];
+// International single-country eSIMs (worldwide destinations beyond Saudi/Gulf).
+// Starter catalogue for the UK, France and Spain — add more countries by
+// extending INTL_COUNTRIES. `mock` refs let these surface in dev; real
+// provider codes (esimaccess) are filled in per-plan before going live.
+const INTL_COUNTRIES: { code: string; country: string }[] = [
+  { code: "GB", country: "United Kingdom" },
+  { code: "FR", country: "France" },
+  { code: "ES", country: "Spain" },
+];
+
+const INTL_SIZES: {
+  key: string;
+  dataMb: number;
+  days: number;
+  cost: number;
+  retail: number;
+  badge?: string;
+}[] = [
+  { key: "1gb-30", dataMb: 1024, days: 30, cost: 100, retail: 229 },
+  { key: "3gb-30", dataMb: 3072, days: 30, cost: 180, retail: 399 },
+  { key: "5gb-30", dataMb: 5120, days: 30, cost: 260, retail: 549, badge: "Popular" },
+  { key: "10gb-30", dataMb: 10240, days: 30, cost: 430, retail: 899 },
+];
+
+const intlSeed: PlanRecord[] = INTL_COUNTRIES.flatMap((c, ci) =>
+  INTL_SIZES.map((s, si) => {
+    const dataLabel =
+      s.dataMb >= 1024 ? `${Math.round(s.dataMb / 1024)}GB` : `${s.dataMb}MB`;
+    const code = `${c.code}_${dataLabel}_${s.days}`;
+    return {
+      id: `00000000-0000-4000-8002-${String(ci * 100 + si + 1).padStart(12, "0")}`,
+      slug: `${c.code.toLowerCase()}-${s.key}`,
+      title: `${c.country} ${dataLabel}`,
+      subtitle: `Data eSIM for ${c.country}`,
+      country: c.code,
+      dataAmountMb: s.dataMb,
+      validityDays: s.days,
+      network: "Local 4G/5G networks",
+      description: `${dataLabel} data eSIM for use in ${c.country}. Data-only eSIM; no phone number is included.`,
+      featureList: [
+        `${dataLabel} mobile data in ${c.country}`,
+        `${s.days} days validity`,
+        "Data-only eSIM, no phone number",
+        "Install before travel, activate on arrival",
+      ],
+      costPence: s.cost,
+      markupType: "none" as const,
+      markupValue: null,
+      retailPricePence: s.retail,
+      providerRefs: {
+        mock: code,
+        airalo: `TODO_AIRALO_${code}`,
+        maya: `TODO_MAYA_${code}`,
+        esimaccess: `TODO_ESIMACCESS_${code}`,
+      },
+      badge: s.badge ?? null,
+      active: true,
+      sortOrder: 400 + ci * 10 + si,
+      createdAt: now,
+      updatedAt: now,
+    };
+  }),
+);
+
+export const seedPlans: PlanRecord[] = [
+  ...saudiSeed,
+  ...regionalSeed,
+  ...intlSeed,
+];

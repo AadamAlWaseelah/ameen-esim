@@ -4,6 +4,7 @@ import {
   Clock,
   Globe,
   MessageCircle,
+  Plane,
   ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -11,7 +12,20 @@ import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
 import { PlansBrowser } from "@/components/plans/plans-browser";
+import {
+  InternationalPlans,
+  type IntlCountry,
+} from "@/components/plans/international-plans";
 import { listPublicPlans } from "@/lib/plans/store";
+
+// Worldwide single-country eSIMs. Add a country by dropping its mini flag in
+// public/brand and adding an entry here (code must match the plan `country`).
+const INTL_COUNTRIES: IntlCountry[] = [
+  { code: "GB", name: "United Kingdom", flag: "/brand/flag-gb.svg" },
+  { code: "FR", name: "France", flag: "/brand/flag-fr.svg" },
+  { code: "ES", name: "Spain", flag: "/brand/flag-es.svg" },
+];
+const INTL_CODES = new Set(INTL_COUNTRIES.map((c) => c.code));
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +72,7 @@ export default async function PlansPage() {
   const gulfPlans = selectorPlans.filter(
     (p) => p.country === "GCC" || p.country === "Gulf",
   );
+  const intlPlans = selectorPlans.filter((p) => INTL_CODES.has(p.country));
 
   return (
     <main className="container py-10 sm:py-16">
@@ -152,6 +167,49 @@ export default async function PlansPage() {
               </div>
             </Reveal>
           ) : null}
+
+          {/* International — worldwide single-country eSIMs, chosen by flag. */}
+          <Reveal className="overflow-hidden rounded-3xl border border-[color:var(--intl-line)] bg-gradient-to-b from-intl-tint to-intl-tint-2">
+            <div className="p-6 sm:p-8">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex items-start gap-4">
+                  <Badge tone="blue">
+                    <Plane className="size-5 text-white" aria-hidden />
+                  </Badge>
+                  <div className="max-w-md">
+                    <h2 className="text-2xl text-navy sm:text-3xl">
+                      International eSIMs
+                    </h2>
+                    <p className="mt-1 text-sm leading-relaxed text-slate">
+                      Travelling beyond Saudi Arabia? Pick a country to see its
+                      data eSIMs — same instant delivery, one clear price.
+                    </p>
+                  </div>
+                </div>
+                <dl className="flex flex-wrap gap-x-7 gap-y-4">
+                  <Feature
+                    icon={Clock}
+                    title="Instant by email"
+                    sub="Delivered in minutes"
+                    iconClassName="text-intl"
+                  />
+                  <Feature
+                    icon={ShieldCheck}
+                    title="One-off plans"
+                    sub="No auto-renewal"
+                    iconClassName="text-intl"
+                  />
+                </dl>
+              </div>
+
+              <div className="mt-6 border-t border-[color:var(--intl-line)] pt-7">
+                <InternationalPlans
+                  countries={INTL_COUNTRIES}
+                  plans={intlPlans}
+                />
+              </div>
+            </div>
+          </Reveal>
         </div>
       ) : (
         <Reveal className="mx-auto mt-10 max-w-md rounded-2xl border border-line bg-paper p-10 text-center">
@@ -208,11 +266,17 @@ function Badge({
   alt,
   children,
 }: {
-  tone?: "green" | "gold";
+  tone?: "green" | "gold" | "blue";
   image?: string;
   alt?: string;
   children?: React.ReactNode;
 }) {
+  const gradient =
+    tone === "gold"
+      ? "linear-gradient(160deg, var(--gold-pale) 0%, var(--gold) 100%)"
+      : tone === "blue"
+        ? "linear-gradient(160deg, var(--intl) 0%, var(--intl-deep) 100%)"
+        : "linear-gradient(160deg, var(--saudi) 0%, var(--saudi-deep) 100%)";
   if (image) {
     return (
       <span className="block h-11 w-[66px] shrink-0 overflow-hidden rounded-lg shadow-sm ring-1 ring-black/10">
@@ -228,12 +292,7 @@ function Badge({
   return (
     <span
       className="grid size-11 shrink-0 place-items-center rounded-lg shadow-sm"
-      style={{
-        background:
-          tone === "gold"
-            ? "linear-gradient(160deg, var(--gold-pale) 0%, var(--gold) 100%)"
-            : "linear-gradient(160deg, var(--saudi) 0%, var(--saudi-deep) 100%)",
-      }}
+      style={{ background: gradient }}
     >
       {children}
     </span>
@@ -254,19 +313,21 @@ function SaudiSkyline() {
   );
 }
 
-// Single icon + label feature in the Gulf header strip.
+// Single icon + label feature in a section header strip.
 function Feature({
   icon: Icon,
   title,
   sub,
+  iconClassName = "text-gold-deep",
 }: {
   icon: LucideIcon;
   title: string;
   sub: string;
+  iconClassName?: string;
 }) {
   return (
     <div className="flex items-center gap-2.5">
-      <Icon className="size-5 shrink-0 text-gold-deep" aria-hidden />
+      <Icon className={`size-5 shrink-0 ${iconClassName}`} aria-hidden />
       <div>
         <dt className="text-sm font-semibold text-navy">{title}</dt>
         <dd className="text-xs text-slate">{sub}</dd>

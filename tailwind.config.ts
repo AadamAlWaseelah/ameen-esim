@@ -67,6 +67,12 @@ const config: Config = {
           tint: "var(--saudi-tint)",
           "tint-2": "var(--saudi-tint-2)",
         },
+        intl: {
+          DEFAULT: "var(--intl)",
+          deep: "var(--intl-deep)",
+          tint: "var(--intl-tint)",
+          "tint-2": "var(--intl-tint-2)",
+        },
         slate: "var(--slate)",
         cream: "var(--cream)",
         paper: "var(--paper)",
