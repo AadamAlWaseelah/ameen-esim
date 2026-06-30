@@ -81,7 +81,7 @@ export default async function PlansPage() {
               <SaudiSkyline />
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <Hexagon image="/brand/saudi-flag.svg" />
+                  <Badge image="/brand/saudi-flag.svg" alt="Flag of Saudi Arabia" />
                   <div>
                     <h2 className="text-2xl text-navy sm:text-3xl">
                       Saudi Arabia
@@ -109,9 +109,9 @@ export default async function PlansPage() {
               <div className="p-6 sm:p-8">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex items-start gap-4">
-                    <Hexagon tone="gold">
-                      <Globe className="size-6 text-gold-deep" aria-hidden />
-                    </Hexagon>
+                    <Badge tone="gold">
+                      <Globe className="size-5 text-navy" aria-hidden />
+                    </Badge>
                     <div className="max-w-md">
                       <h2 className="text-2xl text-navy sm:text-3xl">
                         Travelling across the Gulf?
@@ -199,37 +199,40 @@ export default async function PlansPage() {
   );
 }
 
-// Elongated (pointy-top) hexagon badge used as the section emblem. Pass an
-// `image` to fill it edge-to-edge (e.g. the Saudi flag), otherwise it takes a
-// tinted gradient with a centred icon child.
-function Hexagon({
+// Section emblem badge. With `image` it renders a rounded-rectangle flag at
+// its natural 3:2 ratio (no squashing); otherwise a rounded-square gradient
+// tile with a centred icon child.
+function Badge({
   tone,
   image,
+  alt,
   children,
 }: {
   tone?: "green" | "gold";
   image?: string;
+  alt?: string;
   children?: React.ReactNode;
 }) {
+  if (image) {
+    return (
+      <span className="block h-11 w-[66px] shrink-0 overflow-hidden rounded-lg shadow-sm ring-1 ring-black/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={image}
+          alt={alt ?? ""}
+          className="h-full w-full object-cover"
+        />
+      </span>
+    );
+  }
   return (
     <span
-      className="grid h-[68px] w-14 shrink-0 place-items-center"
+      className="grid size-11 shrink-0 place-items-center rounded-lg shadow-sm"
       style={{
-        clipPath:
-          "polygon(50% 0%, 100% 26%, 100% 74%, 50% 100%, 0% 74%, 0% 26%)",
-        filter: "drop-shadow(0 2px 4px rgba(25,32,46,0.18))",
-        ...(image
-          ? {
-              backgroundImage: `url(${image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }
-          : {
-              background:
-                tone === "gold"
-                  ? "linear-gradient(160deg, var(--gold-pale) 0%, var(--gold) 100%)"
-                  : "linear-gradient(160deg, var(--saudi) 0%, var(--saudi-deep) 100%)",
-            }),
+        background:
+          tone === "gold"
+            ? "linear-gradient(160deg, var(--gold-pale) 0%, var(--gold) 100%)"
+            : "linear-gradient(160deg, var(--saudi) 0%, var(--saudi-deep) 100%)",
       }}
     >
       {children}
