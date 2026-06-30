@@ -84,14 +84,12 @@ export function PlansBrowser({
   layout?: Layout;
   showGroupHeaders?: boolean;
 }) {
-  const [showFup, setShowFup] = useState(false);
   const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const hasFup = useMemo(() => plans.some(isFup), [plans]);
-
   const grouped = useMemo(() => {
-    const visible = plans.filter((p) => showFup || !isFup(p));
+    // Fair-use / throttled variants are never shown to keep the list honest.
+    const visible = plans.filter((p) => !isFup(p));
     return GROUPS.map((group) => ({
       ...group,
       items: visible
@@ -101,7 +99,7 @@ export function PlansBrowser({
             (a.retailPricePence ?? Infinity) - (b.retailPricePence ?? Infinity),
         ),
     })).filter((group) => group.items.length > 0);
-  }, [plans, showFup]);
+  }, [plans]);
 
   async function buy(slug: string) {
     setLoadingSlug(slug);
@@ -157,26 +155,9 @@ export function PlansBrowser({
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-3 sm:pl-4">
-                <span className="hidden text-xs text-slate lg:inline">
-                  All plans are one-off · Data only
-                </span>
-                {group.key === "daily" && hasFup ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowFup((v) => !v)}
-                    className={cn(
-                      "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                      showFup
-                        ? "border-navy bg-navy/5 text-navy"
-                        : "border-line text-slate hover:text-navy",
-                    )}
-                    aria-pressed={showFup}
-                  >
-                    {showFup ? "Hide fair-use" : "Fair-use options"}
-                  </button>
-                ) : null}
-              </div>
+              <span className="hidden shrink-0 text-xs text-slate sm:inline sm:pl-4">
+                All plans are one-off · Data only
+              </span>
             </div>
             ) : null}
 

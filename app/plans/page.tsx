@@ -81,9 +81,7 @@ export default async function PlansPage() {
               <SaudiSkyline />
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <Hexagon tone="green">
-                    <SaudiEmblem />
-                  </Hexagon>
+                  <Hexagon image="/brand/saudi-flag.svg" />
                   <div>
                     <h2 className="text-2xl text-navy sm:text-3xl">
                       Saudi Arabia
@@ -201,52 +199,41 @@ export default async function PlansPage() {
   );
 }
 
-// Flat-top hexagon badge used as the section emblem.
+// Elongated (pointy-top) hexagon badge used as the section emblem. Pass an
+// `image` to fill it edge-to-edge (e.g. the Saudi flag), otherwise it takes a
+// tinted gradient with a centred icon child.
 function Hexagon({
   tone,
+  image,
   children,
 }: {
-  tone: "green" | "gold";
-  children: React.ReactNode;
+  tone?: "green" | "gold";
+  image?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <span
-      className="grid size-14 shrink-0 place-items-center"
+      className="grid h-[68px] w-14 shrink-0 place-items-center"
       style={{
         clipPath:
-          "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
-        background:
-          tone === "green"
-            ? "linear-gradient(160deg, var(--saudi) 0%, var(--saudi-deep) 100%)"
-            : "linear-gradient(160deg, var(--gold-pale) 0%, var(--gold) 100%)",
+          "polygon(50% 0%, 100% 26%, 100% 74%, 50% 100%, 0% 74%, 0% 26%)",
+        filter: "drop-shadow(0 2px 4px rgba(25,32,46,0.18))",
+        ...(image
+          ? {
+              backgroundImage: `url(${image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }
+          : {
+              background:
+                tone === "gold"
+                  ? "linear-gradient(160deg, var(--gold-pale) 0%, var(--gold) 100%)"
+                  : "linear-gradient(160deg, var(--saudi) 0%, var(--saudi-deep) 100%)",
+            }),
       }}
     >
       {children}
     </span>
-  );
-}
-
-// Simplified Saudi emblem (palm above two crossed swords) in white.
-function SaudiEmblem() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-7"
-      fill="none"
-      stroke="white"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      {/* crossed swords */}
-      <path d="M4 17.5 18.5 6" />
-      <path d="M20 17.5 5.5 6" />
-      <path d="M3.2 16.7 5 18.5M20.8 16.7 19 18.5" />
-      {/* palm */}
-      <path d="M12 16.5V9" />
-      <path d="M12 9c-1.6-1.2-3.4-1.3-4.8-.5M12 9c1.6-1.2 3.4-1.3 4.8-.5M12 8.6c-1-1.4-2.6-2-4-1.9M12 8.6c1-1.4 2.6-2 4-1.9M12 8.4c0-1.3.5-2.4 1.4-3" />
-    </svg>
   );
 }
 
