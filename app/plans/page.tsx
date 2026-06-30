@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  Globe,
+  MessageCircle,
+  ShieldCheck,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
@@ -66,30 +73,88 @@ export default async function PlansPage() {
       </Reveal>
 
       {selectorPlans.length ? (
-        <Reveal className="mt-12 grid gap-x-10 gap-y-12 lg:grid-cols-[1.4fr,1fr]">
-          <div>
-            <h2 className="text-2xl text-navy">Saudi Arabia</h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-slate">
-              Data eSIMs for use within Saudi Arabia.
-            </p>
-            <div className="mt-6">
-              <PlansBrowser plans={saudiPlans} />
-            </div>
-          </div>
-
-          {gulfPlans.length ? (
-            <aside className="lg:border-l lg:border-line lg:pl-10">
-              <h2 className="text-2xl text-navy">Travelling across the Gulf?</h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate">
-                One eSIM covering Saudi Arabia plus five Gulf neighbours — handy
-                if you transit through the UAE, Qatar or beyond.
-              </p>
-              <div className="mt-6">
-                <PlansBrowser plans={gulfPlans} compact />
+        <div className="mt-12 space-y-8">
+          {/* Saudi Arabia — set apart with a green wash so it reads as the
+              primary, in-country option. */}
+          <Reveal className="overflow-hidden rounded-3xl border border-[color:var(--saudi-line)] bg-gradient-to-b from-saudi-tint to-saudi-tint-2">
+            <div className="relative p-6 sm:p-8">
+              <SaudiSkyline />
+              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-start gap-4">
+                  <Hexagon tone="green">
+                    <SaudiEmblem />
+                  </Hexagon>
+                  <div>
+                    <h2 className="text-2xl text-navy sm:text-3xl">
+                      Saudi Arabia
+                    </h2>
+                    <p className="mt-1 text-sm leading-relaxed text-slate">
+                      Data eSIMs for use within Saudi Arabia.
+                    </p>
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-2 self-start rounded-full border border-[color:var(--saudi-line)] bg-paper/70 px-3 py-1.5 text-xs font-medium text-saudi">
+                  <Clock className="size-3.5" aria-hidden />
+                  Delivered in minutes
+                </span>
               </div>
-            </aside>
+
+              <div className="relative mt-6 border-t border-[color:var(--saudi-line)] pt-7">
+                <PlansBrowser plans={saudiPlans} accent="green" layout="grid" />
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Gulf-wide — one eSIM that also covers the neighbours. */}
+          {gulfPlans.length ? (
+            <Reveal className="overflow-hidden rounded-3xl border border-line bg-gradient-to-b from-cream to-paper">
+              <div className="p-6 sm:p-8">
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex items-start gap-4">
+                    <Hexagon tone="gold">
+                      <Globe className="size-6 text-gold-deep" aria-hidden />
+                    </Hexagon>
+                    <div className="max-w-md">
+                      <h2 className="text-2xl text-navy sm:text-3xl">
+                        Travelling across the Gulf?
+                      </h2>
+                      <p className="mt-1 text-sm leading-relaxed text-slate">
+                        One eSIM covering Saudi Arabia plus five Gulf neighbours
+                        — handy if you transit through the UAE, Qatar or beyond.
+                      </p>
+                    </div>
+                  </div>
+                  <dl className="flex flex-wrap gap-x-7 gap-y-4">
+                    <Feature
+                      icon={Globe}
+                      title="6 countries"
+                      sub="incl. Saudi Arabia"
+                    />
+                    <Feature
+                      icon={CalendarDays}
+                      title="Daily data"
+                      sub="Fresh allowance"
+                    />
+                    <Feature
+                      icon={ShieldCheck}
+                      title="One-off plans"
+                      sub="No auto-renewal"
+                    />
+                  </dl>
+                </div>
+
+                <div className="mt-6 border-t border-line pt-7">
+                  <PlansBrowser
+                    plans={gulfPlans}
+                    accent="navy"
+                    layout="row"
+                    showGroupHeaders={false}
+                  />
+                </div>
+              </div>
+            </Reveal>
           ) : null}
-        </Reveal>
+        </div>
       ) : (
         <Reveal className="mx-auto mt-10 max-w-md rounded-2xl border border-line bg-paper p-10 text-center">
           <p className="font-medium text-navy">No plans available yet</p>
@@ -133,5 +198,89 @@ export default async function PlansPage() {
         </Button>
       </Reveal>
     </main>
+  );
+}
+
+// Flat-top hexagon badge used as the section emblem.
+function Hexagon({
+  tone,
+  children,
+}: {
+  tone: "green" | "gold";
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className="grid size-14 shrink-0 place-items-center"
+      style={{
+        clipPath:
+          "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+        background:
+          tone === "green"
+            ? "linear-gradient(160deg, var(--saudi) 0%, var(--saudi-deep) 100%)"
+            : "linear-gradient(160deg, var(--gold-pale) 0%, var(--gold) 100%)",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+// Simplified Saudi emblem (palm above two crossed swords) in white.
+function SaudiEmblem() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-7"
+      fill="none"
+      stroke="white"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {/* crossed swords */}
+      <path d="M4 17.5 18.5 6" />
+      <path d="M20 17.5 5.5 6" />
+      <path d="M3.2 16.7 5 18.5M20.8 16.7 19 18.5" />
+      {/* palm */}
+      <path d="M12 16.5V9" />
+      <path d="M12 9c-1.6-1.2-3.4-1.3-4.8-.5M12 9c1.6-1.2 3.4-1.3 4.8-.5M12 8.6c-1-1.4-2.6-2-4-1.9M12 8.6c1-1.4 2.6-2 4-1.9M12 8.4c0-1.3.5-2.4 1.4-3" />
+    </svg>
+  );
+}
+
+// Faint skyline wash in the top-right of the Saudi panel (decorative).
+function SaudiSkyline() {
+  return (
+    <div
+      className="pointer-events-none absolute right-0 top-0 hidden h-full w-1/2 opacity-[0.07] sm:block"
+      style={{
+        background:
+          "radial-gradient(120% 120% at 100% 0%, var(--saudi) 0%, transparent 55%)",
+      }}
+      aria-hidden
+    />
+  );
+}
+
+// Single icon + label feature in the Gulf header strip.
+function Feature({
+  icon: Icon,
+  title,
+  sub,
+}: {
+  icon: LucideIcon;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <Icon className="size-5 shrink-0 text-gold-deep" aria-hidden />
+      <div>
+        <dt className="text-sm font-semibold text-navy">{title}</dt>
+        <dd className="text-xs text-slate">{sub}</dd>
+      </div>
+    </div>
   );
 }

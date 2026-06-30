@@ -2,7 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { CalendarDays, Globe, Signal } from "lucide-react";
+import {
+  CalendarDays,
+  CalendarRange,
+  Gift,
+  Globe,
+  Signal,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -20,6 +27,9 @@ export type BrowserPlan = {
   badge: string | null;
 };
 
+type Accent = "green" | "navy";
+type Layout = "grid" | "row";
+
 // 1-day packages give a daily allowance; everything else is a fixed bundle.
 function isDaily(plan: BrowserPlan) {
   return plan.validityDays <= 1;
@@ -34,6 +44,7 @@ type Group = {
   key: string;
   title: string;
   blurb: string;
+  icon: LucideIcon;
   match: (plan: BrowserPlan) => boolean;
 };
 
@@ -41,29 +52,37 @@ const GROUPS: Group[] = [
   {
     key: "daily",
     title: "Daily data",
-    blurb: "A fresh allowance every day — best when you want plenty of data and will top up as you go.",
+    blurb:
+      "A fresh allowance every day — best when you want plenty of data and will top up as you go.",
+    icon: Gift,
     match: (p) => isDaily(p),
   },
   {
     key: "short",
     title: "Short stays · up to 15 days",
     blurb: "A fixed bundle for a focused Umrah trip of a week or two.",
+    icon: CalendarRange,
     match: (p) => !isDaily(p) && p.validityDays <= 15,
   },
   {
     key: "monthly",
     title: "Monthly bundles · 30 days",
     blurb: "Larger 30-day bundles for longer stays or heavier use.",
+    icon: CalendarDays,
     match: (p) => !isDaily(p) && p.validityDays > 15,
   },
 ];
 
 export function PlansBrowser({
   plans,
-  compact = false,
+  accent = "navy",
+  layout = "grid",
+  showGroupHeaders = true,
 }: {
   plans: BrowserPlan[];
-  compact?: boolean;
+  accent?: Accent;
+  layout?: Layout;
+  showGroupHeaders?: boolean;
 }) {
   const [showFup, setShowFup] = useState(false);
   const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
@@ -104,49 +123,93 @@ export function PlansBrowser({
     }
   }
 
-  return (
-    <div className="space-y-14">
-      {grouped.map((group) => (
-        <section key={group.key}>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-xl">
-              <h2 className="text-2xl text-navy">{group.title}</h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate">
-                {group.blurb}
-              </p>
-            </div>
-            {group.key === "daily" && hasFup ? (
-              <button
-                type="button"
-                onClick={() => setShowFup((v) => !v)}
-                className={cn(
-                  "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                  showFup
-                    ? "border-navy bg-navy/5 text-navy"
-                    : "border-line text-slate hover:text-navy",
-                )}
-                aria-pressed={showFup}
-              >
-                {showFup ? "Hide fair-use options" : "Show fair-use options"}
-              </button>
-            ) : null}
-          </div>
+  const gridClass =
+    layout === "row"
+      ? "mt-5 grid gap-3 lg:grid-cols-2"
+      : "mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4";
 
-          <div className={compact ? "mt-5 grid gap-3" : "mt-5 grid gap-3 sm:grid-cols-2"}>
-            {group.items.map((plan) => (
-              <PlanCard
-                key={plan.id}
-                plan={plan}
-                daily={isDaily(plan)}
-                fup={isFup(plan)}
-                loading={loadingSlug === plan.slug}
-                disabled={loadingSlug !== null}
-                onBuy={() => buy(plan.slug)}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+  return (
+    <div className="space-y-10">
+      {grouped.map((group) => {
+        const GroupIcon = group.icon;
+        return (
+          <section key={group.key}>
+            {showGroupHeaders ? (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <span
+                  className={cn(
+                    "mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl",
+                    accent === "green"
+                      ? "bg-saudi-tint text-saudi"
+                      : "bg-gold/15 text-gold-deep",
+                  )}
+                >
+                  <GroupIcon className="size-4" aria-hidden />
+                </span>
+                <div className="max-w-xl">
+                  <h3 className="text-lg font-semibold text-navy">
+                    {group.title}
+                  </h3>
+                  <p className="mt-0.5 text-sm leading-relaxed text-slate">
+                    {group.blurb}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-3 sm:pl-4">
+                <span className="hidden text-xs text-slate lg:inline">
+                  All plans are one-off · Data only
+                </span>
+                {group.key === "daily" && hasFup ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowFup((v) => !v)}
+                    className={cn(
+                      "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                      showFup
+                        ? "border-navy bg-navy/5 text-navy"
+                        : "border-line text-slate hover:text-navy",
+                    )}
+                    aria-pressed={showFup}
+                  >
+                    {showFup ? "Hide fair-use" : "Fair-use options"}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            ) : null}
+
+            <div className={gridClass}>
+              {group.items.map((plan) =>
+                layout === "row" ? (
+                  <PlanCardRow
+                    key={plan.id}
+                    plan={plan}
+                    daily={isDaily(plan)}
+                    fup={isFup(plan)}
+                    accent={accent}
+                    loading={loadingSlug === plan.slug}
+                    disabled={loadingSlug !== null}
+                    onBuy={() => buy(plan.slug)}
+                  />
+                ) : (
+                  <PlanCard
+                    key={plan.id}
+                    plan={plan}
+                    daily={isDaily(plan)}
+                    fup={isFup(plan)}
+                    accent={accent}
+                    loading={loadingSlug === plan.slug}
+                    disabled={loadingSlug !== null}
+                    onBuy={() => buy(plan.slug)}
+                  />
+                ),
+              )}
+            </div>
+          </section>
+        );
+      })}
 
       {error ? (
         <p className="text-center text-sm text-destructive" role="alert">
@@ -157,10 +220,22 @@ export function PlansBrowser({
   );
 }
 
+function priceLabel(pence: number | null) {
+  return pence != null ? `£${(pence / 100).toFixed(2)}` : "TBD";
+}
+
+function buyButtonClass(accent: Accent) {
+  return accent === "green"
+    ? "bg-saudi text-white hover:bg-saudi-deep"
+    : undefined;
+}
+
+// Vertical card — Saudi grid (up to four across).
 function PlanCard({
   plan,
   daily,
   fup,
+  accent,
   loading,
   disabled,
   onBuy,
@@ -168,24 +243,26 @@ function PlanCard({
   plan: BrowserPlan;
   daily: boolean;
   fup: boolean;
+  accent: Accent;
   loading: boolean;
   disabled: boolean;
   onBuy: () => void;
 }) {
   const priceKnown = plan.retailPricePence != null;
-  const popular = Boolean(plan.badge?.toLowerCase().includes("popular"));
   const regional = plan.country !== "SA";
   const tag = plan.badge ?? (regional ? plan.country : null);
 
   return (
-    <div
-      className={cn(
-        "relative flex flex-col rounded-2xl border bg-paper p-5",
-        popular ? "border-navy" : "border-line",
-      )}
-    >
+    <div className="relative flex flex-col rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(25,32,46,0.04)]">
       {tag ? (
-        <span className="absolute right-4 top-4 rounded-md bg-gold/20 px-2 py-0.5 text-[11px] font-semibold text-gold-deep">
+        <span
+          className={cn(
+            "absolute right-4 top-4 rounded-md px-2 py-0.5 text-[11px] font-semibold",
+            accent === "green"
+              ? "bg-saudi-tint text-saudi"
+              : "bg-gold/20 text-gold-deep",
+          )}
+        >
           {tag}
         </span>
       ) : null}
@@ -197,17 +274,10 @@ function PlanCard({
         {daily ? <span className="text-sm text-slate">/ day</span> : null}
       </div>
 
-      <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-slate">
+      <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
         <CalendarDays className="size-3.5" aria-hidden />
         {daily ? "Daily pass" : `${plan.validityDays} days validity`}
       </p>
-
-      {regional ? (
-        <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate">
-          <Globe className="size-3.5" aria-hidden />
-          6 countries incl. Saudi Arabia
-        </p>
-      ) : null}
 
       {fup ? (
         <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate">
@@ -216,17 +286,15 @@ function PlanCard({
         </p>
       ) : null}
 
-      <div className="mt-5 flex items-end justify-between">
-        <p className="tnum text-xl font-semibold text-navy">
-          {priceKnown ? `£${(plan.retailPricePence! / 100).toFixed(2)}` : "TBD"}
-          <span className="ml-1 text-xs font-normal text-slate">one-off</span>
-        </p>
-      </div>
+      <p className="tnum mt-5 text-xl font-semibold text-navy">
+        {priceLabel(plan.retailPricePence)}
+        <span className="ml-1 text-xs font-normal text-slate">one-off</span>
+      </p>
 
       <Button
         onClick={onBuy}
         disabled={disabled || !priceKnown}
-        className="mt-3 w-full"
+        className={cn("mt-3 w-full", buyButtonClass(accent))}
       >
         {loading ? "Starting…" : priceKnown ? "Buy this eSIM" : "Coming soon"}
       </Button>
@@ -234,6 +302,84 @@ function PlanCard({
       <Link
         href={`/plans/${plan.slug}`}
         className="mt-2 text-center text-xs font-medium text-gold-deep underline-offset-4 hover:underline"
+      >
+        Plan details
+      </Link>
+    </div>
+  );
+}
+
+// Horizontal card — Gulf-wide plans (details left, price + buy right).
+function PlanCardRow({
+  plan,
+  daily,
+  fup,
+  accent,
+  loading,
+  disabled,
+  onBuy,
+}: {
+  plan: BrowserPlan;
+  daily: boolean;
+  fup: boolean;
+  accent: Accent;
+  loading: boolean;
+  disabled: boolean;
+  onBuy: () => void;
+}) {
+  const priceKnown = plan.retailPricePence != null;
+  const tag = plan.badge ?? (plan.country !== "SA" ? plan.country : null);
+
+  return (
+    <div className="relative flex flex-col rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(25,32,46,0.04)]">
+      {tag ? (
+        <span className="absolute right-4 top-4 rounded-md bg-gold/20 px-2 py-0.5 text-[11px] font-semibold text-gold-deep">
+          {tag}
+        </span>
+      ) : null}
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex items-baseline gap-1">
+            <span className="text-2xl font-semibold text-navy">
+              {formatDataAmount(plan.dataAmountMb)}
+            </span>
+            {daily ? <span className="text-sm text-slate">/ day</span> : null}
+          </div>
+          <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
+            <CalendarDays className="size-3.5" aria-hidden />
+            {daily ? "Daily pass" : `${plan.validityDays} days validity`}
+          </p>
+          <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
+            <Globe className="size-3.5" aria-hidden />
+            6 countries incl. Saudi Arabia
+          </p>
+          {fup ? (
+            <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
+              <Signal className="size-3.5" aria-hidden />
+              Slows to 1Mbps after the daily allowance
+            </p>
+          ) : null}
+        </div>
+
+        <div className="flex shrink-0 items-center gap-4">
+          <p className="tnum text-xl font-semibold text-navy">
+            {priceLabel(plan.retailPricePence)}
+            <span className="ml-1 text-xs font-normal text-slate">one-off</span>
+          </p>
+          <Button
+            onClick={onBuy}
+            disabled={disabled || !priceKnown}
+            className={buyButtonClass(accent)}
+          >
+            {loading ? "Starting…" : priceKnown ? "Buy this eSIM" : "Coming soon"}
+          </Button>
+        </div>
+      </div>
+
+      <Link
+        href={`/plans/${plan.slug}`}
+        className="mt-3 text-center text-xs font-medium text-gold-deep underline-offset-4 hover:underline sm:text-left"
       >
         Plan details
       </Link>

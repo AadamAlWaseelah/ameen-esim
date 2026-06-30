@@ -61,6 +61,12 @@ const config: Config = {
           deep: "var(--gold-deep)",
           pale: "var(--gold-pale)",
         },
+        saudi: {
+          DEFAULT: "var(--saudi)",
+          deep: "var(--saudi-deep)",
+          tint: "var(--saudi-tint)",
+          "tint-2": "var(--saudi-tint-2)",
+        },
         slate: "var(--slate)",
         cream: "var(--cream)",
         paper: "var(--paper)",

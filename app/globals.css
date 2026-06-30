@@ -24,6 +24,12 @@
   --paper: #ffffff; /* cards / clean surfaces */
   --line: rgba(25, 32, 46, 0.1); /* hairline dividers */
   --line-gold: rgba(201, 169, 97, 0.35); /* gold hairline for emphasis */
+  /* Saudi green — used to set the Saudi Arabia plans apart from Gulf-wide. */
+  --saudi: #1f4a32; /* deep Saudi green — buttons, emblem, headings accent */
+  --saudi-deep: #163a27; /* hover / pressed */
+  --saudi-tint: #edf3ec; /* pale green wash for the Saudi container + pills */
+  --saudi-tint-2: #f5f9f3; /* lighter gradient stop toward the cards */
+  --saudi-line: rgba(31, 74, 50, 0.18); /* green hairline / borders */
 
   /* Semantic tokens (shadcn-compatible: components use bg-primary etc.) */
   --background: var(--cream);
