@@ -156,7 +156,6 @@ export default async function Home() {
       {/* Global reach — full-bleed tech band: the world connecting to the Haramain. */}
       <section className="relative isolate mt-16 overflow-hidden bg-navy text-cream sm:mt-20">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-navy via-[#0f1626] to-navy" />
           <div
             className="absolute right-[8%] top-1/2 h-[520px] w-[620px] max-w-[60%] -translate-y-1/2 rounded-full opacity-50 blur-3xl"
             style={{
@@ -184,9 +183,6 @@ export default async function Home() {
                 "radial-gradient(ellipse at center, black, transparent 75%)",
             }}
           />
-          {/* Soft gradient transitions into the cream page (no hard edges). */}
-          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cream to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-cream to-transparent" />
         </div>
 
         <Reveal className="container grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-[0.95fr_1.05fr]">
