@@ -3,6 +3,7 @@ import {
   charmRoundPence,
   usdCentsToPence,
 } from "@/lib/money";
+import { countryName } from "@/lib/flags";
 
 import type { PlanRecord } from "./types";
 import esimaccessRefs from "./esimaccess-refs.json";
@@ -311,20 +312,10 @@ type IntlCatalogueRow = {
   slug: string;
 };
 
-const INTL_COUNTRY_NAMES: Record<string, string> = {
-  GB: "United Kingdom",
-  FR: "France",
-  ES: "Spain",
-  US: "United States",
-  NL: "Netherlands",
-  PK: "Pakistan",
-  BD: "Bangladesh",
-};
-
 const intlSeed: PlanRecord[] = (
   intlCatalogue as unknown as IntlCatalogueRow[]
 ).map((row, index) => {
-  const countryName = INTL_COUNTRY_NAMES[row.country] ?? row.country;
+  const name = countryName(row.country);
   const fxRate = USD_TO_GBP;
   const costPence = usdCentsToPence(row.costUsdCents, fxRate);
   const retailPricePence = charmRoundPence(
@@ -335,18 +326,18 @@ const intlSeed: PlanRecord[] = (
     id: `00000000-0000-4000-8002-${String(index + 1).padStart(12, "0")}`,
     slug: row.slug,
     title: row.name,
-    subtitle: `Data eSIM for ${countryName}`,
+    subtitle: `Data eSIM for ${name}`,
     country: row.country,
     dataAmountMb: row.dataMb,
     validityDays: row.validityDays,
     network: row.speed ? `Local networks · ${row.speed}` : "Local networks",
-    description: `${row.name} data eSIM for use in ${countryName}. ${
+    description: `${row.name} data eSIM for use in ${name}. ${
       isTotal
         ? "Fixed data bundle for the validity period."
         : "Daily high-speed allowance."
     } Data-only eSIM; no phone number is included.`,
     featureList: [
-      `Data for use in ${countryName}`,
+      `Data for use in ${name}`,
       `${row.validityDays} day${row.validityDays === 1 ? "" : "s"} validity`,
       "Data-only eSIM, no phone number",
       "Install before travel, activate on arrival",

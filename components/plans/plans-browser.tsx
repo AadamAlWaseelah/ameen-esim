@@ -13,6 +13,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { flagForCountry } from "@/lib/flags";
 import { formatDataAmount } from "@/lib/money";
 
 export type BrowserPlan = {
@@ -235,19 +236,34 @@ function PlanCard({
   onBuy: () => void;
 }) {
   const priceKnown = plan.retailPricePence != null;
-  const regional = plan.country !== "SA";
-  const tag = plan.badge ?? (regional ? plan.country : null);
+  const flag = flagForCountry(plan.country);
+  // A badge (e.g. "Popular") wins the corner; otherwise show the country's
+  // flag, falling back to the region code for non-flagged regionals (Gulf).
+  const textTag =
+    plan.badge ?? (!flag && plan.country !== "SA" ? plan.country : null);
 
   return (
     <div className="relative flex flex-col rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(25,32,46,0.04)]">
-      {tag ? (
+      {textTag ? (
         <span
           className={cn(
             "absolute right-4 top-4 rounded-md px-2 py-0.5 text-[11px] font-semibold",
             accentTintClass(accent),
           )}
         >
-          {tag}
+          {textTag}
+        </span>
+      ) : flag ? (
+        <span
+          title={flag.name}
+          className="absolute right-4 top-4 block h-3.5 w-[19px] overflow-hidden rounded-[3px] ring-1 ring-black/10"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={flag.flag}
+            alt={flag.name}
+            className="h-full w-full object-cover"
+          />
         </span>
       ) : null}
 

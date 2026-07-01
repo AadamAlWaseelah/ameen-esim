@@ -12,23 +12,10 @@ import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
 import { PlansBrowser } from "@/components/plans/plans-browser";
-import {
-  InternationalPlans,
-  type IntlCountry,
-} from "@/components/plans/international-plans";
+import { InternationalPlans } from "@/components/plans/international-plans";
+import { INTL_COUNTRIES } from "@/lib/flags";
 import { listPublicPlans } from "@/lib/plans/store";
 
-// Worldwide single-country eSIMs. Add a country by dropping its mini flag in
-// public/brand and adding an entry here (code must match the plan `country`).
-const INTL_COUNTRIES: IntlCountry[] = [
-  { code: "GB", name: "United Kingdom", flag: "/brand/flag-gb.svg" },
-  { code: "FR", name: "France", flag: "/brand/flag-fr.svg" },
-  { code: "ES", name: "Spain", flag: "/brand/flag-es.svg" },
-  { code: "US", name: "United States", flag: "/brand/flag-us.svg" },
-  { code: "NL", name: "Netherlands", flag: "/brand/flag-nl.svg" },
-  { code: "PK", name: "Pakistan", flag: "/brand/flag-pk.svg" },
-  { code: "BD", name: "Bangladesh", flag: "/brand/flag-bd.svg" },
-];
 const INTL_CODES = new Set(INTL_COUNTRIES.map((c) => c.code));
 
 export const dynamic = "force-dynamic";
