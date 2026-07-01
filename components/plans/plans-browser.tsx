@@ -271,7 +271,6 @@ function PlanCard({
         <span className="text-2xl font-semibold text-navy">
           {formatDataAmount(plan.dataAmountMb)}
         </span>
-        {daily ? <span className="text-sm text-slate">/ day</span> : null}
       </div>
 
       <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
@@ -344,8 +343,7 @@ function PlanCardRow({
             <span className="text-2xl font-semibold text-navy">
               {formatDataAmount(plan.dataAmountMb)}
             </span>
-            {daily ? <span className="text-sm text-slate">/ day</span> : null}
-          </div>
+              </div>
           <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
             <CalendarDays className="size-3.5" aria-hidden />
             {daily ? "Daily pass" : `${plan.validityDays} days validity`}
