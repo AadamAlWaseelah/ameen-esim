@@ -315,6 +315,10 @@ const INTL_COUNTRY_NAMES: Record<string, string> = {
   GB: "United Kingdom",
   FR: "France",
   ES: "Spain",
+  US: "United States",
+  NL: "Netherlands",
+  PK: "Pakistan",
+  BD: "Bangladesh",
 };
 
 const intlSeed: PlanRecord[] = (

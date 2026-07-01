@@ -24,6 +24,10 @@ const INTL_COUNTRIES: IntlCountry[] = [
   { code: "GB", name: "United Kingdom", flag: "/brand/flag-gb.svg" },
   { code: "FR", name: "France", flag: "/brand/flag-fr.svg" },
   { code: "ES", name: "Spain", flag: "/brand/flag-es.svg" },
+  { code: "US", name: "United States", flag: "/brand/flag-us.svg" },
+  { code: "NL", name: "Netherlands", flag: "/brand/flag-nl.svg" },
+  { code: "PK", name: "Pakistan", flag: "/brand/flag-pk.svg" },
+  { code: "BD", name: "Bangladesh", flag: "/brand/flag-bd.svg" },
 ];
 const INTL_CODES = new Set(INTL_COUNTRIES.map((c) => c.code));
 
