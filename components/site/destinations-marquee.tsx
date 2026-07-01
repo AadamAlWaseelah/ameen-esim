@@ -81,7 +81,7 @@ export function DestinationsMarquee() {
                 <p className="text-sm font-semibold leading-tight text-cream">
                   {d.city}
                 </p>
-                <p className="mt-0.5 text-xs text-cream/70">{d.country}</p>
+                <p className="mt-0.5 text-xs text-cream">{d.country}</p>
               </div>
             </li>
           );

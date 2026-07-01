@@ -1,6 +1,13 @@
 import Link from "next/link";
 import QRCode from "qrcode";
-import { ArrowRight, Check, MailCheck, Smartphone, Wallet } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  MailCheck,
+  PlaneTakeoff,
+  Smartphone,
+  Wallet,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
@@ -350,12 +357,36 @@ export default async function Home() {
                 "radial-gradient(closest-side, rgba(201,169,97,0.30), transparent)",
             }}
           />
+          {/* Take-off plane rising along a dashed flight path. */}
+          <div aria-hidden className="relative mx-auto mb-7 h-14 w-[150px]">
+            <svg
+              viewBox="0 0 150 56"
+              fill="none"
+              className="absolute inset-0 h-full w-full text-gold/60"
+            >
+              <path
+                d="M6 50 Q 78 48 132 12"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeDasharray="1.5 7"
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="absolute -right-1 -top-1 grid size-12 place-items-center rounded-2xl bg-gold/10 ring-1 ring-gold/25">
+              <PlaneTakeoff className="size-6 text-gold-pale" aria-hidden />
+            </span>
+          </div>
+
           <h2 className="text-balance text-3xl text-cream sm:text-4xl">
             Sorted before you fly.
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-pretty leading-relaxed text-cream/75">
             Choose a plan, get your QR by email, and land in Saudi Arabia already
             connected.
+          </p>
+          <p className="mx-auto mt-3 max-w-md text-pretty text-sm leading-relaxed text-cream/60">
+            One clear price, no roaming shocks — just peace of mind from take-off
+            to landing.
           </p>
           <div className="mt-8">
             <Button asChild size="lg" variant="gold">
