@@ -4,7 +4,14 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { LogOut, RefreshCw, Save, Trash2, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { formatDataAmount, formatMoney } from "@/lib/money";
+import {
+  USD_TO_GBP,
+  charmRoundPence,
+  formatDataAmount,
+  formatMoney,
+  formatUsdCents,
+  usdCentsToPence,
+} from "@/lib/money";
 import type { ProviderId, ProviderPlan } from "@/lib/esim";
 import type { PlanRecord } from "@/lib/plans/types";
 
@@ -23,6 +30,10 @@ type DraftPlan = {
   costPence: string;
   markupType: "none" | "percent" | "fixed";
   markupValue: string;
+  // eSIM Access source pricing, entered in USD dollars.
+  costUsd: string;
+  variantUsd: string;
+  fxRate: string;
   badge: string;
   active: boolean;
   sortOrder: string;
@@ -46,6 +57,9 @@ const blankDraft: DraftPlan = {
   costPence: "",
   markupType: "none",
   markupValue: "",
+  costUsd: "",
+  variantUsd: "",
+  fxRate: String(USD_TO_GBP),
   badge: "PRICE TBD",
   active: true,
   sortOrder: "999",
@@ -102,6 +116,27 @@ export function AdminPlansClient() {
     if (suggestedRetail != null) {
       setDraft((d) => ({ ...d, retailPricePence: String(suggestedRetail) }));
     }
+  }
+
+  // --- eSIM Access USD source → GBP conversion trail --------------------------
+  const costUsdCents = Math.round((Number(draft.costUsd) || 0) * 100);
+  const variantUsdCents = Math.round((Number(draft.variantUsd) || 0) * 100);
+  const fxRate = Number(draft.fxRate) || 0;
+  const hasUsd = costUsdCents > 0 && variantUsdCents > 0 && fxRate > 0;
+  const convertedCostPence = hasUsd ? usdCentsToPence(costUsdCents, fxRate) : null;
+  const convertedVariantPence = hasUsd
+    ? usdCentsToPence(variantUsdCents, fxRate)
+    : null;
+  const roundedRetailPence =
+    convertedVariantPence != null ? charmRoundPence(convertedVariantPence) : null;
+
+  function applyFx() {
+    if (convertedCostPence == null || roundedRetailPence == null) return;
+    setDraft((d) => ({
+      ...d,
+      costPence: String(convertedCostPence),
+      retailPricePence: String(roundedRetailPence),
+    }));
   }
 
   async function loadPlans() {
@@ -413,6 +448,87 @@ export function AdminPlansClient() {
             </div>
           </div>
 
+          {/* eSIM Access source pricing (USD) → GBP conversion trail */}
+          <div className="mt-4 rounded-2xl border border-line bg-cream/50 p-4">
+            <h3 className="font-medium text-navy">
+              Source pricing — eSIM Access (USD)
+            </h3>
+            <p className="mt-1 text-xs text-slate">
+              The supplier&apos;s USD prices and the exchange rate used. Retail is
+              the variant price converted to GBP, then rounded up to the nearest
+              charm price (£x.49 / £x.99).
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <Field
+                label="eSIM Access price ($)"
+                value={draft.costUsd}
+                onChange={(costUsd) => setDraft({ ...draft, costUsd })}
+              />
+              <Field
+                label="Variant price ($)"
+                value={draft.variantUsd}
+                onChange={(variantUsd) => setDraft({ ...draft, variantUsd })}
+              />
+              <Field
+                label="Exchange rate (USD→GBP)"
+                value={draft.fxRate}
+                onChange={(fxRate) => setDraft({ ...draft, fxRate })}
+              />
+            </div>
+
+            <div className="mt-4 overflow-hidden rounded-xl border border-line">
+              <table className="w-full text-sm">
+                <tbody className="tnum">
+                  <tr className="border-b border-line">
+                    <td className="px-3 py-2 text-slate">eSIM Access price</td>
+                    <td className="px-3 py-2 text-right text-navy">
+                      {formatUsdCents(hasUsd ? costUsdCents : null)}
+                    </td>
+                    <td className="px-3 py-2 text-right text-slate">
+                      × {draft.fxRate || "—"} ={" "}
+                      <span className="font-medium text-navy">
+                        {formatMoney(convertedCostPence)}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="border-b border-line">
+                    <td className="px-3 py-2 text-slate">Variant price</td>
+                    <td className="px-3 py-2 text-right text-navy">
+                      {formatUsdCents(hasUsd ? variantUsdCents : null)}
+                    </td>
+                    <td className="px-3 py-2 text-right text-slate">
+                      × {draft.fxRate || "—"} ={" "}
+                      <span className="font-medium text-navy">
+                        {formatMoney(convertedVariantPence)}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr className="bg-gold/5">
+                    <td className="px-3 py-2 font-medium text-navy">
+                      Displayed retail (rounded)
+                    </td>
+                    <td className="px-3 py-2" />
+                    <td className="px-3 py-2 text-right font-semibold text-navy">
+                      {formatMoney(roundedRetailPence)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {hasUsd ? (
+              <button
+                type="button"
+                onClick={applyFx}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-gold/40 px-2.5 py-1 text-xs font-medium text-gold-deep transition-colors hover:bg-gold/10"
+              >
+                <Wand2 className="size-3.5" aria-hidden />
+                Apply FX → cost {formatMoney(convertedCostPence)} · retail{" "}
+                {formatMoney(roundedRetailPence)}
+              </button>
+            ) : null}
+          </div>
+
           <label className="mt-6 block">
             <span className="text-sm font-medium text-navy">Description</span>
             <textarea
@@ -524,6 +640,16 @@ function draftFromPlan(plan: PlanRecord): DraftPlan {
     costPence: plan.costPence?.toString() ?? "",
     markupType: plan.markupType,
     markupValue: plan.markupValue?.toString() ?? "",
+    costUsd:
+      plan.pricing != null ? (plan.pricing.costUsdCents / 100).toString() : "",
+    variantUsd:
+      plan.pricing != null
+        ? (plan.pricing.variantUsdCents / 100).toString()
+        : "",
+    fxRate:
+      plan.pricing != null
+        ? plan.pricing.fxRate.toString()
+        : String(USD_TO_GBP),
     badge: plan.badge ?? "",
     active: plan.active,
     sortOrder: plan.sortOrder.toString(),
@@ -549,6 +675,14 @@ function payloadFromDraft(draft: DraftPlan) {
     costPence: draft.costPence,
     markupType: draft.markupType,
     markupValue: draft.markupValue,
+    pricing:
+      Number(draft.costUsd) > 0 && Number(draft.variantUsd) > 0
+        ? {
+            costUsdCents: Math.round(Number(draft.costUsd) * 100),
+            variantUsdCents: Math.round(Number(draft.variantUsd) * 100),
+            fxRate: Number(draft.fxRate) || USD_TO_GBP,
+          }
+        : null,
     badge: draft.badge,
     active: draft.active,
     sortOrder: draft.sortOrder,

@@ -69,12 +69,7 @@ export function InternationalPlans({
 
       <div className="mt-7">
         {countryPlans.length ? (
-          <PlansBrowser
-            plans={countryPlans}
-            accent="blue"
-            layout="grid"
-            showGroupHeaders={false}
-          />
+          <PlansBrowser plans={countryPlans} accent="blue" layout="grid" />
         ) : (
           <div className="rounded-2xl border border-dashed border-[color:var(--intl-line)] bg-paper/50 p-8 text-center">
             <p className="font-medium text-navy">

@@ -26,10 +26,26 @@ export function planInputFromJson(value: unknown): NewPlanRecord {
         : "none",
     markupValue: numberOrNull(raw.markupValue),
     retailPricePence: numberOrNull(raw.retailPricePence),
+    pricing: pricingOrNull(raw.pricing),
     providerRefs,
     badge: stringOrNull(raw.badge),
     active: Boolean(raw.active),
     sortOrder: Number(raw.sortOrder ?? 999),
+  };
+}
+
+// USD source pricing is optional; only keep it when both USD prices are set.
+function pricingOrNull(value: unknown) {
+  if (!value || typeof value !== "object") return null;
+  const raw = value as Record<string, unknown>;
+  const costUsdCents = numberOrNull(raw.costUsdCents);
+  const variantUsdCents = numberOrNull(raw.variantUsdCents);
+  if (costUsdCents == null || variantUsdCents == null) return null;
+  const fxRate = Number(raw.fxRate);
+  return {
+    costUsdCents,
+    variantUsdCents,
+    fxRate: Number.isFinite(fxRate) && fxRate > 0 ? fxRate : 0,
   };
 }
 

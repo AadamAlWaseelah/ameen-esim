@@ -9,6 +9,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
+import type { PlanPricing } from "@/lib/money";
+
 export const markupTypeEnum = pgEnum("markup_type", [
   "percent",
   "fixed",
@@ -30,6 +32,9 @@ export const plans = pgTable("plans", {
   markupType: markupTypeEnum("markup_type").notNull().default("none"),
   markupValue: integer("markup_value"),
   retailPricePence: integer("retail_price_pence"),
+  // USD source pricing + FX trail for plans priced from a USD supplier; null
+  // for plans priced directly in GBP (Saudi/Gulf).
+  pricing: jsonb("pricing").$type<PlanPricing | null>(),
   providerRefs: jsonb("provider_refs")
     .$type<Record<string, string>>()
     .notNull()

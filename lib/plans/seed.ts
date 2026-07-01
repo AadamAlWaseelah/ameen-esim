@@ -1,5 +1,12 @@
+import {
+  USD_TO_GBP,
+  charmRoundPence,
+  usdCentsToPence,
+} from "@/lib/money";
+
 import type { PlanRecord } from "./types";
 import esimaccessRefs from "./esimaccess-refs.json";
+import intlCatalogue from "./international-catalogue.json";
 
 // Real eSIM Access package codes, keyed by plan slug. Populated by
 // `npm run esim:map`; unmatched plans fall back to a TODO placeholder.
@@ -195,6 +202,7 @@ const saudiSeed: PlanRecord[] = csvPlans.map((plan, index) => ({
   markupType: "none",
   markupValue: null,
   retailPricePence: plan.retailPricePence,
+  pricing: null,
   providerRefs: {
     mock: plan.csvSlug,
     airalo: `TODO_AIRALO_${plan.csvSlug}`,
@@ -270,6 +278,7 @@ const regionalSeed: PlanRecord[] = regionalInputs.map((p, i) => {
     markupType: "none",
     markupValue: null,
     retailPricePence: p.retail,
+    pricing: null,
     providerRefs: {
       mock: p.code,
       airalo: `TODO_AIRALO_${p.code}`,
@@ -285,68 +294,81 @@ const regionalSeed: PlanRecord[] = regionalInputs.map((p, i) => {
 });
 
 // International single-country eSIMs (worldwide destinations beyond Saudi/Gulf).
-// Starter catalogue for the UK, France and Spain — add more countries by
-// extending INTL_COUNTRIES. `mock` refs let these surface in dev; real
-// provider codes (esimaccess) are filled in per-plan before going live.
-const INTL_COUNTRIES: { code: string; country: string }[] = [
-  { code: "GB", country: "United Kingdom" },
-  { code: "FR", country: "France" },
-  { code: "ES", country: "Spain" },
-];
+// Sourced from the committed eSIM Access catalogue (built by
+// scripts/build-intl-catalogue.ts). Retail is derived transparently: USD
+// variant price → GBP at USD_TO_GBP → charm-rounded. The USD/FX trail is kept
+// on `pricing` so the admin can show the full conversion.
+type IntlCatalogueRow = {
+  country: string;
+  name: string;
+  dataType: string;
+  dataMb: number | null;
+  validityDays: number;
+  speed: string;
+  costUsdCents: number;
+  variantUsdCents: number;
+  code: string;
+  slug: string;
+};
 
-const INTL_SIZES: {
-  key: string;
-  dataMb: number;
-  days: number;
-  cost: number;
-  retail: number;
-  badge?: string;
-}[] = [
-  { key: "1gb-30", dataMb: 1024, days: 30, cost: 100, retail: 229 },
-  { key: "3gb-30", dataMb: 3072, days: 30, cost: 180, retail: 399 },
-  { key: "5gb-30", dataMb: 5120, days: 30, cost: 260, retail: 549, badge: "Popular" },
-  { key: "10gb-30", dataMb: 10240, days: 30, cost: 430, retail: 899 },
-];
+const INTL_COUNTRY_NAMES: Record<string, string> = {
+  GB: "United Kingdom",
+  FR: "France",
+  ES: "Spain",
+};
 
-const intlSeed: PlanRecord[] = INTL_COUNTRIES.flatMap((c, ci) =>
-  INTL_SIZES.map((s, si) => {
-    const dataLabel =
-      s.dataMb >= 1024 ? `${Math.round(s.dataMb / 1024)}GB` : `${s.dataMb}MB`;
-    const code = `${c.code}_${dataLabel}_${s.days}`;
-    return {
-      id: `00000000-0000-4000-8002-${String(ci * 100 + si + 1).padStart(12, "0")}`,
-      slug: `${c.code.toLowerCase()}-${s.key}`,
-      title: `${c.country} ${dataLabel}`,
-      subtitle: `Data eSIM for ${c.country}`,
-      country: c.code,
-      dataAmountMb: s.dataMb,
-      validityDays: s.days,
-      network: "Local 4G/5G networks",
-      description: `${dataLabel} data eSIM for use in ${c.country}. Data-only eSIM; no phone number is included.`,
-      featureList: [
-        `${dataLabel} mobile data in ${c.country}`,
-        `${s.days} days validity`,
-        "Data-only eSIM, no phone number",
-        "Install before travel, activate on arrival",
-      ],
-      costPence: s.cost,
-      markupType: "none" as const,
-      markupValue: null,
-      retailPricePence: s.retail,
-      providerRefs: {
-        mock: code,
-        airalo: `TODO_AIRALO_${code}`,
-        maya: `TODO_MAYA_${code}`,
-        esimaccess: `TODO_ESIMACCESS_${code}`,
-      },
-      badge: s.badge ?? null,
-      active: true,
-      sortOrder: 400 + ci * 10 + si,
-      createdAt: now,
-      updatedAt: now,
-    };
-  }),
-);
+const intlSeed: PlanRecord[] = (
+  intlCatalogue as unknown as IntlCatalogueRow[]
+).map((row, index) => {
+  const countryName = INTL_COUNTRY_NAMES[row.country] ?? row.country;
+  const fxRate = USD_TO_GBP;
+  const costPence = usdCentsToPence(row.costUsdCents, fxRate);
+  const retailPricePence = charmRoundPence(
+    usdCentsToPence(row.variantUsdCents, fxRate),
+  );
+  const isTotal = row.dataType.toLowerCase().includes("total");
+  return {
+    id: `00000000-0000-4000-8002-${String(index + 1).padStart(12, "0")}`,
+    slug: row.slug,
+    title: row.name,
+    subtitle: `Data eSIM for ${countryName}`,
+    country: row.country,
+    dataAmountMb: row.dataMb,
+    validityDays: row.validityDays,
+    network: row.speed ? `Local networks · ${row.speed}` : "Local networks",
+    description: `${row.name} data eSIM for use in ${countryName}. ${
+      isTotal
+        ? "Fixed data bundle for the validity period."
+        : "Daily high-speed allowance."
+    } Data-only eSIM; no phone number is included.`,
+    featureList: [
+      `Data for use in ${countryName}`,
+      `${row.validityDays} day${row.validityDays === 1 ? "" : "s"} validity`,
+      "Data-only eSIM, no phone number",
+      "Install before travel, activate on arrival",
+    ],
+    costPence,
+    markupType: "none" as const,
+    markupValue: null,
+    retailPricePence,
+    pricing: {
+      costUsdCents: row.costUsdCents,
+      variantUsdCents: row.variantUsdCents,
+      fxRate,
+    },
+    providerRefs: {
+      mock: row.code,
+      airalo: `TODO_AIRALO_${row.code}`,
+      maya: `TODO_MAYA_${row.code}`,
+      esimaccess: row.code,
+    },
+    badge: null,
+    active: true,
+    sortOrder: 400 + index,
+    createdAt: now,
+    updatedAt: now,
+  };
+});
 
 export const seedPlans: PlanRecord[] = [
   ...saudiSeed,

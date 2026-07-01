@@ -81,6 +81,7 @@ export async function createPlan(input: NewPlanRecord) {
     markupType: input.markupType ?? "none",
     markupValue: input.markupValue ?? null,
     retailPricePence: input.retailPricePence ?? null,
+    pricing: input.pricing ?? null,
     providerRefs: input.providerRefs ?? {},
     badge: input.badge ?? null,
     active: input.active ?? true,

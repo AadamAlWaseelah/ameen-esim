@@ -60,7 +60,7 @@ const GROUPS: Group[] = [
   {
     key: "short",
     title: "Short stays · up to 15 days",
-    blurb: "A fixed bundle for a focused Umrah trip of a week or two.",
+    blurb: "A fixed data bundle for a trip of a week or two.",
     icon: CalendarRange,
     match: (p) => !isDaily(p) && p.validityDays <= 15,
   },
