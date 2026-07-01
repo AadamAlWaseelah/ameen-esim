@@ -37,7 +37,7 @@ export default function CompatibilityPage() {
         </h1>
         <p className="mt-4 text-pretty text-lg leading-relaxed text-slate">
           A Saudi eSIM only works on an eSIM-capable, carrier-unlocked phone.
-          Search your model below — it takes a second, and it saves you from
+          Search your model below. It takes a second, and it saves you from
           buying a plan you can&apos;t use.
         </p>
       </Reveal>
@@ -65,7 +65,7 @@ export default function CompatibilityPage() {
         </div>
         <p className="mt-5 text-center text-sm text-slate">
           Tip: you can also dial{" "}
-          <span className="font-medium text-navy">*#06#</span> — if an{" "}
+          <span className="font-medium text-navy">*#06#</span>. If an{" "}
           <span className="font-medium text-navy">EID</span> number appears, your
           phone has an eSIM.
         </p>

@@ -12,7 +12,7 @@ const STEPS = [
   {
     n: "1",
     title: "Choose your plan",
-    body: "Pick a daily allowance or a fixed bundle that suits your trip length. Every plan is data-only and one-off — no contract, no auto-renewal.",
+    body: "Pick a daily allowance or a fixed bundle that suits your trip length. Every plan is data only and one-off, with no contract and no auto-renewal.",
   },
   {
     n: "2",
@@ -22,7 +22,7 @@ const STEPS = [
   {
     n: "3",
     title: "Get your eSIM by email",
-    body: "Within minutes you'll receive a QR code and manual installation details. Install it on your phone before you travel — but don't switch the line on yet.",
+    body: "Within minutes you'll receive a QR code and manual installation details. Install it on your phone before you travel, but don't switch the line on yet.",
   },
   {
     n: "4",
@@ -35,7 +35,7 @@ export default function HowItWorksPage() {
   return (
     <PageShell
       title="How it works"
-      intro="Online in Saudi Arabia in four simple steps — most travellers are set up before they even board."
+      intro="Online in Saudi Arabia in four simple steps. Most travellers are set up before they even board."
     >
       <div className="space-y-4">
         {STEPS.map((step) => (

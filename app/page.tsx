@@ -6,7 +6,7 @@ import { ArrowRight, Check, MailCheck, Smartphone, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
 import { TrustBar } from "@/components/site/trust-bar";
-import { EsimDevice } from "@/components/site/esim-device";
+import { HeroVisual } from "@/components/site/hero-visual";
 import { HaramainGlobe } from "@/components/site/haramain-globe";
 import { HaramainGalleryImage } from "@/components/site/haramain-gallery-image";
 import { DestinationsMarquee } from "@/components/site/destinations-marquee";
@@ -17,7 +17,7 @@ import { listPublicPlans } from "@/lib/plans/store";
 export const dynamic = "force-dynamic";
 
 const HONEST_FACTS = [
-  "Data-only — there's no phone number",
+  "Data only, so there's no phone number",
   "“Unlimited” plans are throttled after a daily cap",
   "Calling apps can be limited on Saudi networks",
   "Networks congest near the Haram at peak prayer times",
@@ -40,7 +40,7 @@ const GLOBE_FEATURES = [
     icon: Wallet,
     tone: "gold" as const,
     title: "No roaming bills",
-    body: "One clear price in GBP — no account, no subscription.",
+    body: "One clear price in GBP. No account, no subscription.",
   },
 ];
 
@@ -129,8 +129,8 @@ export default async function Home() {
               className="animate-fade-up mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-cream/75 lg:mx-0"
               style={{ animationDelay: "120ms" }}
             >
-              Saudi data eSIMs for Umrah &amp; Hajj — delivered to your inbox in
-              minutes. Data-only, no phone number, and we tell you exactly what
+              Saudi data eSIMs for Umrah &amp; Hajj, delivered to your inbox in
+              minutes. Data only, no phone number, and we tell you exactly what
               you&apos;re buying.
             </p>
 
@@ -165,10 +165,10 @@ export default async function Home() {
           </div>
 
           <div
-            className="animate-fade-up flex justify-center lg:justify-end"
+            className="animate-fade-up flex justify-center lg:justify-end lg:pr-10"
             style={{ animationDelay: "200ms" }}
           >
-            <EsimDevice qrDataUri={heroQr} />
+            <HeroVisual qrDataUri={heroQr} />
           </div>
         </div>
       </section>
@@ -229,8 +229,8 @@ export default async function Home() {
 
             <p className="mx-auto mt-5 max-w-xl text-pretty leading-relaxed text-cream/70 lg:mx-0">
               Wherever your journey begins, you arrive in Makkah and Madinah
-              already online — the same eSIM, the same simple setup, no roaming
-              bills.
+              already online. The same eSIM, the same simple setup, and no
+              roaming bills.
             </p>
 
             <ul className="mx-auto mt-8 grid max-w-xl gap-3 text-left lg:mx-0">
@@ -296,7 +296,7 @@ export default async function Home() {
               Wherever your journey begins
             </h2>
             <p className="mt-3 text-pretty leading-relaxed text-slate">
-              Pilgrims set out from every corner of the world — Ameen keeps you
+              Pilgrims set out from every corner of the world. Ameen keeps you
               connected the moment you land in Saudi Arabia.
             </p>
           </Reveal>
@@ -316,8 +316,8 @@ export default async function Home() {
             <div className="max-w-xl">
               <h2 className="text-3xl text-navy sm:text-4xl">Popular plans</h2>
               <p className="mt-3 text-pretty leading-relaxed text-slate">
-                A few Saudi data eSIMs to start with — data, validity and limits
-                stated plainly on every plan.
+                A few Saudi data eSIMs to start with. Data, validity and limits
+                are stated plainly on every plan.
               </p>
             </div>
             <Link
@@ -341,7 +341,7 @@ export default async function Home() {
 
       {/* Sorted before you fly — real flight photo with the honesty checklist.
           Merges the old "Honest by default" panel and final CTA into one close. */}
-      <section className="container py-20 sm:py-28">
+      <section className="container pb-10 pt-20 sm:pb-14 sm:pt-28">
         <Reveal className="relative isolate overflow-hidden rounded-[2rem] bg-navy text-cream">
           <Image
             src="/gallery/flight-wing.jpg"
@@ -372,7 +372,7 @@ export default async function Home() {
               </h2>
               <p className="mt-5 text-pretty text-lg leading-relaxed text-cream/80">
                 Choose a plan, get your QR by email, and land in Saudi Arabia
-                already connected — one clear price, no roaming shocks.
+                already connected. One clear price, no roaming shocks.
               </p>
               <p className="mt-4 text-pretty leading-relaxed text-cream/70">
                 And because we inherit Al-Waseelah&apos;s honesty discipline,

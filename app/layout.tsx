@@ -24,13 +24,13 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ameenesim.com";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Ameen eSIM — Saudi data eSIMs for Umrah & Hajj",
+    default: "Ameen eSIM · Saudi data eSIMs for Umrah & Hajj",
     template: "%s · Ameen eSIM",
   },
   description:
     "Stay connected in Saudi Arabia for your Umrah or Hajj. Instant data eSIMs, delivered by email. A trading name of Al-Waseelah Tours Ltd.",
   openGraph: {
-    title: "Ameen eSIM — Saudi data eSIMs for Umrah & Hajj",
+    title: "Ameen eSIM · Saudi data eSIMs for Umrah & Hajj",
     description:
       "Instant Saudi data eSIMs for pilgrims. Honest data, delivered by email.",
     siteName: "Ameen eSIM",

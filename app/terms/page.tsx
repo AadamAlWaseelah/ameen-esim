@@ -32,7 +32,7 @@ export default function TermsPage() {
       <Section heading="2. What we sell">
         <P>
           We resell third-party, data-only eSIMs for use in Saudi Arabia. An
-          eSIM gives you mobile data only &mdash; there is no phone number, and
+          eSIM gives you mobile data only. There is no phone number, and
           it is not suitable for regular calls or SMS. Coverage, speeds and the
           underlying network are provided by our supplier and their network
           partners, not by us.
@@ -42,7 +42,7 @@ export default function TermsPage() {
       <Section heading="3. Your device">
         <P>
           eSIMs only work on eSIM-compatible, network-unlocked phones. It is
-          your responsibility to check your device before buying &mdash; see our{" "}
+          your responsibility to check your device before buying, using our{" "}
           <Link className="text-gold-deep underline-offset-4 hover:underline" href="/compatibility">
             compatibility checker
           </Link>
@@ -62,8 +62,8 @@ export default function TermsPage() {
 
       <Section heading="5. Delivery and activation">
         <P>
-          We deliver your eSIM by email &mdash; a QR code plus manual
-          installation details &mdash; usually within minutes of payment.
+          We deliver your eSIM by email as a QR code plus manual
+          installation details, usually within minutes of payment.
           Install the eSIM before you travel and activate it when you arrive in
           Saudi Arabia. Validity and any daily allowance begin according to the
           plan you bought (typically on first network connection). It is your
@@ -85,7 +85,7 @@ export default function TermsPage() {
         <P>
           Because we resell a third-party network, we cannot guarantee
           uninterrupted service, particular data speeds, or that voice and video
-          calling apps (such as WhatsApp) will work &mdash; calling can be
+          calling apps (such as WhatsApp) will work, as calling can be
           restricted on Saudi networks. We do not promise the service will be
           error-free or available at all times.
         </P>

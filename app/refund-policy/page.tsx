@@ -19,7 +19,7 @@ export default function RefundPolicyPage() {
         <P>
           An eSIM is digital content delivered to you straight after payment.
           Under the UK Consumer Contracts Regulations you normally have 14 days
-          to cancel a purchase &mdash; but for digital content that right ends
+          to cancel a purchase, but for digital content that right ends
           once delivery has begun, provided you agreed to immediate delivery.
         </P>
         <P>
@@ -45,7 +45,7 @@ export default function RefundPolicyPage() {
 
       <Section heading="When we cannot refund">
         <Ul>
-          <li>Your phone is not eSIM-compatible or is network-locked &mdash; please use our <Link className="text-gold-deep underline-offset-4 hover:underline" href="/compatibility">compatibility checker</Link> before buying.</li>
+          <li>Your phone is not eSIM-compatible or is network-locked. Please use our <Link className="text-gold-deep underline-offset-4 hover:underline" href="/compatibility">compatibility checker</Link> before buying.</li>
           <li>Change of mind after the eSIM has been delivered.</li>
           <li>The eSIM has been installed, activated, or partly used.</li>
           <li>You did not activate the eSIM within its validity period.</li>

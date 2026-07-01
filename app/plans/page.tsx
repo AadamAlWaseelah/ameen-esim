@@ -11,6 +11,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
+import { GulfCoverageMap } from "@/components/plans/gulf-coverage-map";
 import { PlansBrowser } from "@/components/plans/plans-browser";
 import { InternationalPlans } from "@/components/plans/international-plans";
 import { INTL_COUNTRIES } from "@/lib/flags";
@@ -33,7 +34,7 @@ const FAQS = [
   },
   {
     q: "Is there a phone number?",
-    a: "No. Saudi eSIMs are data-only — ideal for maps, messaging and browsing. There's no local number for regular calls or SMS.",
+    a: "No. Saudi eSIMs are data only, ideal for maps, messaging and browsing. There's no local number for regular calls or SMS.",
   },
   {
     q: "When should I activate it?",
@@ -41,7 +42,7 @@ const FAQS = [
   },
   {
     q: "Do calling apps like WhatsApp work?",
-    a: "Sometimes. Voice and video calling can be restricted on Saudi networks. We won't promise it works — please verify for your own situation.",
+    a: "Sometimes. Voice and video calling can be restricted on Saudi networks. We won't promise it works, so please verify for your own situation.",
   },
 ];
 
@@ -73,8 +74,8 @@ export default async function PlansPage() {
         </h1>
         <p className="mt-4 text-pretty text-lg leading-relaxed text-slate">
           One-off data eSIMs for your trip. Pick a Saudi Arabia plan, or a
-          Gulf-wide plan that also covers neighbouring countries — all data-only,
-          delivered in minutes, for any eSIM-compatible phone.
+          Gulf-wide plan that also covers neighbouring countries. Every plan is
+          data only, delivered in minutes, for any eSIM-compatible phone.
         </p>
       </Reveal>
 
@@ -123,8 +124,9 @@ export default async function PlansPage() {
                         Travelling across the Gulf?
                       </h2>
                       <p className="mt-1 text-sm leading-relaxed text-slate">
-                        One eSIM covering Saudi Arabia plus five Gulf neighbours
-                        — handy if you transit through the UAE, Qatar or beyond.
+                        One eSIM covering Saudi Arabia plus five Gulf
+                        neighbours. Handy if you transit through the UAE, Qatar
+                        or beyond.
                       </p>
                     </div>
                   </div>
@@ -148,12 +150,17 @@ export default async function PlansPage() {
                 </div>
 
                 <div className="mt-6 border-t border-line pt-7">
-                  <PlansBrowser
-                    plans={gulfPlans}
-                    accent="navy"
-                    layout="row"
-                    showGroupHeaders={false}
-                  />
+                  <div className="grid gap-6 lg:grid-cols-[minmax(340px,0.9fr)_1.1fr] lg:items-start">
+                    {/* Coverage map — covered countries pulse green. */}
+                    <GulfCoverageMap className="h-[340px] lg:sticky lg:top-24 lg:h-[460px]" />
+                    <PlansBrowser
+                      plans={gulfPlans}
+                      accent="navy"
+                      layout="row"
+                      showGroupHeaders={false}
+                      rowColumns={1}
+                    />
+                  </div>
                 </div>
               </div>
             </Reveal>
@@ -173,7 +180,7 @@ export default async function PlansPage() {
                     </h2>
                     <p className="mt-1 text-sm leading-relaxed text-slate">
                       Travelling beyond Saudi Arabia? Pick a country to see its
-                      data eSIMs — same instant delivery, one clear price.
+                      data eSIMs. Same instant delivery, one clear price.
                     </p>
                   </div>
                 </div>

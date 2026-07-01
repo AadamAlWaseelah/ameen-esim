@@ -19,7 +19,7 @@ export default function CoveragePage() {
           Coverage spans Saudi Arabia, including Makkah, Madinah, Jeddah and
           Riyadh, as well as major roads and the Haramain high-speed rail route.
           Your eSIM automatically connects to an available partner network when
-          you arrive &mdash; there&apos;s nothing to configure beyond switching the
+          you arrive, so there&apos;s nothing to configure beyond switching the
           line on.
         </P>
       </Section>

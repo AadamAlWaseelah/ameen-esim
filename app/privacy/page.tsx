@@ -39,9 +39,9 @@ export default function PrivacyPage() {
 
       <Section heading="Why we use it, and our lawful basis">
         <Ul>
-          <li><strong>To fulfil your order</strong> &mdash; provisioning and emailing your eSIM, and providing support (performance of a contract).</li>
-          <li><strong>To run and protect our business</strong> &mdash; fraud prevention, security and improving the service (our legitimate interests).</li>
-          <li><strong>To meet legal duties</strong> &mdash; tax, accounting and record-keeping (legal obligation).</li>
+          <li><strong>To fulfil your order:</strong> provisioning and emailing your eSIM, and providing support (performance of a contract).</li>
+          <li><strong>To run and protect our business:</strong> fraud prevention, security and improving the service (our legitimate interests).</li>
+          <li><strong>To meet legal duties:</strong> tax, accounting and record-keeping (legal obligation).</li>
         </Ul>
       </Section>
 
@@ -50,10 +50,10 @@ export default function PrivacyPage() {
           We share data only with the providers we need to run the service:
         </P>
         <Ul>
-          <li><strong>Stripe</strong> &mdash; payment processing.</li>
-          <li><strong>eSIM Access (RedteaGo)</strong> &mdash; our eSIM supplier, to provision your eSIM.</li>
-          <li><strong>Resend</strong> &mdash; to send your order email.</li>
-          <li><strong>Vercel</strong> and <strong>Neon</strong> &mdash; website hosting and database.</li>
+          <li><strong>Stripe</strong> for payment processing.</li>
+          <li><strong>eSIM Access (RedteaGo)</strong>, our eSIM supplier, to provision your eSIM.</li>
+          <li><strong>Resend</strong> to send your order email.</li>
+          <li><strong>Vercel</strong> and <strong>Neon</strong> for website hosting and the database.</li>
         </Ul>
         <P>
           Some of these providers may process data outside the UK. Where they

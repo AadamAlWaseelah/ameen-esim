@@ -51,7 +51,7 @@ export function Footer() {
               <strong className="font-semibold text-cream">
                 Al-Waseelah Tours Ltd
               </strong>{" "}
-              &mdash; registered in England &amp; Wales, company no. 16268888.
+              is registered in England &amp; Wales, company no. 16268888.
               Ameen eSIM is a trading name of Al-Waseelah Tours Ltd. Registered
               office: 65 Berkeley Road, Yardley, Birmingham, West Midlands,
               B25 8NW.

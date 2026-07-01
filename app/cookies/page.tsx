@@ -13,12 +13,12 @@ export default function CookiesPage() {
     <PageShell
       title="Cookie Policy"
       updated="27 June 2026"
-      intro="We keep cookies to a minimum — only what's needed to run the site and checkout securely."
+      intro="We keep cookies to a minimum: only what's needed to run the site and checkout securely."
     >
       <Section heading="What we use">
         <Ul>
-          <li><strong>Essential cookies</strong> &mdash; needed for the site to work, to keep your session secure, and to protect the admin area.</li>
-          <li><strong>Checkout cookies</strong> &mdash; set by Stripe during payment to process your order and help prevent fraud.</li>
+          <li><strong>Essential cookies</strong>, needed for the site to work, to keep your session secure, and to protect the admin area.</li>
+          <li><strong>Checkout cookies</strong>, set by Stripe during payment to process your order and help prevent fraud.</li>
         </Ul>
         <P>
           We do not use advertising or cross-site tracking cookies, and we

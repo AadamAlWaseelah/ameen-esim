@@ -13,7 +13,7 @@ const SIGNALS = [
   {
     icon: MailCheck,
     title: "Delivered by email",
-    body: "Your eSIM QR arrives in minutes — no SIM card in the post, no waiting.",
+    body: "Your eSIM QR arrives in minutes. No SIM card in the post, no waiting.",
   },
   {
     icon: ShieldCheck,

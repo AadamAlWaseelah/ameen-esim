@@ -8,6 +8,7 @@ import {
   Gift,
   Globe,
   Signal,
+  Star,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -49,14 +50,17 @@ type Group = {
   match: (plan: BrowserPlan) => boolean;
 };
 
+// Groups render in this order and each plan lands in the FIRST group that
+// matches it, so badged best-sellers lead and never repeat further down.
+// Daily passes sit last deliberately: bundles convert better as the opener.
 const GROUPS: Group[] = [
   {
-    key: "daily",
-    title: "Daily data",
+    key: "featured",
+    title: "Most popular",
     blurb:
-      "A fresh allowance every day — best when you want plenty of data and will top up as you go.",
-    icon: Gift,
-    match: (p) => isDaily(p),
+      "The sizes most pilgrims pick for a typical Umrah trip. A safe place to start.",
+    icon: Star,
+    match: (p) => p.badge != null,
   },
   {
     key: "short",
@@ -72,6 +76,14 @@ const GROUPS: Group[] = [
     icon: CalendarDays,
     match: (p) => !isDaily(p) && p.validityDays > 15,
   },
+  {
+    key: "daily",
+    title: "Daily data",
+    blurb:
+      "A fresh allowance every day. Best when you want plenty of data and will top up as you go.",
+    icon: Gift,
+    match: (p) => isDaily(p),
+  },
 ];
 
 export function PlansBrowser({
@@ -79,11 +91,14 @@ export function PlansBrowser({
   accent = "navy",
   layout = "grid",
   showGroupHeaders = true,
+  rowColumns = 2,
 }: {
   plans: BrowserPlan[];
   accent?: Accent;
   layout?: Layout;
   showGroupHeaders?: boolean;
+  /** Column count for the "row" layout (1 when beside the coverage map). */
+  rowColumns?: 1 | 2;
 }) {
   const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -91,15 +106,17 @@ export function PlansBrowser({
   const grouped = useMemo(() => {
     // Fair-use / throttled variants are never shown to keep the list honest.
     const visible = plans.filter((p) => !isFup(p));
-    return GROUPS.map((group) => ({
-      ...group,
-      items: visible
-        .filter(group.match)
+    const claimed = new Set<string>();
+    return GROUPS.map((group) => {
+      const items = visible
+        .filter((p) => !claimed.has(p.id) && group.match(p))
         .sort(
           (a, b) =>
             (a.retailPricePence ?? Infinity) - (b.retailPricePence ?? Infinity),
-        ),
-    })).filter((group) => group.items.length > 0);
+        );
+      for (const p of items) claimed.add(p.id);
+      return { ...group, items };
+    }).filter((group) => group.items.length > 0);
   }, [plans]);
 
   async function buy(slug: string) {
@@ -124,7 +141,9 @@ export function PlansBrowser({
 
   const gridClass =
     layout === "row"
-      ? "mt-5 grid gap-3 lg:grid-cols-2"
+      ? rowColumns === 1
+        ? "mt-5 grid gap-3"
+        : "mt-5 grid gap-3 lg:grid-cols-2"
       : "mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4";
 
   return (
@@ -350,7 +369,9 @@ function PlanCardRow({
           </p>
           <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
             <Globe className="size-3.5" aria-hidden />
-            6 countries incl. Saudi Arabia
+            {plan.country === "Gulf"
+              ? "6 countries incl. Saudi Arabia & Iraq"
+              : "6 countries incl. Saudi Arabia & Oman"}
           </p>
           {fup ? (
             <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">

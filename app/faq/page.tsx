@@ -15,11 +15,11 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Is there a phone number?",
-    a: "No. Our Saudi eSIMs are data-only — ideal for maps, messaging and browsing. There's no local number for regular calls or SMS.",
+    a: "No. Our Saudi eSIMs are data only, ideal for maps, messaging and browsing. There's no local number for regular calls or SMS.",
   },
   {
     q: "How and when do I get my eSIM?",
-    a: "By email, usually within minutes of payment — a QR code plus manual installation details. Install it before you travel.",
+    a: "By email, usually within minutes of payment. You get a QR code plus manual installation details. Install it before you travel.",
   },
   {
     q: "When should I activate it?",
@@ -27,7 +27,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Do calling apps like WhatsApp work?",
-    a: "Sometimes. Voice and video calling can be restricted on Saudi networks. We won't promise it works — please verify for your own situation.",
+    a: "Sometimes. Voice and video calling can be restricted on Saudi networks. We won't promise it works, so please verify for your own situation.",
   },
   {
     q: "What's the difference between daily plans and fixed bundles?",
@@ -35,7 +35,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What are the ‘fair-use’ plans?",
-    a: "Some daily plans keep you connected after your daily high-speed allowance by slowing the speed (to around 1Mbps) rather than cutting you off. They're hidden by default — toggle ‘Show fair-use options’ on the plans page.",
+    a: "Some daily plans keep you connected after your daily high-speed allowance by slowing the speed (to around 1Mbps) rather than cutting you off. They're hidden by default. Toggle ‘Show fair-use options’ on the plans page to see them.",
   },
   {
     q: "Can I use one eSIM on two phones?",

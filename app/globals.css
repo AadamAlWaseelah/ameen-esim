@@ -186,6 +186,19 @@
     transform: translateX(230%) skewX(-18deg);
   }
 }
+@keyframes signal-ring {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.65;
+  }
+  70% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1.26);
+    opacity: 0;
+  }
+}
 @keyframes beam-slide {
   from {
     transform: translateX(-120%);
@@ -225,6 +238,11 @@
   .animate-beam {
     animation: beam-slide 6s var(--ease-in-out) infinite;
     will-change: transform;
+  }
+  /* Slow expanding signal ring — hero device accent. */
+  .animate-signal-ring {
+    animation: signal-ring 4.2s var(--ease-out) infinite;
+    will-change: transform, opacity;
   }
   /* Sheen sweep on hover for premium cards (gated to fine pointers). */
   @media (hover: hover) and (pointer: fine) {

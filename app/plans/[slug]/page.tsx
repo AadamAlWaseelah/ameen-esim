@@ -104,7 +104,7 @@ export default async function PlanDetailPage({
 
           {cancelled ? (
             <div className="mt-5 rounded-xl border border-gold/30 bg-gold/10 p-4 text-sm text-navy">
-              Checkout was cancelled — you have not been charged. You can try
+              Checkout was cancelled and you have not been charged. You can try
               again whenever you&apos;re ready.
             </div>
           ) : null}

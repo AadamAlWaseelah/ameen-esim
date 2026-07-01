@@ -34,7 +34,7 @@ export default async function CheckoutSuccessPage({
         {!order ? (
           <p className="mt-5 text-lg leading-relaxed text-slate">
             Your payment was received. If you don&apos;t see your eSIM details
-            shortly, check your email — we&apos;ll send the QR code as soon as
+            shortly, check your email. We&apos;ll send the QR code as soon as
             it&apos;s provisioned.
           </p>
         ) : order.status === "delivered" ? (
@@ -52,7 +52,7 @@ export default async function CheckoutSuccessPage({
           <div className="mt-5 rounded-2xl border border-line bg-paper p-6 text-navy">
             <p className="font-medium">Provisioning your eSIM…</p>
             <p className="mt-2 text-sm text-slate">
-              This usually takes a few seconds — this page will update
+              This usually takes a few seconds, and this page will update
               automatically. We&apos;ll also email the QR code the moment
               it&apos;s ready.
             </p>

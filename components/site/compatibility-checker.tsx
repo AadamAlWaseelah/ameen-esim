@@ -105,7 +105,7 @@ export function CompatibilityChecker() {
               We couldn&apos;t find &ldquo;{trimmed}&rdquo; on the list
             </p>
             <p className="mt-2 text-sm leading-relaxed text-slate">
-              That doesn&apos;t always mean it won&apos;t work — newer or
+              That doesn&apos;t always mean it won&apos;t work, as newer or
               regional models may not be listed yet. The quickest way to be sure:
               open your phone&apos;s settings and search for{" "}
               <span className="font-medium text-navy">&ldquo;eSIM&rdquo;</span> or{" "}
@@ -127,7 +127,8 @@ export function CompatibilityChecker() {
       <div className="mt-6 space-y-2.5 border-t border-line pt-5 text-sm leading-relaxed text-slate">
         <p>
           This is a guide based on manufacturer lists, covering{" "}
-          {TOTAL_COMPATIBLE_DEVICES}+ devices — not a guarantee for every model.
+          {TOTAL_COMPATIBLE_DEVICES}+ devices. It is not a guarantee for every
+          model.
         </p>
         <p>
           Your phone must also be{" "}

@@ -12,7 +12,7 @@ export const metadata = {
 };
 
 const HONEST_POINTS = [
-  "Data-only eSIMs — we say plainly there's no phone number",
+  "Data-only eSIMs, and we say plainly there's no phone number",
   "Speeds and coverage depend on the local network, and we won't pretend otherwise",
   "We flag when calling apps may be restricted on Saudi networks",
   "We ask you to check your phone is compatible before you buy",
@@ -40,7 +40,7 @@ export default function AboutPage() {
             style={{ animationDelay: "80ms" }}
           >
             {SITE.brand} sells simple, honest Saudi data eSIMs for Umrah and
-            Hajj — built by the family behind Al-Waseelah&apos;s travel services
+            Hajj, built by the family behind Al-Waseelah&apos;s travel services
             for pilgrims.
           </p>
         </div>
@@ -62,7 +62,7 @@ export default function AboutPage() {
               className="absolute inset-0 bg-gradient-to-t from-navy/40 via-transparent to-transparent"
             />
             <p className="absolute bottom-4 left-4 rounded-full border border-cream/20 bg-navy/60 px-3.5 py-1.5 text-sm text-cream backdrop-blur-sm">
-              Makkah — where your data should just work
+              Makkah, where your data should just work
             </p>
           </div>
           <div>
@@ -77,7 +77,7 @@ export default function AboutPage() {
             </p>
             <p className="mt-4 text-pretty leading-relaxed text-slate">
               We built {SITE.brand} to make it straightforward: pick a plan,
-              pay, and get your eSIM by email in minutes — ready to scan before
+              pay, and get your eSIM by email in minutes, ready to scan before
               you fly.
             </p>
           </div>
@@ -101,7 +101,7 @@ export default function AboutPage() {
             </h2>
             <p className="mt-5 max-w-md text-pretty leading-relaxed text-cream/75">
               No inflated claims, no hidden extras, no fake urgency. We tell you
-              what each plan does — and what it doesn&apos;t — before you pay.
+              what each plan does, and what it doesn&apos;t, before you pay.
             </p>
           </div>
           <ul className="space-y-4">

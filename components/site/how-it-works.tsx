@@ -18,13 +18,13 @@ const STEPS: {
     icon: Signal,
     tone: "gold",
     title: "Pick your plan",
-    body: "Choose a Saudi data plan that matches your trip — by data and by days.",
+    body: "Choose a Saudi data plan that matches your trip, by data and by days.",
   },
   {
     icon: MailCheck,
     tone: "green",
     title: "Get it by email",
-    body: "Your eSIM QR code arrives in minutes — no SIM card in the post, nothing to collect.",
+    body: "Your eSIM QR code arrives in minutes. No SIM card in the post, nothing to collect.",
   },
   {
     icon: QrCode,
@@ -83,7 +83,7 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
 
   return (
     <section className="bg-cream py-20 sm:py-28">
-      <div className="container grid gap-14 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <div className="container grid gap-14 lg:grid-cols-2 lg:items-stretch lg:gap-16">
         {/* Left — heading, CTA, product mockup */}
         <div className="text-center lg:text-left">
           <p className="inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-gold-deep">
@@ -94,8 +94,8 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
             Online in three steps
           </h2>
           <p className="mx-auto mt-5 max-w-md text-pretty leading-relaxed text-slate lg:mx-0">
-            Choose a plan, get your QR by email, and activate when you land — no
-            shop, and no SIM card in the post.
+            Choose a plan, get your QR by email, and activate when you land. No
+            shop to visit, and no SIM card in the post.
           </p>
           <div className="mt-8 flex justify-center lg:justify-start">
             <Button asChild size="lg" variant="gold">
@@ -107,8 +107,9 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
           </div>
         </div>
 
-        {/* Right — vertical timeline with scroll-fill progress */}
-        <ol ref={listRef} className="relative space-y-5">
+        {/* Right — vertical timeline with scroll-fill progress. Cards stretch
+            so the column matches the phone column's height with no dead space. */}
+        <ol ref={listRef} className="relative flex flex-col gap-5">
           {/* Track + animated fill */}
           <div
             aria-hidden
@@ -125,7 +126,7 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
             const active =
               progress >= (STEPS.length === 1 ? 0 : i / (STEPS.length - 1));
             return (
-              <li key={step.title} className="relative flex gap-5">
+              <li key={step.title} className="relative flex flex-1 gap-5">
                 <span
                   ref={(node) => {
                     markerRefs.current[i] = node;
@@ -142,7 +143,7 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
 
                 <div
                   className={cn(
-                    "flex-1 rounded-2xl border bg-paper p-5 transition-all duration-300 ease-out-strong",
+                    "flex flex-1 items-center rounded-2xl border bg-paper p-5 transition-all duration-300 ease-out-strong",
                     active
                       ? "border-[#8FC3A2]/55 shadow-md"
                       : "border-line shadow-sm",

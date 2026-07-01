@@ -1,5 +1,6 @@
 import { Check, Signal } from "lucide-react";
 
+import { AmeenMark } from "@/components/site/ameen-mark";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,8 +42,16 @@ export function EsimDevice({
 
             {/* eSIM activation card */}
             <div className="px-5 pb-6 pt-5">
-              <p className="font-display text-lg text-navy">Ameen eSIM</p>
-              <p className="text-xs text-slate">Saudi Arabia · Data-only</p>
+              <div className="flex items-center gap-2.5">
+                <AmeenMark
+                  className="h-4 w-auto shrink-0 text-navy"
+                  starClassName="fill-gold-deep"
+                />
+                <p className="font-display text-lg text-navy">Ameen eSIM</p>
+              </div>
+              <p className="mt-0.5 text-xs text-slate">
+                Saudi Arabia · Data only
+              </p>
 
               <div className="mt-4 rounded-2xl border border-line bg-paper p-4 shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

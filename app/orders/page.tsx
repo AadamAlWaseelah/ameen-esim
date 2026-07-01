@@ -29,7 +29,7 @@ export default function OrdersPage() {
 
       <Section heading="Check your email first">
         <P>
-          Your eSIM was sent right after purchase &mdash; it&apos;s worth checking
+          Your eSIM was sent right after purchase, so it&apos;s worth checking
           your spam or promotions folder for a message from{" "}
           <strong>orders@alwaseelahtravel.co.uk</strong> before getting in touch.
         </P>
