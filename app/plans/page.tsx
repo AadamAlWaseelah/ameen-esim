@@ -11,7 +11,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
-import { GulfCoverageMap } from "@/components/plans/gulf-coverage-map";
+import { GulfPlansExplorer } from "@/components/plans/gulf-explorer";
 import { PlansBrowser } from "@/components/plans/plans-browser";
 import { InternationalPlans } from "@/components/plans/international-plans";
 import { INTL_COUNTRIES } from "@/lib/flags";
@@ -84,7 +84,7 @@ export default async function PlansPage() {
           {/* Saudi Arabia — set apart with a green wash so it reads as the
               primary, in-country option. */}
           <Reveal className="overflow-hidden rounded-3xl border border-[color:var(--saudi-line)] bg-gradient-to-b from-saudi-tint to-saudi-tint-2">
-            <div className="relative p-6 sm:p-8">
+            <div className="relative px-3.5 py-6 sm:px-5 sm:py-8">
               <SaudiSkyline />
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4">
@@ -113,7 +113,7 @@ export default async function PlansPage() {
           {/* Gulf-wide — one eSIM that also covers the neighbours. */}
           {gulfPlans.length ? (
             <Reveal className="overflow-hidden rounded-3xl border border-line bg-gradient-to-b from-cream to-paper">
-              <div className="p-6 sm:p-8">
+              <div className="px-3.5 py-6 sm:px-5 sm:py-8">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex items-start gap-4">
                     <Badge tone="gold">
@@ -150,17 +150,8 @@ export default async function PlansPage() {
                 </div>
 
                 <div className="mt-6 border-t border-line pt-7">
-                  <div className="grid gap-6 lg:grid-cols-[minmax(340px,0.9fr)_1.1fr] lg:items-start">
-                    {/* Coverage map — covered countries pulse green. */}
-                    <GulfCoverageMap className="h-[340px] lg:sticky lg:top-24 lg:h-[460px]" />
-                    <PlansBrowser
-                      plans={gulfPlans}
-                      accent="navy"
-                      layout="row"
-                      showGroupHeaders={false}
-                      rowColumns={1}
-                    />
-                  </div>
+                  {/* Map + tabbed plan list: the family tabs drive both. */}
+                  <GulfPlansExplorer plans={gulfPlans} />
                 </div>
               </div>
             </Reveal>
@@ -168,7 +159,7 @@ export default async function PlansPage() {
 
           {/* International — worldwide single-country eSIMs, chosen by flag. */}
           <Reveal className="overflow-hidden rounded-3xl border border-[color:var(--intl-line)] bg-gradient-to-b from-intl-tint to-intl-tint-2">
-            <div className="p-6 sm:p-8">
+            <div className="px-3.5 py-6 sm:px-5 sm:py-8">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex items-start gap-4">
                   <Badge tone="blue">

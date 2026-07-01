@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import type { FilterSpecification, StyleSpecification } from "maplibre-gl";
 
 import { Map, useMap } from "@/components/ui/map";
@@ -11,9 +11,12 @@ import { cn } from "@/lib/utils";
   (cream sea, paper land, navy hairlines) with the countries covered by the
   selected plan family pulsing in Saudi green. Two families exist:
   GCC plans include Oman, Gulf plans include Iraq; both cover the core five.
+  The family is controlled by the explorer's tabs, so map and plan list
+  always agree.
 */
 
-type Family = "GCC" | "Gulf";
+export type GulfFamily = "GCC" | "Gulf";
+type Family = GulfFamily;
 
 const CORE = ["Saudi Arabia", "United Arab Emirates", "Qatar", "Kuwait"];
 const FAMILY_COUNTRIES: Record<Family, string[]> = {
@@ -155,9 +158,13 @@ function CoveragePulse({ family }: { family: Family }) {
   return null;
 }
 
-export function GulfCoverageMapImpl({ className }: { className?: string }) {
-  const [family, setFamily] = useState<Family>("GCC");
-
+export function GulfCoverageMapImpl({
+  family,
+  className,
+}: {
+  family: Family;
+  className?: string;
+}) {
   return (
     <div
       className={cn(
@@ -174,26 +181,6 @@ export function GulfCoverageMapImpl({ className }: { className?: string }) {
       >
         <CoveragePulse family={family} />
       </Map>
-
-      {/* Family toggle — GCC plans include Oman, Gulf plans include Iraq. */}
-      <div className="absolute left-3 top-3 flex gap-1 rounded-full border border-line bg-paper/90 p-1 shadow-sm backdrop-blur-sm">
-        {(["GCC", "Gulf"] as const).map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setFamily(f)}
-            aria-pressed={family === f}
-            className={cn(
-              "rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-150 ease-out-strong",
-              family === f
-                ? "bg-saudi text-white"
-                : "text-slate hover:text-navy"
-            )}
-          >
-            {f} plans
-          </button>
-        ))}
-      </div>
 
       {/* Legend */}
       <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-line bg-paper/90 px-3 py-1.5 text-xs font-medium text-navy shadow-sm backdrop-blur-sm">

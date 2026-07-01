@@ -38,7 +38,8 @@ function isDaily(plan: BrowserPlan) {
 }
 
 // Fair-use / throttled variants (e.g. "...-fup-1mbps") are hidden by default.
-function isFup(plan: BrowserPlan) {
+// Exported so the Gulf explorer's tab counts match what actually renders.
+export function isFup(plan: BrowserPlan) {
   return /fup|1mbps/i.test(plan.slug);
 }
 
@@ -105,18 +106,18 @@ export function PlansBrowser({
 
   const grouped = useMemo(() => {
     // Fair-use / throttled variants are never shown to keep the list honest.
+    // Featured (badged) plans lead AND repeat in their duration group, so a
+    // shopper browsing by trip length still finds them where they expect.
     const visible = plans.filter((p) => !isFup(p));
-    const claimed = new Set<string>();
-    return GROUPS.map((group) => {
-      const items = visible
-        .filter((p) => !claimed.has(p.id) && group.match(p))
+    return GROUPS.map((group) => ({
+      ...group,
+      items: visible
+        .filter(group.match)
         .sort(
           (a, b) =>
             (a.retailPricePence ?? Infinity) - (b.retailPricePence ?? Infinity),
-        );
-      for (const p of items) claimed.add(p.id);
-      return { ...group, items };
-    }).filter((group) => group.items.length > 0);
+        ),
+    })).filter((group) => group.items.length > 0);
   }, [plans]);
 
   async function buy(slug: string) {
@@ -145,6 +146,8 @@ export function PlansBrowser({
         ? "mt-5 grid gap-3"
         : "mt-5 grid gap-3 lg:grid-cols-2"
       : "mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4";
+  // Featured cards run wider (three across) so the best-sellers feel bigger.
+  const featuredGridClass = "mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3";
 
   return (
     <div className="space-y-10">
@@ -179,7 +182,13 @@ export function PlansBrowser({
             </div>
             ) : null}
 
-            <div className={gridClass}>
+            <div
+              className={
+                group.key === "featured" && layout === "grid"
+                  ? featuredGridClass
+                  : gridClass
+              }
+            >
               {group.items.map((plan) =>
                 layout === "row" ? (
                   <PlanCardRow
@@ -199,6 +208,7 @@ export function PlansBrowser({
                     daily={isDaily(plan)}
                     fup={isFup(plan)}
                     accent={accent}
+                    featured={group.key === "featured"}
                     loading={loadingSlug === plan.slug}
                     disabled={loadingSlug !== null}
                     onBuy={() => buy(plan.slug)}
@@ -236,12 +246,14 @@ function accentTintClass(accent: Accent) {
   return "bg-gold/15 text-gold-deep";
 }
 
-// Vertical card — Saudi grid (up to four across).
+// Vertical card — Saudi grid (up to four across). Featured cards carry a
+// gold ring + glow so the best-sellers stand apart from the rest.
 function PlanCard({
   plan,
   daily,
   fup,
   accent,
+  featured = false,
   loading,
   disabled,
   onBuy,
@@ -250,6 +262,7 @@ function PlanCard({
   daily: boolean;
   fup: boolean;
   accent: Accent;
+  featured?: boolean;
   loading: boolean;
   disabled: boolean;
   onBuy: () => void;
@@ -262,12 +275,29 @@ function PlanCard({
     plan.badge ?? (!flag && plan.country !== "SA" ? plan.country : null);
 
   return (
-    <div className="relative flex flex-col rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(25,32,46,0.04)]">
+    <div
+      className={cn(
+        "relative flex flex-col rounded-2xl border bg-paper p-5",
+        featured
+          ? "border-gold/60 shadow-[0_0_0_1px_rgba(201,169,97,0.25),0_10px_38px_-10px_rgba(201,169,97,0.55)]"
+          : "border-line shadow-[0_1px_2px_rgba(25,32,46,0.04)]",
+      )}
+    >
+      {featured ? (
+        <div
+          aria-hidden
+          className="animate-glow-pulse pointer-events-none absolute -inset-1 -z-10 rounded-[1.25rem] blur-lg"
+          style={{
+            background:
+              "radial-gradient(70% 60% at 50% 0%, rgba(201,169,97,0.35), transparent)",
+          }}
+        />
+      ) : null}
       {textTag ? (
         <span
           className={cn(
             "absolute right-4 top-4 rounded-md px-2 py-0.5 text-[11px] font-semibold",
-            accentTintClass(accent),
+            featured ? "bg-gold/20 text-gold-deep" : accentTintClass(accent),
           )}
         >
           {textTag}
@@ -346,7 +376,9 @@ function PlanCardRow({
   onBuy: () => void;
 }) {
   const priceKnown = plan.retailPricePence != null;
-  const tag = plan.badge ?? (plan.country !== "SA" ? plan.country : null);
+  // The Gulf list is already filtered to one family by the explorer tabs, so
+  // only a real badge earns the corner; a per-row family chip is just noise.
+  const tag = plan.badge;
 
   return (
     <div className="relative flex flex-col rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(25,32,46,0.04)]">
@@ -362,23 +394,25 @@ function PlanCardRow({
             <span className="text-2xl font-semibold text-navy">
               {formatDataAmount(plan.dataAmountMb)}
             </span>
-              </div>
-          <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
-            <CalendarDays className="size-3.5" aria-hidden />
-            {daily ? "Daily pass" : `${plan.validityDays} days validity`}
-          </p>
-          <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
-            <Globe className="size-3.5" aria-hidden />
-            {plan.country === "Gulf"
-              ? "6 countries incl. Saudi Arabia & Iraq"
-              : "6 countries incl. Saudi Arabia & Oman"}
-          </p>
-          {fup ? (
-            <p className="mt-1.5 inline-flex items-center gap-1.5 text-xs text-slate">
-              <Signal className="size-3.5" aria-hidden />
-              Slows to 1Mbps after the daily allowance
-            </p>
-          ) : null}
+          </div>
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate">
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarDays className="size-3.5" aria-hidden />
+              {daily ? "Daily pass" : `${plan.validityDays} days validity`}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Globe className="size-3.5" aria-hidden />
+              {plan.country === "Gulf"
+                ? "6 countries incl. Saudi Arabia & Iraq"
+                : "6 countries incl. Saudi Arabia & Oman"}
+            </span>
+            {fup ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Signal className="size-3.5" aria-hidden />
+                Slows to 1Mbps after the daily allowance
+              </span>
+            ) : null}
+          </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-4">
