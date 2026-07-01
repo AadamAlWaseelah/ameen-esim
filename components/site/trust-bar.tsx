@@ -36,8 +36,11 @@ export function TrustBar({ className }: { className?: string }) {
       )}
     >
       {SIGNALS.map((signal) => (
-        <li key={signal.title} className="bg-paper p-5">
-          <span className="inline-flex size-10 items-center justify-center rounded-xl bg-cream text-gold-deep">
+        <li
+          key={signal.title}
+          className="group bg-paper p-5 transition-colors duration-200 ease-out-strong hover:bg-cream/70"
+        >
+          <span className="inline-flex size-10 items-center justify-center rounded-xl bg-cream text-gold-deep transition-transform duration-200 ease-out-expo group-hover:-translate-y-0.5 group-hover:scale-105 motion-reduce:group-hover:transform-none">
             <signal.icon className="size-5" aria-hidden />
           </span>
           <p className="mt-3.5 font-medium text-navy">{signal.title}</p>

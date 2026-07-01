@@ -40,7 +40,7 @@ const config: Config = {
           foreground: "var(--accent-foreground)",
         },
         destructive: {
-          DEFAULT: "var(--destructive)",
+          DEFAULT: "#b4231f",
           foreground: "var(--destructive-foreground)",
         },
         card: {
@@ -52,30 +52,33 @@ const config: Config = {
           foreground: "var(--popover-foreground)",
         },
         // Brand tokens (use directly: bg-navy, text-gold-deep, etc.)
+        // Hex literals, NOT var() strings: Tailwind can only generate opacity
+        // modifiers (bg-navy/45, via-cream/15, ...) from parseable colors.
+        // Keep in sync with the CSS variables in globals.css.
         navy: {
-          DEFAULT: "var(--navy)",
-          700: "var(--navy-700)",
+          DEFAULT: "#19202e",
+          700: "#232c3e",
         },
         gold: {
-          DEFAULT: "var(--gold)",
-          deep: "var(--gold-deep)",
-          pale: "var(--gold-pale)",
+          DEFAULT: "#c9a961",
+          deep: "#a8863f",
+          pale: "#e7d592",
         },
         saudi: {
-          DEFAULT: "var(--saudi)",
-          deep: "var(--saudi-deep)",
-          tint: "var(--saudi-tint)",
-          "tint-2": "var(--saudi-tint-2)",
+          DEFAULT: "#1f4a32",
+          deep: "#163a27",
+          tint: "#edf3ec",
+          "tint-2": "#f5f9f3",
         },
         intl: {
-          DEFAULT: "var(--intl)",
-          deep: "var(--intl-deep)",
-          tint: "var(--intl-tint)",
-          "tint-2": "var(--intl-tint-2)",
+          DEFAULT: "#1f4f8f",
+          deep: "#173c6c",
+          tint: "#eef3fa",
+          "tint-2": "#f5f8fd",
         },
-        slate: "var(--slate)",
-        cream: "var(--cream)",
-        paper: "var(--paper)",
+        slate: "#565d71",
+        cream: "#faf8f2",
+        paper: "#ffffff",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -83,7 +86,7 @@ const config: Config = {
         sm: "calc(var(--radius) - 8px)",
       },
       fontFamily: {
-        display: ["var(--font-display)", "Georgia", "serif"],
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
         sans: ["var(--font-body)", "system-ui", "-apple-system", "sans-serif"],
       },
       transitionTimingFunction: {

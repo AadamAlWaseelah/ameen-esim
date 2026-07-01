@@ -82,14 +82,14 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Headings use the display face with a higher optical size. */
+  /* Headings use the display grotesk — medium-bold, tight tracking. */
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--font-display), Georgia, serif;
-    font-optical-sizing: auto;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
   }
 
   /* Tabular figures for prices and any aligned numerals. */
@@ -186,6 +186,14 @@
     transform: translateX(230%) skewX(-18deg);
   }
 }
+@keyframes beam-slide {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(420%);
+  }
+}
 @keyframes signal-rise {
   from {
     opacity: 0.25;
@@ -212,6 +220,11 @@
   }
   .animate-glow-pulse {
     animation: glow-pulse 5s ease-in-out infinite;
+  }
+  /* Travelling glint along a hairline — hero base accent. */
+  .animate-beam {
+    animation: beam-slide 6s var(--ease-in-out) infinite;
+    will-change: transform;
   }
   /* Sheen sweep on hover for premium cards (gated to fine pointers). */
   @media (hover: hover) and (pointer: fine) {

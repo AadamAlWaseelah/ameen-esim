@@ -18,11 +18,17 @@ export function PageShell({
   children: ReactNode;
 }) {
   return (
-    <main className="container py-12 sm:py-16">
+    // div, not main — the root layout already renders <main id="main">.
+    <div className="container py-12 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-balance text-4xl text-navy sm:text-5xl">{title}</h1>
+        <h1 className="animate-fade-up text-balance text-4xl tracking-[-0.025em] text-navy sm:text-5xl">
+          {title}
+        </h1>
         {intro ? (
-          <p className="mt-4 text-pretty text-lg leading-relaxed text-slate">
+          <p
+            className="animate-fade-up mt-4 text-pretty text-lg leading-relaxed text-slate"
+            style={{ animationDelay: "60ms" }}
+          >
             {intro}
           </p>
         ) : null}
@@ -31,7 +37,7 @@ export function PageShell({
         ) : null}
         <div className="mt-10 space-y-8">{children}</div>
       </div>
-    </main>
+    </div>
   );
 }
 

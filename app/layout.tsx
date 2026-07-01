@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Fraunces, Hanken_Grotesk } from "next/font/google";
+import { Space_Grotesk, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 
-// Display / headings. Variable font with optical sizing for large headlines.
-const fraunces = Fraunces({
+// Display / headings. Geometric grotesk — modern, techy, pairs with the
+// humanist Hanken body on a contrast axis (geometric ↔ humanist).
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
-  axes: ["opsz"],
 });
 
 // Body / UI. Tabular figures available via the .tnum utility for prices.
@@ -46,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${hankenGrotesk.variable}`}
+      className={`${spaceGrotesk.variable} ${hankenGrotesk.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">

@@ -75,7 +75,9 @@ export function PlanCard({
         </div>
         <div className="rounded-xl border border-line bg-cream/70 p-3">
           <CalendarDays className="mb-2 size-4 text-gold-deep" aria-hidden />
-          <p className="font-medium text-navy">{plan.validityDays} days</p>
+          <p className="font-medium text-navy">
+            {plan.validityDays} {plan.validityDays === 1 ? "day" : "days"}
+          </p>
           <p className="text-slate">Validity</p>
         </div>
       </div>
