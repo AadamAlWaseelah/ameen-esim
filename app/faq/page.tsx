@@ -27,7 +27,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Do calling apps like WhatsApp work?",
-    a: "Sometimes. Voice and video calling can be restricted on Saudi networks. We won't promise it works, so please verify for your own situation.",
+    a: "Partly. WhatsApp messages, photos and voice notes work fine, but WhatsApp voice and video calls are usually blocked on Saudi networks. Apps like Botim and IMO do work for voice and video calls, so install one before you fly. Our coverage page has the full picture.",
   },
   {
     q: "What's the difference between daily plans and fixed bundles?",

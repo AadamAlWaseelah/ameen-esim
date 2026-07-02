@@ -28,8 +28,33 @@ export default function CoveragePage() {
         <Ul>
           <li><strong>Data only.</strong> Great for maps, messaging, browsing and uploading photos. There is no phone number for regular calls or texts.</li>
           <li><strong>Network-dependent speeds.</strong> You&apos;ll typically get 4G/5G where available. Speeds depend on the network, location and how busy it is.</li>
-          <li><strong>Calling apps may be limited.</strong> Voice and video calling on apps like WhatsApp can be restricted on Saudi networks. We can&apos;t guarantee they will work.</li>
+          <li><strong>Calling apps are restricted.</strong> WhatsApp voice and video calls are usually blocked on Saudi networks. The full picture is below.</li>
         </Ul>
+      </Section>
+
+      <Section heading="Calling home: what actually works">
+        <P>
+          Saudi Arabia restricts internet calling on most apps, and this
+          catches many pilgrims out. Here is the honest picture, based on
+          consistent traveller reports:
+        </P>
+        <Ul>
+          <li><strong>WhatsApp messages, photos and voice notes work fine.</strong> Only voice and video <em>calls</em> are blocked. Many pilgrims simply agree with family to use voice notes.</li>
+          <li><strong>Botim and IMO calls work.</strong> These calling apps are permitted on Saudi networks, and travellers consistently report reliable voice and video calls on both. Install one before you fly and have your family do the same.</li>
+          <li><strong>Google Meet and Zoom generally work</strong> for scheduled video calls.</li>
+          <li><strong>Telegram and FaceTime calls are also restricted</strong>, so don&apos;t plan around them.</li>
+        </Ul>
+        <P>
+          Two things worth knowing. First, WhatsApp calls have occasionally
+          started working in Saudi Arabia (most recently in early 2026), but
+          there has been no official change, access comes and goes by network,
+          and previous openings were reversed, so please don&apos;t rely on it.
+          Second, many travellers report that WhatsApp calls connect over a
+          VPN. VPN use is not in itself illegal in Saudi Arabia, but using one
+          to get around network restrictions is a grey area, so that choice
+          and its consequences are yours. If you intend to try, set the VPN up
+          before you travel.
+        </P>
       </Section>
 
       <Section heading="Honest about limits">

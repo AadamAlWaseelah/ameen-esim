@@ -136,7 +136,20 @@ export default async function PlanDetailPage({
             <TruthNote
               icon={<MessageCircleWarning className="size-4" aria-hidden />}
               title="WhatsApp calls"
-              body="Voice and video calling apps can be restricted on Saudi networks. We will not promise they work."
+              body={
+                <>
+                  Messages and voice notes work fine, but WhatsApp voice and
+                  video calls are usually blocked on Saudi networks. Apps like
+                  Botim and IMO do work for calls. See{" "}
+                  <Link
+                    href="/coverage"
+                    className="font-medium text-gold-deep underline-offset-4 hover:underline"
+                  >
+                    what actually works
+                  </Link>
+                  .
+                </>
+              }
             />
             <TruthNote
               icon={<AlertTriangle className="size-4" aria-hidden />}
