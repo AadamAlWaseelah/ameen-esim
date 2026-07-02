@@ -203,16 +203,20 @@ export function PlansBrowser({
             </div>
             ) : null}
 
-            {/* The standard 30-day package collapses into one slider card. */}
-            {group.key === "standard" &&
-            layout === "grid" &&
-            group.items.length > 1 ? (
-              <PlanSliderCard
-                plans={group.items}
-                accent={accent}
-                loadingSlug={loadingSlug}
-                onBuy={buy}
-              />
+            {/* Outside "Most popular", plans sharing a validity collapse into
+                one slider card each instead of a row of near-identical cards. */}
+            {layout === "grid" && group.key !== "featured" ? (
+              <div className="mt-5 space-y-3">
+                {bucketByValidity(group.items).map((bucket) => (
+                  <PlanSliderCard
+                    key={bucket.key}
+                    plans={bucket.plans}
+                    accent={accent}
+                    loadingSlug={loadingSlug}
+                    onBuy={buy}
+                  />
+                ))}
+              </div>
             ) : (
             <div
               className={
@@ -279,22 +283,44 @@ function accentTintClass(accent: Accent) {
   return "bg-gold/15 text-gold-deep";
 }
 
+// Group a set of plans by validity (day passes together, each fixed length
+// together), each bucket sorted by data amount for its slider.
+function bucketByValidity(items: BrowserPlan[]) {
+  const map = new Map<number, BrowserPlan[]>();
+  for (const p of items) {
+    const key = isDaily(p) ? 0 : p.validityDays;
+    map.set(key, [...(map.get(key) ?? []), p]);
+  }
+  return Array.from(map.entries())
+    .sort(
+      ([a], [b]) =>
+        (a === 0 ? Infinity : a) - (b === 0 ? Infinity : b), // day passes last
+    )
+    .map(([key, plans]) => ({
+      key: String(key),
+      plans: plans.sort(
+        (a, b) => (a.dataAmountMb ?? 0) - (b.dataAmountMb ?? 0),
+      ),
+    }));
+}
+
 // One card for a whole bundle family: slide between data sizes instead of
-// scanning a row of near-identical cards. Used for the 30-day standard
-// package. Defaults to the middle size as a sensible anchor.
+// scanning a row of near-identical cards. Defaults to the second-cheapest
+// size, so the first price a shopper sees stays friendly.
 function PlanSliderCard({
   plans,
   accent,
   loadingSlug,
   onBuy,
 }: {
-  plans: BrowserPlan[]; // sorted by price ascending (tracks data size)
+  plans: BrowserPlan[]; // sorted by data amount ascending
   accent: Accent;
   loadingSlug: string | null;
   onBuy: (slug: string) => void;
 }) {
-  const [index, setIndex] = useState(Math.floor((plans.length - 1) / 2));
+  const [index, setIndex] = useState(Math.min(1, plans.length - 1));
   const plan = plans[Math.min(index, plans.length - 1)];
+  const daily = isDaily(plan);
   const priceKnown = plan.retailPricePence != null;
   const loading = loadingSlug === plan.slug;
   const accentSlider =
@@ -305,14 +331,19 @@ function PlanSliderCard({
         : "accent-navy";
 
   return (
-    <div className="mt-5 rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(25,32,46,0.04)] sm:p-6">
+    <div className="rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(25,32,46,0.04)] sm:p-6">
       <div className="grid gap-6 lg:grid-cols-[1fr_240px] lg:items-center">
         <div>
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <p className="text-3xl font-semibold tracking-tight text-navy">
               {formatDataAmount(plan.dataAmountMb)}
+              {daily ? (
+                <span className="text-sm font-normal text-slate"> / day</span>
+              ) : null}
               <span className="ml-2 align-middle text-sm font-normal text-slate">
-                30 days validity
+                {daily
+                  ? "Fresh allowance every day"
+                  : `${plan.validityDays} ${plan.validityDays === 1 ? "day" : "days"} validity`}
               </span>
               {plan.badge ? (
                 <span
@@ -333,34 +364,44 @@ function PlanSliderCard({
             </p>
           </div>
 
-          <input
-            type="range"
-            min={0}
-            max={plans.length - 1}
-            step={1}
-            value={index}
-            onChange={(e) => setIndex(Number(e.target.value))}
-            aria-label="Data amount for the standard package"
-            aria-valuetext={formatDataAmount(plan.dataAmountMb) ?? undefined}
-            className={cn("mt-4 w-full cursor-pointer", accentSlider)}
-          />
-          <div className="mt-1 flex justify-between">
-            {plans.map((p, i) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setIndex(i)}
-                className={cn(
-                  "rounded px-1 text-xs transition-colors duration-150",
-                  i === index
-                    ? "font-semibold text-navy"
-                    : "text-slate hover:text-navy",
-                )}
-              >
-                {formatDataAmount(p.dataAmountMb)}
-              </button>
-            ))}
-          </div>
+          {plans.length > 1 ? (
+            <>
+              <input
+                type="range"
+                min={0}
+                max={plans.length - 1}
+                step={1}
+                value={index}
+                onChange={(e) => setIndex(Number(e.target.value))}
+                aria-label={
+                  daily
+                    ? "Data amount per day"
+                    : `Data amount for the ${plan.validityDays}-day package`
+                }
+                aria-valuetext={
+                  formatDataAmount(plan.dataAmountMb) ?? undefined
+                }
+                className={cn("mt-4 w-full cursor-pointer", accentSlider)}
+              />
+              <div className="mt-1 flex justify-between">
+                {plans.map((p, i) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setIndex(i)}
+                    className={cn(
+                      "rounded px-1 text-xs transition-colors duration-150",
+                      i === index
+                        ? "font-semibold text-navy"
+                        : "text-slate hover:text-navy",
+                    )}
+                  >
+                    {formatDataAmount(p.dataAmountMb)}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-2">

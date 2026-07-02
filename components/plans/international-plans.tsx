@@ -90,7 +90,7 @@ export function InternationalPlans({
       <div
         role="tablist"
         aria-label="Browse by continent"
-        className="flex flex-wrap gap-1 rounded-xl border border-[color:var(--intl-line)] bg-paper/70 p-1 sm:inline-flex"
+        className="flex w-full flex-wrap gap-1 rounded-xl border border-[color:var(--intl-line)] bg-paper/70 p-1"
       >
         {CONTINENTS.map((c) => {
           const activeTab = continent === c;
@@ -102,7 +102,7 @@ export function InternationalPlans({
               aria-selected={activeTab}
               onClick={() => setContinent(c)}
               className={cn(
-                "flex-1 rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors duration-150 ease-out-strong sm:flex-none",
+                "flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-150 ease-out-strong",
                 activeTab
                   ? "bg-intl text-white shadow-sm"
                   : "text-slate hover:text-intl",
