@@ -132,7 +132,9 @@ export function HowItWorks({ qrDataUri }: { qrDataUri: string }) {
                     markerRefs.current[i] = node;
                   }}
                   className={cn(
-                    "relative z-10 mt-1 grid size-11 shrink-0 place-items-center rounded-full border bg-cream font-mono text-sm tabular-nums transition-colors duration-300",
+                    // self-center keeps each number level with its card's icon
+                    // row now that cards stretch to fill the column.
+                    "relative z-10 grid size-11 shrink-0 place-items-center self-center rounded-full border bg-cream font-mono text-sm tabular-nums transition-colors duration-300",
                     active
                       ? "border-[#8FC3A2] text-[#2f8f5b]"
                       : "border-line text-slate/70",

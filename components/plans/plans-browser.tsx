@@ -93,6 +93,7 @@ export function PlansBrowser({
   layout = "grid",
   showGroupHeaders = true,
   rowColumns = 2,
+  hideShortStays = false,
 }: {
   plans: BrowserPlan[];
   accent?: Accent;
@@ -100,6 +101,12 @@ export function PlansBrowser({
   showGroupHeaders?: boolean;
   /** Column count for the "row" layout (1 when beside the coverage map). */
   rowColumns?: 1 | 2;
+  /**
+   * Hide fixed bundles of 15 days or less. Used for Saudi Arabia, where the
+   * 30-day bundles cost the same as the short ones, so short stays only
+   * steer buyers into a worse deal.
+   */
+  hideShortStays?: boolean;
 }) {
   const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +115,11 @@ export function PlansBrowser({
     // Fair-use / throttled variants are never shown to keep the list honest.
     // Featured (badged) plans lead AND repeat in their duration group, so a
     // shopper browsing by trip length still finds them where they expect.
-    const visible = plans.filter((p) => !isFup(p));
+    const visible = plans.filter(
+      (p) =>
+        !isFup(p) &&
+        !(hideShortStays && !isDaily(p) && p.validityDays <= 15),
+    );
     return GROUPS.map((group) => ({
       ...group,
       items: visible
@@ -118,7 +129,7 @@ export function PlansBrowser({
             (a.retailPricePence ?? Infinity) - (b.retailPricePence ?? Infinity),
         ),
     })).filter((group) => group.items.length > 0);
-  }, [plans]);
+  }, [plans, hideShortStays]);
 
   async function buy(slug: string) {
     setLoadingSlug(slug);

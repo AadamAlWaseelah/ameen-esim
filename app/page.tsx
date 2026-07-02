@@ -297,21 +297,31 @@ export default async function Home() {
         </Reveal>
       </section>
 
-      {/* Departure cities — infinite marquee of where pilgrims set out from. */}
+      {/* Connectivity around the world — we go beyond Saudi Arabia. Marquee
+          cards link to their plans and carry country flags. */}
       <section className="bg-cream py-16 sm:py-20">
         <div className="container">
           <Reveal className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl text-navy sm:text-4xl">
-              Wherever your journey begins
+              Connectivity around the world
             </h2>
             <p className="mt-3 text-pretty leading-relaxed text-slate">
-              Pilgrims set out from every corner of the world. Ameen keeps you
-              connected the moment you land in Saudi Arabia.
+              Saudi Arabia is where we started, not where we stop. From London
+              to Sylhet, pick a country and land connected, with the same
+              instant email delivery.
             </p>
           </Reveal>
         </div>
         <Reveal className="container mt-10 sm:mt-12">
           <DestinationsMarquee />
+        </Reveal>
+        <Reveal className="container mt-9 text-center">
+          <Button asChild size="lg" variant="blue">
+            <Link href="/plans#international">
+              Browse international eSIMs
+              <ArrowRight aria-hidden />
+            </Link>
+          </Button>
         </Reveal>
       </section>
 

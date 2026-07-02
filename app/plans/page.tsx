@@ -105,7 +105,12 @@ export default async function PlansPage() {
               </div>
 
               <div className="relative mt-6 border-t border-[color:var(--saudi-line)] pt-7">
-                <PlansBrowser plans={saudiPlans} accent="green" layout="grid" />
+                <PlansBrowser
+                  plans={saudiPlans}
+                  accent="green"
+                  layout="grid"
+                  hideShortStays
+                />
               </div>
             </div>
           </Reveal>
@@ -158,7 +163,12 @@ export default async function PlansPage() {
           ) : null}
 
           {/* International — worldwide single-country eSIMs, chosen by flag. */}
-          <Reveal className="overflow-hidden rounded-3xl border border-[color:var(--intl-line)] bg-gradient-to-b from-intl-tint to-intl-tint-2">
+          <Reveal
+            as="section"
+            className="overflow-hidden rounded-3xl border border-[color:var(--intl-line)] bg-gradient-to-b from-intl-tint to-intl-tint-2"
+          >
+            {/* Anchor for /plans#international links; offset clears the sticky navbar. */}
+            <span id="international" aria-hidden className="block scroll-mt-28" />
             <div className="px-4 py-6 sm:py-8">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex items-start gap-4">

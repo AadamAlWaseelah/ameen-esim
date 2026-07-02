@@ -133,29 +133,41 @@ export default async function PlanDetailPage({
                 </>
               }
             />
-            <TruthNote
-              icon={<MessageCircleWarning className="size-4" aria-hidden />}
-              title="WhatsApp calls"
-              body={
-                <>
-                  Messages and voice notes work fine, but WhatsApp voice and
-                  video calls are usually blocked on Saudi networks. Apps like
-                  Botim and IMO do work for calls. See{" "}
-                  <Link
-                    href="/coverage"
-                    className="font-medium text-gold-deep underline-offset-4 hover:underline"
-                  >
-                    what actually works
-                  </Link>
-                  .
-                </>
-              }
-            />
-            <TruthNote
-              icon={<AlertTriangle className="size-4" aria-hidden />}
-              title="Network conditions"
-              body="Networks can be congested around the Haram at peak prayer times. Data speeds are network-dependent."
-            />
+            {/* Calling-app guidance is specific to Saudi networks, so it only
+                shows on plans that cover Saudi Arabia. */}
+            {["SA", "GCC", "Gulf"].includes(plan.country) ? (
+              <>
+                <TruthNote
+                  icon={<MessageCircleWarning className="size-4" aria-hidden />}
+                  title="WhatsApp calls"
+                  body={
+                    <>
+                      Messages and voice notes work fine, but WhatsApp voice
+                      and video calls are usually blocked on Saudi networks.
+                      Apps like Botim and IMO do work for calls. See{" "}
+                      <Link
+                        href="/coverage"
+                        className="font-medium text-gold-deep underline-offset-4 hover:underline"
+                      >
+                        what actually works
+                      </Link>
+                      .
+                    </>
+                  }
+                />
+                <TruthNote
+                  icon={<AlertTriangle className="size-4" aria-hidden />}
+                  title="Network conditions"
+                  body="Networks can be congested around the Haram at peak prayer times. Data speeds are network-dependent."
+                />
+              </>
+            ) : (
+              <TruthNote
+                icon={<AlertTriangle className="size-4" aria-hidden />}
+                title="Network conditions"
+                body="Calling apps follow each country's own network rules, and data speeds depend on the local network. We can't guarantee a specific app or speed."
+              />
+            )}
           </div>
         </aside>
       </div>

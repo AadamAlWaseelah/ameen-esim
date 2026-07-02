@@ -14,6 +14,7 @@ const buttonVariants = cva(
       variant: {
         primary: "bg-navy text-cream hover:bg-navy-700 shadow-sm",
         gold: "bg-gold text-navy shadow-sm hover:bg-gold-pale hover:shadow-[0_8px_24px_-10px_rgba(201,169,97,0.7)]",
+        blue: "bg-intl text-white shadow-sm hover:bg-intl-deep",
         outline:
           "border border-navy/20 bg-transparent text-navy hover:bg-navy/5",
         "outline-light":
