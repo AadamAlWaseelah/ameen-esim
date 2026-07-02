@@ -51,9 +51,11 @@ type Group = {
   match: (plan: BrowserPlan) => boolean;
 };
 
-// Groups render in this order and each plan lands in the FIRST group that
-// matches it, so badged best-sellers lead and never repeat further down.
-// Daily passes sit last deliberately: bundles convert better as the opener.
+// Plans the owner wants pinned into "Most popular" even without a DB badge.
+const FEATURED_EXTRA_SLUGS = new Set(["saudi-1gb-per-day"]);
+
+// Groups render in this order; featured plans repeat in their own group too.
+// Day passes sit last deliberately: bundles convert better as the opener.
 const GROUPS: Group[] = [
   {
     key: "featured",
@@ -61,7 +63,7 @@ const GROUPS: Group[] = [
     blurb:
       "The sizes most pilgrims pick for a typical Umrah trip. A safe place to start.",
     icon: Star,
-    match: (p) => p.badge != null,
+    match: (p) => p.badge != null || FEATURED_EXTRA_SLUGS.has(p.slug),
   },
   {
     key: "short",
@@ -71,17 +73,18 @@ const GROUPS: Group[] = [
     match: (p) => !isDaily(p) && p.validityDays <= 15,
   },
   {
-    key: "monthly",
-    title: "Monthly bundles · 30 days",
-    blurb: "Larger 30-day bundles for longer stays or heavier use.",
+    key: "standard",
+    title: "Standard package · 30 days validity",
+    blurb:
+      "One bundle for your whole trip, valid for 30 days. Slide to pick how much data you need.",
     icon: CalendarDays,
     match: (p) => !isDaily(p) && p.validityDays > 15,
   },
   {
     key: "daily",
-    title: "Daily data",
+    title: "Day Pass",
     blurb:
-      "A fresh allowance every day. Best when you want plenty of data and will top up as you go.",
+      "Best if you want to be online from the moment you land, before you can sort a physical SIM. A fresh high-speed allowance every day.",
     icon: Gift,
     match: (p) => isDaily(p),
   },
@@ -127,6 +130,13 @@ export function PlansBrowser({
         .sort(
           (a, b) =>
             (a.retailPricePence ?? Infinity) - (b.retailPricePence ?? Infinity),
+        )
+        // Pinned day passes carry a synthetic corner tag in Most popular
+        // (copies only, so the Day Pass group below keeps the plain card).
+        .map((p) =>
+          group.key === "featured" && p.badge == null && isDaily(p)
+            ? { ...p, badge: "Day pass" }
+            : p,
         ),
     })).filter((group) => group.items.length > 0);
   }, [plans, hideShortStays]);
@@ -193,6 +203,17 @@ export function PlansBrowser({
             </div>
             ) : null}
 
+            {/* The standard 30-day package collapses into one slider card. */}
+            {group.key === "standard" &&
+            layout === "grid" &&
+            group.items.length > 1 ? (
+              <PlanSliderCard
+                plans={group.items}
+                accent={accent}
+                loadingSlug={loadingSlug}
+                onBuy={buy}
+              />
+            ) : (
             <div
               className={
                 group.key === "featured" && layout === "grid"
@@ -227,6 +248,7 @@ export function PlansBrowser({
                 ),
               )}
             </div>
+            )}
           </section>
         );
       })}
@@ -255,6 +277,110 @@ function accentTintClass(accent: Accent) {
   if (accent === "green") return "bg-saudi-tint text-saudi";
   if (accent === "blue") return "bg-intl-tint text-intl";
   return "bg-gold/15 text-gold-deep";
+}
+
+// One card for a whole bundle family: slide between data sizes instead of
+// scanning a row of near-identical cards. Used for the 30-day standard
+// package. Defaults to the middle size as a sensible anchor.
+function PlanSliderCard({
+  plans,
+  accent,
+  loadingSlug,
+  onBuy,
+}: {
+  plans: BrowserPlan[]; // sorted by price ascending (tracks data size)
+  accent: Accent;
+  loadingSlug: string | null;
+  onBuy: (slug: string) => void;
+}) {
+  const [index, setIndex] = useState(Math.floor((plans.length - 1) / 2));
+  const plan = plans[Math.min(index, plans.length - 1)];
+  const priceKnown = plan.retailPricePence != null;
+  const loading = loadingSlug === plan.slug;
+  const accentSlider =
+    accent === "green"
+      ? "accent-saudi"
+      : accent === "blue"
+        ? "accent-intl"
+        : "accent-navy";
+
+  return (
+    <div className="mt-5 rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(25,32,46,0.04)] sm:p-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_240px] lg:items-center">
+        <div>
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <p className="text-3xl font-semibold tracking-tight text-navy">
+              {formatDataAmount(plan.dataAmountMb)}
+              <span className="ml-2 align-middle text-sm font-normal text-slate">
+                30 days validity
+              </span>
+              {plan.badge ? (
+                <span
+                  className={cn(
+                    "ml-2 inline-block translate-y-[-3px] rounded-md px-2 py-0.5 align-middle text-[11px] font-semibold",
+                    accentTintClass(accent),
+                  )}
+                >
+                  {plan.badge}
+                </span>
+              ) : null}
+            </p>
+            <p className="tnum text-2xl font-semibold text-navy">
+              {priceLabel(plan.retailPricePence)}
+              <span className="ml-1 text-xs font-normal text-slate">
+                one-off
+              </span>
+            </p>
+          </div>
+
+          <input
+            type="range"
+            min={0}
+            max={plans.length - 1}
+            step={1}
+            value={index}
+            onChange={(e) => setIndex(Number(e.target.value))}
+            aria-label="Data amount for the standard package"
+            aria-valuetext={formatDataAmount(plan.dataAmountMb) ?? undefined}
+            className={cn("mt-4 w-full cursor-pointer", accentSlider)}
+          />
+          <div className="mt-1 flex justify-between">
+            {plans.map((p, i) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setIndex(i)}
+                className={cn(
+                  "rounded px-1 text-xs transition-colors duration-150",
+                  i === index
+                    ? "font-semibold text-navy"
+                    : "text-slate hover:text-navy",
+                )}
+              >
+                {formatDataAmount(p.dataAmountMb)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Button
+            onClick={() => onBuy(plan.slug)}
+            disabled={loadingSlug !== null || !priceKnown}
+            className={cn("w-full", buyButtonClass(accent))}
+          >
+            {loading ? "Starting…" : priceKnown ? "Buy this eSIM" : "Coming soon"}
+          </Button>
+          <Link
+            href={`/plans/${plan.slug}`}
+            className="text-center text-xs font-medium text-gold-deep underline-offset-4 hover:underline"
+          >
+            Plan details
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Vertical card — Saudi grid (up to four across). Featured cards carry a
