@@ -7,13 +7,13 @@ import {
   FEATURED_INTL_CODES,
   type Continent,
 } from "@/lib/flags";
+import { Flag } from "@/components/ui/flag";
 import { cn } from "@/lib/utils";
 import { PlansBrowser, type BrowserPlan } from "./plans-browser";
 
 export type IntlCountry = {
   code: string;
   name: string;
-  flag: string;
   continent: Continent;
 };
 
@@ -63,8 +63,7 @@ export function InternationalPlans({
         )}
       >
         <span className="block h-5 w-[27px] shrink-0 overflow-hidden rounded-[3px] ring-1 ring-black/10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={country.flag} alt="" className="h-full w-full object-cover" />
+          <Flag code={country.code} />
         </span>
         {country.name}
         {!hasPlans(country.code) ? (

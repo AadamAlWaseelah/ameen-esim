@@ -15,6 +15,7 @@ import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { flagForCountry } from "@/lib/flags";
+import { Flag } from "@/components/ui/flag";
 import { formatDataAmount } from "@/lib/money";
 
 export type BrowserPlan = {
@@ -485,12 +486,7 @@ function PlanCard({
           title={flag.name}
           className="absolute right-4 top-4 block h-3.5 w-[19px] overflow-hidden rounded-[3px] ring-1 ring-black/10"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={flag.flag}
-            alt={flag.name}
-            className="h-full w-full object-cover"
-          />
+          <Flag code={flag.code} />
         </span>
       ) : null}
 

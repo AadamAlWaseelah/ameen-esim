@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
+import "flag-icons/css/flag-icons.min.css";
 import { Navbar } from "@/components/site/navbar";
 import { Footer } from "@/components/site/footer";
 

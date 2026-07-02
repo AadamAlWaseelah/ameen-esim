@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
 import { GulfPlansExplorer } from "@/components/plans/gulf-explorer";
 import { PlansBrowser } from "@/components/plans/plans-browser";
+import { Flag } from "@/components/ui/flag";
 import { InternationalPlans } from "@/components/plans/international-plans";
 import { INTL_COUNTRIES } from "@/lib/flags";
 import { listPublicPlans } from "@/lib/plans/store";
@@ -88,7 +89,7 @@ export default async function PlansPage() {
               <SaudiSkyline />
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4">
-                  <Badge image="/brand/saudi-flag.svg" alt="Flag of Saudi Arabia" />
+                  <Badge flagCode="sa" alt="Flag of Saudi Arabia" />
                   <div>
                     <h2 className="text-2xl text-navy sm:text-3xl">
                       Saudi Arabia
@@ -256,17 +257,17 @@ export default async function PlansPage() {
   );
 }
 
-// Section emblem badge. With `image` it renders a rounded-rectangle flag at
-// its natural 3:2 ratio (no squashing); otherwise a rounded-square gradient
-// tile with a centred icon child.
+// Section emblem badge. With `flagCode` it renders a rounded-rectangle flag
+// from flag-icons; otherwise a rounded-square gradient tile with a centred
+// icon child.
 function Badge({
   tone,
-  image,
+  flagCode,
   alt,
   children,
 }: {
   tone?: "green" | "gold" | "blue";
-  image?: string;
+  flagCode?: string;
   alt?: string;
   children?: React.ReactNode;
 }) {
@@ -276,15 +277,13 @@ function Badge({
       : tone === "blue"
         ? "linear-gradient(160deg, var(--intl) 0%, var(--intl-deep) 100%)"
         : "linear-gradient(160deg, var(--saudi) 0%, var(--saudi-deep) 100%)";
-  if (image) {
+  if (flagCode) {
     return (
-      <span className="block h-11 w-[66px] shrink-0 overflow-hidden rounded-lg shadow-sm ring-1 ring-black/10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={image}
-          alt={alt ?? ""}
-          className="h-full w-full object-cover"
-        />
+      <span
+        title={alt}
+        className="block h-11 w-[66px] shrink-0 overflow-hidden rounded-lg shadow-sm ring-1 ring-black/10"
+      >
+        <Flag code={flagCode} />
       </span>
     );
   }
