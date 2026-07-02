@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getActiveProviderId } from "@/lib/esim";
 import { createOrder } from "@/lib/orders/store";
-import { getPlanBySlug, getPlanProviderRef } from "@/lib/plans/store";
+import { getPlanBySlug, resolvePlanProvider } from "@/lib/plans/store";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
@@ -45,14 +44,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const providerId = getActiveProviderId();
-  const providerRef = getPlanProviderRef(plan, providerId);
-  if (!providerRef || providerRef.startsWith("TODO")) {
+  // Route per plan: a plan mapped only to Maya sells via Maya while the
+  // default provider keeps fulfilling everything else.
+  const resolved = resolvePlanProvider(plan);
+  if (!resolved) {
     return NextResponse.json(
-      { error: `This plan is not mapped for the ${providerId} provider.` },
+      { error: "This plan is not mapped to an eSIM provider yet." },
       { status: 400 },
     );
   }
+  const { providerId, ref: providerRef } = resolved;
 
   // Generate the order id up front so it can be both the Stripe metadata key
   // and the provider idempotency key (internalOrderId) later in the webhook.

@@ -1,4 +1,4 @@
-import { getProvider } from "@/lib/esim";
+import { getProviderById, type ProviderId } from "@/lib/esim";
 import { sendOrderEmail } from "@/lib/email/order";
 import type { Order } from "@/lib/db/schema";
 
@@ -27,7 +27,10 @@ export async function refreshProvisioning(
 
   let provisioned;
   try {
-    provisioned = await getProvider().getOrderStatus(order.providerOrderRef);
+    // Re-query the provider this order was routed to at checkout.
+    provisioned = await getProviderById(
+      order.providerId as ProviderId,
+    ).getOrderStatus(order.providerOrderRef);
   } catch {
     // Transient provider/network error — leave it provisioning, try again later.
     return order;

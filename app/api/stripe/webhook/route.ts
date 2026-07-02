@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
-import { getProvider } from "@/lib/esim";
+import { getProviderById, type ProviderId } from "@/lib/esim";
 import { sendOrderEmail } from "@/lib/email/order";
 import {
   getOrderById,
@@ -83,10 +83,12 @@ async function fulfill(session: Stripe.Checkout.Session): Promise<void> {
     stripePaymentIntentId: paymentIntentId,
   });
 
-  // Provision the eSIM with the active provider, using the order id as the
-  // idempotency key so a retried webhook won't double-order at the provider.
+  // Provision with the provider this order was routed to at checkout, using
+  // the order id as the idempotency key so a retried webhook won't
+  // double-order at the provider.
   try {
-    const provisioned = await getProvider().createOrder({
+    const provider = getProviderById(order.providerId as ProviderId);
+    const provisioned = await provider.createOrder({
       internalOrderId: order.id,
       providerRef: order.providerRef,
       customerEmail: email,

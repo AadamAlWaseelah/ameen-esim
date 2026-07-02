@@ -18,18 +18,36 @@ export function getActiveProviderId(): ProviderId {
   return "mock";
 }
 
+const PROVIDERS: Record<ProviderId, EsimProvider> = {
+  mock: mockProvider,
+  airalo: airaloProvider,
+  maya: mayaProvider,
+  esimaccess: esimAccessProvider,
+};
+
+/** The default provider from ESIM_PROVIDER (admin catalogue, health check). */
 export function getProvider(): EsimProvider {
-  switch (getActiveProviderId()) {
-    case "airalo":
-      return airaloProvider;
-    case "maya":
-      return mayaProvider;
-    case "esimaccess":
-      return esimAccessProvider;
-    case "mock":
-    default:
-      return mockProvider;
-  }
+  return getProviderById(getActiveProviderId());
+}
+
+/** Provider for an already-routed order (orders store their providerId). */
+export function getProviderById(id: ProviderId): EsimProvider {
+  return PROVIDERS[id] ?? mockProvider;
+}
+
+/**
+ * Per-plan routing order: the default (env) provider first, then every other
+ * real provider, so a plan mapped only to e.g. Maya still sells while the
+ * default stays eSIM Access. Mock never acts as a fallback — it provisions
+ * fake eSIMs, so it only participates when explicitly active.
+ */
+export function providerPriority(): ProviderId[] {
+  const active = getActiveProviderId();
+  if (active === "mock") return ["mock"];
+  const rest = (["esimaccess", "maya", "airalo"] as ProviderId[]).filter(
+    (id) => id !== active
+  );
+  return [active, ...rest];
 }
 
 export type { EsimProvider } from "./provider";

@@ -1,7 +1,11 @@
 import { desc, eq } from "drizzle-orm";
 
 import { getDb, schema } from "@/lib/db";
-import { getActiveProviderId, type ProviderId } from "@/lib/esim";
+import {
+  getActiveProviderId,
+  providerPriority,
+  type ProviderId,
+} from "@/lib/esim";
 
 import { seedPlans } from "./seed";
 import type { NewPlanRecord, PlanRecord } from "./types";
@@ -36,8 +40,25 @@ export function getPlanProviderRef(
   return plan.providerRefs?.[providerId];
 }
 
-export function isMappedForActiveProvider(plan: PlanRecord) {
-  return Boolean(getPlanProviderRef(plan));
+export type ResolvedProvider = { providerId: ProviderId; ref: string };
+
+/**
+ * The provider that will actually fulfil this plan: the first in priority
+ * order (default provider, then the others) holding a real, non-TODO ref.
+ * Null means the plan cannot be sold yet.
+ */
+export function resolvePlanProvider(plan: PlanRecord): ResolvedProvider | null {
+  for (const providerId of providerPriority()) {
+    const ref = plan.providerRefs?.[providerId];
+    if (ref && !ref.startsWith("TODO")) return { providerId, ref };
+  }
+  return null;
+}
+
+// Publicly listed if any priority provider has a ref at all. TODO refs keep
+// a plan visible (its buy button reads "Coming soon") while mapping lands.
+export function isPubliclyListable(plan: PlanRecord) {
+  return providerPriority().some((id) => Boolean(plan.providerRefs?.[id]));
 }
 
 export async function listPlans(options?: { includeInactive?: boolean }) {
@@ -56,7 +77,7 @@ export async function listPlans(options?: { includeInactive?: boolean }) {
 
 export async function listPublicPlans() {
   const plans = await listPlans();
-  return plans.filter(isMappedForActiveProvider);
+  return plans.filter(isPubliclyListable);
 }
 
 export async function getPlanBySlug(slug: string) {

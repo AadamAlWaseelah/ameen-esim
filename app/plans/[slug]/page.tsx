@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
@@ -9,8 +10,7 @@ import {
 } from "lucide-react";
 
 import { formatDataAmount, formatMoney } from "@/lib/money";
-import { getActiveProviderId } from "@/lib/esim";
-import { getPlanBySlug, getPlanProviderRef } from "@/lib/plans/store";
+import { getPlanBySlug, resolvePlanProvider } from "@/lib/plans/store";
 
 import { BuyButton } from "./buy-button";
 
@@ -37,9 +37,7 @@ export default async function PlanDetailPage({
   const plan = await getPlanBySlug(params.slug);
   if (!plan || !plan.active) notFound();
 
-  const providerId = getActiveProviderId();
-  const providerRef = getPlanProviderRef(plan, providerId);
-  const mapped = Boolean(providerRef) && !providerRef!.startsWith("TODO");
+  const mapped = resolvePlanProvider(plan) != null;
   const priceKnown = plan.retailPricePence != null;
   const cancelled = searchParams?.cancelled === "1";
 
@@ -62,8 +60,11 @@ export default async function PlanDetailPage({
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             <Stat label="Data" value={formatDataAmount(plan.dataAmountMb)} />
-            <Stat label="Validity" value={`${plan.validityDays} days`} />
-            <Stat label="Network" value={plan.network ?? "{{NETWORK_TBD}}"} />
+            <Stat
+              label="Validity"
+              value={`${plan.validityDays} ${plan.validityDays === 1 ? "day" : "days"}`}
+            />
+            <NetworkStat network={plan.network} />
           </div>
 
           <section className="mt-10 rounded-2xl border border-line bg-paper p-6">
@@ -92,13 +93,13 @@ export default async function PlanDetailPage({
             {formatMoney(plan.retailPricePence)}
           </p>
           <p className="mt-2 text-sm text-slate">
-            GBP only. Final prices are pending supplier and margin confirmation.
+            One-off price in GBP. No subscription, no auto-renewal.
           </p>
 
           {!mapped ? (
-            <div className="mt-5 rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
-              Missing provider mapping for {providerId}. This plan is not ready
-              for checkout.
+            <div className="mt-5 rounded-xl border border-gold/30 bg-gold/10 p-4 text-sm text-navy">
+              This plan is nearly ready. Check back soon, or ask us and
+              we&apos;ll let you know when it goes live.
             </div>
           ) : null}
 
@@ -154,6 +155,34 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="rounded-2xl border border-line bg-paper p-5">
       <p className="text-sm text-slate">{label}</p>
       <p className="mt-1 font-medium text-navy">{value}</p>
+    </div>
+  );
+}
+
+// Network stat with the operator's logo where we have one (Saudi plans run
+// on stc). Falls back to the plain text card for other networks.
+function NetworkStat({ network }: { network: string | null }) {
+  const isStc = network?.toLowerCase().includes("stc") ?? false;
+  if (!isStc) {
+    return <Stat label="Network" value={network ?? "{{NETWORK_TBD}}"} />;
+  }
+  // e.g. "STC · 4G/5G" — the logo carries the name, keep the tech suffix.
+  const suffix = network!.split("·")[1]?.trim();
+  return (
+    <div className="rounded-2xl border border-line bg-paper p-5">
+      <p className="text-sm text-slate">Network</p>
+      <div className="mt-1.5 flex items-center gap-2.5">
+        <Image
+          src="/brand/stc-logo.png"
+          alt="stc (Saudi Telecom Company)"
+          width={54}
+          height={27}
+          className="h-[22px] w-auto"
+        />
+        {suffix ? (
+          <span className="font-medium text-navy">{suffix}</span>
+        ) : null}
+      </div>
     </div>
   );
 }

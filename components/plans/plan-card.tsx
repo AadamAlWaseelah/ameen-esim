@@ -4,8 +4,7 @@ import { AlertTriangle, ArrowRight, CalendarDays, Signal, Star } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDataAmount, formatMoney } from "@/lib/money";
-import { getActiveProviderId } from "@/lib/esim";
-import { getPlanProviderRef } from "@/lib/plans/store";
+import { resolvePlanProvider } from "@/lib/plans/store";
 import type { PlanRecord } from "@/lib/plans/types";
 
 export function PlanCard({
@@ -15,8 +14,7 @@ export function PlanCard({
   plan: PlanRecord;
   featured?: boolean;
 }) {
-  const providerId = getActiveProviderId();
-  const providerRef = getPlanProviderRef(plan, providerId);
+  const resolved = resolvePlanProvider(plan);
   const priceKnown = plan.retailPricePence != null;
 
   return (
@@ -85,10 +83,10 @@ export function PlanCard({
       <div className="flex flex-1 flex-col px-5 pb-5">
         <p className="text-sm leading-relaxed text-slate">{plan.description}</p>
 
-        {!providerRef ? (
+        {!resolved ? (
           <p className="mt-4 flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
             <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
-            Missing provider mapping for {providerId}. Hidden from sale.
+            Not mapped to an eSIM provider yet. Hidden from sale.
           </p>
         ) : null}
 
