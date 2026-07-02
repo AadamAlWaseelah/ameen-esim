@@ -55,9 +55,18 @@ function isFeatured(badge: string | null) {
 
 export default async function Home() {
   const plans = await listPublicPlans();
-  const featuredPlans = [...plans]
-    .sort((a, b) => Number(isFeatured(b.badge)) - Number(isFeatured(a.badge)))
-    .slice(0, 3);
+  // Mirror the plans page's "Most popular": badged plans lead, cheapest
+  // first, topped up with other plans if fewer than three carry a badge.
+  const badged = plans
+    .filter((p) => p.badge != null)
+    .sort(
+      (a, b) =>
+        (a.retailPricePence ?? Infinity) - (b.retailPricePence ?? Infinity)
+    );
+  const featuredPlans = [
+    ...badged,
+    ...plans.filter((p) => p.badge == null),
+  ].slice(0, 3);
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://ameenesim.com";
@@ -316,8 +325,8 @@ export default async function Home() {
             <div className="max-w-xl">
               <h2 className="text-3xl text-navy sm:text-4xl">Popular plans</h2>
               <p className="mt-3 text-pretty leading-relaxed text-slate">
-                A few Saudi data eSIMs to start with. Data, validity and limits
-                are stated plainly on every plan.
+                The sizes most pilgrims pick for a typical Umrah trip. Data,
+                validity and limits are stated plainly on every plan.
               </p>
             </div>
             <Link

@@ -122,7 +122,7 @@ export default function AboutPage() {
       </section>
 
       {/* Who we are — company facts as hairline rows, not cards. */}
-      <section className="container py-16 sm:py-24">
+      <section className="container pb-8 pt-16 sm:pb-10 sm:pt-24">
         <Reveal className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
           <div>
             <h2 className="text-balance text-3xl tracking-[-0.02em] text-navy sm:text-4xl">

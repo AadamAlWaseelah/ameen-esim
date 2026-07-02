@@ -19,7 +19,7 @@ export function PageShell({
 }) {
   return (
     // div, not main — the root layout already renders <main id="main">.
-    <div className="container py-12 sm:py-16">
+    <div className="container pb-6 pt-12 sm:pb-8 sm:pt-16">
       <div className="mx-auto max-w-3xl">
         <h1 className="animate-fade-up text-balance text-4xl tracking-[-0.025em] text-navy sm:text-5xl">
           {title}

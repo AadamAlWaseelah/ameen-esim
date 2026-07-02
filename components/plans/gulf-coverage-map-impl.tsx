@@ -19,7 +19,8 @@ export type GulfFamily = "GCC" | "Gulf";
 type Family = GulfFamily;
 
 const CORE = ["Saudi Arabia", "United Arab Emirates", "Qatar", "Kuwait"];
-const FAMILY_COUNTRIES: Record<Family, string[]> = {
+// Exported so the explorer can render the legend beneath the map.
+export const FAMILY_COUNTRIES: Record<Family, string[]> = {
   GCC: [...CORE, "Oman"],
   Gulf: [...CORE, "Iraq"],
 };
@@ -181,15 +182,6 @@ export function GulfCoverageMapImpl({
       >
         <CoveragePulse family={family} />
       </Map>
-
-      {/* Legend */}
-      <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-line bg-paper/90 px-3 py-1.5 text-xs font-medium text-navy shadow-sm backdrop-blur-sm">
-        <span className="relative flex size-2.5" aria-hidden>
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2fae74]/60" />
-          <span className="relative inline-flex size-2.5 rounded-full bg-[#2fae74]" />
-        </span>
-        Covered: {FAMILY_COUNTRIES[family].join(", ")} &amp; Bahrain
-      </div>
     </div>
   );
 }

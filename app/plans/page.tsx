@@ -84,7 +84,7 @@ export default async function PlansPage() {
           {/* Saudi Arabia — set apart with a green wash so it reads as the
               primary, in-country option. */}
           <Reveal className="overflow-hidden rounded-3xl border border-[color:var(--saudi-line)] bg-gradient-to-b from-saudi-tint to-saudi-tint-2">
-            <div className="relative px-3.5 py-6 sm:px-5 sm:py-8">
+            <div className="relative px-4 py-6 sm:py-8">
               <SaudiSkyline />
               <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-4">
@@ -112,8 +112,8 @@ export default async function PlansPage() {
 
           {/* Gulf-wide — one eSIM that also covers the neighbours. */}
           {gulfPlans.length ? (
-            <Reveal className="overflow-hidden rounded-3xl border border-line bg-gradient-to-b from-cream to-paper">
-              <div className="px-3.5 py-6 sm:px-5 sm:py-8">
+            <Reveal className="overflow-hidden rounded-3xl border border-[color:var(--line-gold)] bg-gradient-to-b from-[#f8f1de] to-[#fdfaf1]">
+              <div className="px-4 py-6 sm:py-8">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex items-start gap-4">
                     <Badge tone="gold">
@@ -159,7 +159,7 @@ export default async function PlansPage() {
 
           {/* International — worldwide single-country eSIMs, chosen by flag. */}
           <Reveal className="overflow-hidden rounded-3xl border border-[color:var(--intl-line)] bg-gradient-to-b from-intl-tint to-intl-tint-2">
-            <div className="px-3.5 py-6 sm:px-5 sm:py-8">
+            <div className="px-4 py-6 sm:py-8">
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex items-start gap-4">
                   <Badge tone="blue">
