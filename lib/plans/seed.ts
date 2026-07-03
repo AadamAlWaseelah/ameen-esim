@@ -15,6 +15,31 @@ const ESIMACCESS_REFS = esimaccessRefs as Record<string, string>;
 
 const now = new Date();
 
+// Deterministic UUID from a stable string (the plan slug). Positional ids break
+// as soon as the catalogue is reordered or grown — a slug that shifts position
+// would reuse another plan's id and collide on the primary key. Deriving the id
+// from the slug keeps re-seeds fully idempotent (existing plans skip on the slug
+// conflict; new plans get their own stable id). Pure JS so it bundles anywhere.
+function stableUuid(input: string): string {
+  let h = 1779033703 ^ input.length;
+  const next = () => {
+    h = Math.imul(h ^ input.charCodeAt((h >>> 0) % input.length || 0), 3432918353);
+    h = (h << 13) | (h >>> 19);
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^= h >>> 16) >>> 0;
+  };
+  // Mix the whole string first so every character influences the state.
+  for (let i = 0; i < input.length; i++) {
+    h = Math.imul(h ^ input.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  const hex = [next(), next(), next(), next()]
+    .map((n) => n.toString(16).padStart(8, "0"))
+    .join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+}
+
 type SeedInput = {
   slug: string;
   title: string;
@@ -323,7 +348,7 @@ const intlSeed: PlanRecord[] = (
   );
   const isTotal = row.dataType.toLowerCase().includes("total");
   return {
-    id: `00000000-0000-4000-8002-${String(index + 1).padStart(12, "0")}`,
+    id: stableUuid(row.slug),
     slug: row.slug,
     title: row.name,
     subtitle: `Data eSIM for ${name}`,
