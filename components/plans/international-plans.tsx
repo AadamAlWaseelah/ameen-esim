@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 import {
   CONTINENTS,
   FEATURED_INTL_CODES,
+  POPULAR_INTL_CODES,
   type Continent,
 } from "@/lib/flags";
 import { Flag } from "@/components/ui/flag";
@@ -41,12 +43,22 @@ export function InternationalPlans({
     countries[0];
   const [selected, setSelected] = useState(firstWithPlans?.code);
   const [continent, setContinent] = useState<Continent>("Europe");
+  // Whether the current continent's "more" list is expanded.
+  const [expanded, setExpanded] = useState(false);
 
   const active = countries.find((c) => c.code === selected) ?? countries[0];
   const countryPlans = plans.filter((p) => p.country === selected);
+
   const continentCountries = countries.filter(
     (c) => c.continent === continent,
   );
+  // Popular first (in POPULAR_INTL_CODES order), then the rest alphabetically.
+  const popular = POPULAR_INTL_CODES.map((code) =>
+    continentCountries.find((c) => c.code === code),
+  ).filter((c): c is IntlCountry => Boolean(c));
+  const rest = continentCountries
+    .filter((c) => !POPULAR_INTL_CODES.includes(c.code))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   function FlagButton({ country }: { country: IntlCountry }) {
     const isSelected = country.code === selected;
@@ -99,7 +111,10 @@ export function InternationalPlans({
               type="button"
               role="tab"
               aria-selected={activeTab}
-              onClick={() => setContinent(c)}
+              onClick={() => {
+                setContinent(c);
+                setExpanded(false);
+              }}
               className={cn(
                 "flex-1 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-150 ease-out-strong",
                 activeTab
@@ -113,17 +128,52 @@ export function InternationalPlans({
         })}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2.5">
-        {continentCountries.length ? (
-          continentCountries.map((c) => (
-            <FlagButton key={c.code} country={c} />
-          ))
-        ) : (
-          <p className="text-sm text-slate">
-            No {continent} destinations yet. More countries are on the way.
-          </p>
-        )}
-      </div>
+      {continentCountries.length ? (
+        <>
+          {/* Popular countries in this continent, always shown. */}
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            {popular.map((c) => (
+              <FlagButton key={c.code} country={c} />
+            ))}
+          </div>
+
+          {/* The rest, alphabetical, behind a toggle. */}
+          {rest.length ? (
+            <>
+              {expanded ? (
+                <div className="mt-2.5 flex flex-wrap gap-2.5">
+                  {rest.map((c) => (
+                    <FlagButton key={c.code} country={c} />
+                  ))}
+                </div>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                aria-expanded={expanded}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-intl transition-colors hover:text-intl-deep"
+              >
+                {expanded
+                  ? "Show fewer"
+                  : `Show ${rest.length} more ${continent} ${
+                      rest.length === 1 ? "country" : "countries"
+                    }`}
+                <ChevronDown
+                  className={cn(
+                    "size-4 transition-transform duration-200 ease-out-strong",
+                    expanded && "rotate-180",
+                  )}
+                  aria-hidden
+                />
+              </button>
+            </>
+          ) : null}
+        </>
+      ) : (
+        <p className="mt-4 text-sm text-slate">
+          No {continent} destinations yet. More countries are on the way.
+        </p>
+      )}
 
       {/* Selected country's plans */}
       <div className="mt-7">

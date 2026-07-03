@@ -21,6 +21,22 @@ export const CONTINENTS: Continent[] = [
 // Countries pinned to the featured row of the international section.
 export const FEATURED_INTL_CODES = ["GB", "FR", "ES", "US", "NL", "BD", "PK"];
 
+// Per-continent "popular" countries, shown first inside each continent tab
+// (in this order); every other country in the continent falls into a
+// collapsible, alphabetically-sorted "more" list.
+export const POPULAR_INTL_CODES = [
+  // Europe
+  "GB", "FR", "ES", "IT", "DE", "GR", "CH",
+  // America
+  "US", "CA", "MX", "BR",
+  // Asia
+  "AE", "TH", "JP", "SG", "IN", "ID", "MY",
+  // Africa
+  "MA", "EG", "ZA", "KE", "TZ", "TN",
+  // Oceania
+  "AU", "NZ",
+];
+
 export const INTL_COUNTRIES: FlagCountry[] = [
   // Europe
   { code: "GB", name: "United Kingdom", continent: "Europe" },
