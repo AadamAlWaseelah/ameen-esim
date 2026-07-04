@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
 import { getProviderById, type ProviderId } from "@/lib/esim";
+import { orderAlertLines, sendOwnerAlert } from "@/lib/email/alert";
 import { sendOrderEmail } from "@/lib/email/order";
 import {
   getOrderById,
@@ -114,6 +115,11 @@ async function fulfill(session: Stripe.Checkout.Session): Promise<void> {
         console.error(
           `[stripe webhook] Order ${order.id} provisioned but email not sent: ${result.reason}`,
         );
+        await sendOwnerAlert("Delivered eSIM but email failed", [
+          ...orderAlertLines(updated),
+          `Email error: ${result.reason}`,
+          "The customer saw the QR on the success page (if still open); re-send manually.",
+        ]);
       }
     }
   } catch (err) {
@@ -122,5 +128,10 @@ async function fulfill(session: Stripe.Checkout.Session): Promise<void> {
       `[stripe webhook] Provisioning failed for order ${order.id}: ${message}`,
     );
     await updateOrder(order.id, { status: "failed", errorMessage: message });
+    await sendOwnerAlert("Paid order FAILED to provision", [
+      ...orderAlertLines({ ...order, email }),
+      `Error: ${message}`,
+      "The customer has been charged but has no eSIM — refund or fulfil manually.",
+    ]);
   }
 }

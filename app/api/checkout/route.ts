@@ -6,7 +6,11 @@ import { getStripe, isStripeConfigured } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 
-const MAX_QUANTITY = 10;
+// Fulfilment (order schema, email, success page) delivers exactly one eSIM
+// profile per order, so quantity is capped at 1 until multi-profile support
+// exists end-to-end. The storefront only ever sends 1; this also stops direct
+// API calls from paying for profiles that would never be delivered.
+const MAX_QUANTITY = 1;
 
 export async function POST(request: Request) {
   if (!isStripeConfigured()) {

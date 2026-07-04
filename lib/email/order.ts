@@ -28,7 +28,7 @@ const CREAM = "#faf8f2";
 const SLATE = "#565d71";
 const LINE = "#e5e1d8";
 
-function fromAddress(): string {
+export function fromAddress(): string {
   // Resend requires a verified domain for the from-address in production.
   // Falls back to Resend's shared onboarding sender for local testing.
   return process.env.ORDER_EMAIL_FROM ?? "Ameen eSIM <onboarding@resend.dev>";

@@ -1,4 +1,5 @@
 import { getProviderById, type ProviderId } from "@/lib/esim";
+import { orderAlertLines, sendOwnerAlert } from "@/lib/email/alert";
 import { sendOrderEmail } from "@/lib/email/order";
 import type { Order } from "@/lib/db/schema";
 
@@ -36,6 +37,22 @@ export async function refreshProvisioning(
     return order;
   }
 
+  // Definitive provider failure: stop retrying, record it and alert the
+  // owner. (Transitions once — later calls no-op on the `failed` status.)
+  if (provisioned.status === "failed") {
+    const message = "Provider reported no eSIM profile for this order.";
+    const failed = await updateOrder(order.id, {
+      status: "failed",
+      errorMessage: message,
+    });
+    await sendOwnerAlert("Paid order FAILED to provision", [
+      ...orderAlertLines(order),
+      `Error: ${message}`,
+      "The customer has been charged but has no eSIM — refund or fulfil manually.",
+    ]);
+    return failed ?? order;
+  }
+
   if (provisioned.status !== "delivered") {
     return order;
   }
@@ -53,6 +70,15 @@ export async function refreshProvisioning(
     const result = await sendOrderEmail(updated);
     if (result.sent) {
       await updateOrder(order.id, { emailSentAt: new Date() });
+    } else {
+      console.error(
+        `[provision] Order ${order.id} delivered but email not sent: ${result.reason}`,
+      );
+      await sendOwnerAlert("Delivered eSIM but email failed", [
+        ...orderAlertLines(updated),
+        `Email error: ${result.reason}`,
+        "Re-send the QR to the customer manually.",
+      ]);
     }
   }
 

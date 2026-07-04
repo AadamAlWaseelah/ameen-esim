@@ -87,6 +87,17 @@ export async function getOrderByStripeSession(
   return getLocalOrders().find((o) => o.stripeSessionId === sessionId) ?? null;
 }
 
+/** Orders parked mid-fulfilment, awaiting the provider's async allocation. */
+export async function listProvisioningOrders(): Promise<Order[]> {
+  if (hasDatabase()) {
+    return getDb()
+      .select()
+      .from(schema.orders)
+      .where(eq(schema.orders.status, "provisioning"));
+  }
+  return getLocalOrders().filter((o) => o.status === "provisioning");
+}
+
 export async function updateOrder(
   id: string,
   patch: Partial<NewOrder>,
