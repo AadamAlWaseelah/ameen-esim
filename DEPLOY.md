@@ -30,7 +30,7 @@ gh repo create ameen-esim --private --source . --push
 3. Add environment variables (Project → Settings → Environment Variables) —
    mirror `.env.example`. At minimum to go live:
    - `DATABASE_URL` (Neon pooled string)
-   - `NEXT_PUBLIC_SITE_URL` (your live domain, e.g. `https://ameenesim.com`)
+   - `NEXT_PUBLIC_SITE_URL` (your live domain: `https://www.ameen-esim.co.uk`)
    - `ESIM_PROVIDER=mock` (until a real provider is chosen)
    - Add Stripe / Resend / Clerk keys as you reach Phases 2–3.
 4. Deploy. Add your custom domain under Project → Domains.

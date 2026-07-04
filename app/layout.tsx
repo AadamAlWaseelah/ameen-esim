@@ -20,7 +20,7 @@ const hankenGrotesk = Hanken_Grotesk({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ameenesim.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.ameen-esim.co.uk";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

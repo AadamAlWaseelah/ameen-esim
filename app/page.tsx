@@ -69,7 +69,7 @@ export default async function Home() {
   ].slice(0, 3);
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://ameenesim.com";
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.ameen-esim.co.uk";
   const heroQr = await QRCode.toDataURL(siteUrl, {
     errorCorrectionLevel: "M",
     margin: 0,

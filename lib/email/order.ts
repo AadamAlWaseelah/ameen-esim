@@ -35,7 +35,7 @@ function fromAddress(): string {
 }
 
 function siteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "https://ameenesim.com";
+  return process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.ameen-esim.co.uk";
 }
 
 /** Where the customer will use the eSIM, resolved from the purchased plan. */
