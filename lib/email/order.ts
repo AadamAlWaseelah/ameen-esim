@@ -146,6 +146,12 @@ export type OrderEmailRenderOptions = {
   qrSrc: string;
   destination: Destination;
   support: string;
+  /**
+   * Base URL for hosted images (logo, install icons) and site links.
+   * Defaults to the configured site URL; the preview route passes the
+   * request origin so images resolve on whatever host it's opened from.
+   */
+  baseUrl?: string;
 };
 
 /** One-tap eSIM install for iOS 17.4+, straight from the email. */
@@ -165,7 +171,7 @@ export function renderOrderEmailHtml(
   order: Order,
   opts: OrderEmailRenderOptions,
 ): string {
-  const site = siteUrl();
+  const site = opts.baseUrl ?? siteUrl();
   const price = formatMoney(order.amountPence);
   const dest = opts.destination;
   const planTitle = escapeHtml(order.planTitle);

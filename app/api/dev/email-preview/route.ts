@@ -8,9 +8,10 @@ import {
 } from "@/lib/email/order";
 
 /*
-  Dev-only preview of the order email so its design can be iterated without
-  sending real emails. Hidden in production. Optional ?slug=<planSlug> switches
-  the sample plan (defaults to a UK plan, mirroring the test order).
+  Preview of the order email so its design can be reviewed without sending a
+  real email. Uses sample data only (no real customer info or secrets), so it
+  is safe to leave reachable in production for stakeholder review. Optional
+  ?slug=<planSlug>&title=<title> switches the sample plan.
 */
 
 export const dynamic = "force-dynamic";
@@ -18,10 +19,6 @@ export const dynamic = "force-dynamic";
 const SAMPLE_LPA = "LPA:1$rsp-eu.simlessly.com$1CF39D18769345478929B18C71F7DF39";
 
 export async function GET(request: Request) {
-  if (process.env.NODE_ENV === "production") {
-    return new NextResponse("Not found", { status: 404 });
-  }
-
   const url = new URL(request.url);
   const slug = url.searchParams.get("slug") ?? "gb-1-7";
   const title = url.searchParams.get("title") ?? "United Kingdom 1GB · 7 Days";
@@ -65,6 +62,9 @@ export async function GET(request: Request) {
     qrSrc: qrDataUri,
     destination,
     support: "alwaseelahtours@gmail.com",
+    // Load logo/icons from the host this preview is opened on, so the link
+    // works regardless of whether NEXT_PUBLIC_SITE_URL is configured.
+    baseUrl: url.origin,
   });
 
   return new NextResponse(html, {
