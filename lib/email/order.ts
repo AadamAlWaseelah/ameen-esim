@@ -22,6 +22,7 @@ const QR_CID = "ameen-esim-qr";
 // Brand palette (email-safe hex, mirrors globals.css).
 const NAVY = "#19202e";
 const GOLD = "#c9a961";
+const GOLD_DEEP = "#a8863f";
 const GOLD_PALE = "#e7d592";
 const CREAM = "#faf8f2";
 const SLATE = "#565d71";
@@ -208,15 +209,15 @@ export function renderOrderEmailHtml(
 
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%">
 
-        <!-- Header: brand bar -->
+        <!-- Header: brand logo on a light bar -->
         <tr>
-          <td style="background:${NAVY};border-radius:14px 14px 0 0;padding:22px 32px">
+          <td style="background:#ffffff;border-radius:14px 14px 0 0;padding:22px 32px">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td style="font-family:Georgia,'Times New Roman',serif;font-size:24px;color:${CREAM};letter-spacing:0.3px">
-                  Ameen <span style="color:${GOLD_PALE}">eSIM</span>
+                <td valign="middle">
+                  <img src="${site}/email/ameen-logo.png" alt="Ameen eSIM" width="184" height="40" style="display:block;width:184px;height:40px;border:0" />
                 </td>
-                <td align="right" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1.5px;color:${GOLD};text-transform:uppercase">
+                <td align="right" valign="middle" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:1.5px;color:${GOLD_DEEP};text-transform:uppercase;white-space:nowrap">
                   Order confirmed
                 </td>
               </tr>
@@ -229,10 +230,12 @@ export function renderOrderEmailHtml(
         <tr>
           <td style="background:#ffffff;padding:32px;font-family:Arial,Helvetica,sans-serif">
 
-            <h1 style="margin:0 0 10px;font-size:24px;line-height:30px;color:${NAVY}">Your eSIM is ready</h1>
+            <h1 style="margin:0 0 12px;font-size:24px;line-height:30px;color:${NAVY}">Your eSIM is ready</h1>
+            <p style="margin:0 0 18px;color:${NAVY};font-size:16px;line-height:24px;font-weight:bold">
+              Thank you for your order.
+            </p>
             <p style="margin:0 0 24px;color:${SLATE};font-size:15px;line-height:23px">
-              Thank you for your order. Setting up takes about two minutes.
-              Install the eSIM now, then switch its line on when you land in ${escapeHtml(inSentence(dest.name))}, so your validity starts on arrival.
+              Setting up your eSIM is quick and easy. Install it now while you have Wi-Fi, then switch its line on when you land in ${escapeHtml(inSentence(dest.name))}, so your validity starts on arrival.
             </p>
 
             <!-- Order summary -->
@@ -283,7 +286,9 @@ export function renderOrderEmailHtml(
             <hr style="border:none;border-top:1px solid ${LINE};margin:26px 0" />
 
             <!-- Install on iPhone -->
-            <h2 style="margin:0 0 12px;font-size:16px;color:${NAVY}">Install on iPhone</h2>
+            <h2 style="margin:0 0 12px;font-size:16px;color:${NAVY}">
+              <img src="${site}/email/icon-apple.png" width="17" height="17" alt="" style="width:17px;height:17px;vertical-align:-2px;margin-right:8px" />Install on iPhone
+            </h2>
             <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:18px">
               ${step("1", `Open <strong style="color:${NAVY}">Settings &rarr; Mobile Service</strong> (or Mobile Data) and tap <strong style="color:${NAVY}">Add eSIM</strong>.`)}
               ${step("2", `Choose <strong style="color:${NAVY}">Use QR Code</strong> and scan the code above, or tap the gold button if you're on this iPhone.`)}
@@ -291,7 +296,9 @@ export function renderOrderEmailHtml(
             </table>
 
             <!-- Install on Android -->
-            <h2 style="margin:0 0 12px;font-size:16px;color:${NAVY}">Install on Android</h2>
+            <h2 style="margin:0 0 12px;font-size:16px;color:${NAVY}">
+              <img src="${site}/email/icon-android.png" width="18" height="18" alt="" style="width:18px;height:18px;vertical-align:-3px;margin-right:7px" />Install on Android
+            </h2>
             <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:4px">
               ${step("1", `Open <strong style="color:${NAVY}">Settings &rarr; Network &amp; internet &rarr; SIMs &rarr; Add eSIM</strong>. On Samsung: <strong style="color:${NAVY}">Settings &rarr; Connections &rarr; SIM manager</strong>.`)}
               ${step("2", `Scan the QR code above, or pick <strong style="color:${NAVY}">Enter it manually</strong> and type the two codes below.`)}
