@@ -59,6 +59,23 @@ export async function POST(request: Request) {
   }
   const { providerId, ref: providerRef } = resolved;
 
+  // Mock fulfilment delivers fake eSIMs. ESIM_PROVIDER silently defaults to
+  // mock when unset or misspelled, so with live Stripe keys that would charge
+  // real money for nothing — refuse the combination outright. (Test-mode
+  // Stripe + mock stays allowed: that's the local/E2E testing setup.)
+  if (
+    providerId === "mock" &&
+    process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")
+  ) {
+    console.error(
+      "[checkout] Refusing live-mode payment routed to the mock eSIM provider. Check ESIM_PROVIDER.",
+    );
+    return NextResponse.json(
+      { error: "Checkout is temporarily unavailable. Please try again later." },
+      { status: 503 },
+    );
+  }
+
   // Generate the order id up front so it can be both the Stripe metadata key
   // and the provider idempotency key (internalOrderId) later in the webhook.
   const orderId = crypto.randomUUID();

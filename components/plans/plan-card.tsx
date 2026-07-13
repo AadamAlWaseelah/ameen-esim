@@ -84,9 +84,9 @@ export function PlanCard({
         <p className="text-sm leading-relaxed text-slate">{plan.description}</p>
 
         {!resolved ? (
-          <p className="mt-4 flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
-            <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
-            Not mapped to an eSIM provider yet. Hidden from sale.
+          <p className="mt-4 flex items-start gap-2 rounded-xl border border-gold/30 bg-gold/10 p-3 text-sm text-navy">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-gold-deep" aria-hidden />
+            This plan is nearly ready. Check back soon.
           </p>
         ) : null}
 

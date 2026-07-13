@@ -189,7 +189,9 @@ function Stat({ label, value }: { label: string; value: string }) {
 function NetworkStat({ network }: { network: string | null }) {
   const isStc = network?.toLowerCase().includes("stc") ?? false;
   if (!isStc) {
-    return <Stat label="Network" value={network ?? "{{NETWORK_TBD}}"} />;
+    // Plans without a mapped network name fall back to honest generic copy —
+    // never a template placeholder in customer-facing UI.
+    return <Stat label="Network" value={network ?? "Local networks"} />;
   }
   // e.g. "STC · 4G/5G" — the logo carries the name, keep the tech suffix.
   const suffix = network!.split("·")[1]?.trim();
