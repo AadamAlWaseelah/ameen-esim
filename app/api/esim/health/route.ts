@@ -8,7 +8,10 @@ export const dynamic = "force-dynamic";
 /*
   One-click auth sanity test for the active eSIM provider.
 
-  GET /api/esim/health
+  GET /api/esim/health — admin-only (gated by the session cookie in
+  middleware.ts): it exposes the reseller balance and fires authenticated
+  provider calls on every hit, so it must not be public. Log in at /admin
+  first, then open this URL.
 
   Two probes:
     1. auth    — lists the SA catalogue. This is the same authenticated

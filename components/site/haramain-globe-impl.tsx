@@ -77,7 +77,9 @@ function buildArcDefs(): ArcDef[] {
 }
 
 const ARC_DEFS = buildArcDefs();
-const ARC_SAMPLES = 128;
+// 64 samples is visually indistinguishable at this zoom and halves the
+// GeoJSON the comet loop re-tessellates on every update (see FRAME_MS).
+const ARC_SAMPLES = 64;
 
 // Quadratic Bézier through an explicit control point.
 function bezierPath(
@@ -212,6 +214,11 @@ function GlobeSky() {
 const COMET_TAIL = 0.2; // fraction of the path length
 const COMET_PERIOD = 5.2; // seconds per traversal
 const COMET_GAP = 0.18; // fraction of cycle the comet is "off"
+// Each comet update is a GeoJSON setData(), which MapLibre re-serialises and
+// re-tessellates in its worker. At rAF rate that's fine on 60Hz Android but
+// floods the worker on 120Hz iPhones (ProMotion), causing stutter/flicker —
+// so cap updates at ~30fps; the movement is slow enough that it stays smooth.
+const FRAME_MS = 33;
 
 function GlobeArcs() {
   const { map, isLoaded } = useMap();
@@ -293,8 +300,14 @@ function GlobeArcs() {
 
     let raf = 0;
     const start = performance.now();
+    let lastUpdate = -Infinity;
 
     const tick = (now: number) => {
+      if (now - lastUpdate < FRAME_MS) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      lastUpdate = now;
       try {
         const src = map.getSource("comets") as GeoJSONSource | undefined;
         if (src) {

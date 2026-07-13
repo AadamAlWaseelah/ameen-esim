@@ -63,9 +63,17 @@ export async function POST(request: Request) {
   // and the provider idempotency key (internalOrderId) later in the webhook.
   const orderId = crypto.randomUUID();
   const amountPence = plan.retailPricePence * quantity;
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    new URL(request.url).origin;
+  // success_url/cancel_url must come from configuration in production: the
+  // request-origin fallback is derived from the Host header, which an
+  // attacker can spoof to redirect customers after payment. Dev only.
+  const configuredBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (!configuredBase && process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "Checkout is not configured yet. NEXT_PUBLIC_SITE_URL is missing." },
+      { status: 503 },
+    );
+  }
+  const base = configuredBase ?? new URL(request.url).origin;
 
   const stripe = getStripe();
   const session = await stripe.checkout.sessions.create({

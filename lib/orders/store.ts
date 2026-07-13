@@ -21,7 +21,16 @@ function getLocalOrders() {
 }
 
 function hasDatabase() {
-  return Boolean(process.env.DATABASE_URL);
+  if (process.env.DATABASE_URL) return true;
+  // Orders are paid customer records. In production the in-memory fallback
+  // means a paid order silently evaporates between serverless invocations —
+  // fail loudly instead so a missing/misspelled DATABASE_URL is caught.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "DATABASE_URL is not set. Orders cannot be stored in memory in production.",
+    );
+  }
+  return false;
 }
 
 export async function createOrder(input: NewOrder): Promise<Order> {
