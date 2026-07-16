@@ -269,7 +269,7 @@ export function renderOrderEmailHtml(
               <tr><td align="center">
                 <a href="${iosInstallLink(order.lpaString ?? "")}"
                    style="display:inline-block;background:${GOLD};color:${NAVY};font-size:15px;font-weight:bold;text-decoration:none;padding:14px 34px;border-radius:10px">
-                  📲 &nbsp;Install on this iPhone
+                  Install on this iPhone
                 </a>
               </td></tr>
               <tr><td align="center" style="padding-top:8px;color:${SLATE};font-size:12px;line-height:18px">

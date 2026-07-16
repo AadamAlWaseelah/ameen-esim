@@ -89,7 +89,7 @@ function DeliveredOrder({
       </p>
 
       <p className="mt-4 rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm text-navy">
-        💡 When your phone asks you to name the plan, label it{" "}
+        When your phone asks you to name the plan, label it{" "}
         <span className="font-medium">&ldquo;Ameen eSIM&rdquo;</span> so it&apos;s
         easy to find. You can rename it any time in your phone&apos;s mobile-data
         settings.

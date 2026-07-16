@@ -45,8 +45,8 @@ const GLOBE_FEATURES = [
 ];
 
 const FEATURE_TONE: Record<"gold" | "green", string> = {
-  gold: "bg-gold/15 text-gold-pale ring-1 ring-gold/25",
-  green: "bg-[#34b27b]/15 text-[#69e6ab] ring-1 ring-[#34b27b]/25",
+  gold: "text-gold",
+  green: "text-[#69e6ab]",
 };
 
 function isFeatured(badge: string | null) {
@@ -83,31 +83,34 @@ export default async function Home() {
           and a travelling glint along the base line. */}
       <section className="relative isolate overflow-hidden bg-navy text-cream">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          {/* Fine grid, fading out toward the edges. */}
+          {/* Khatam star lattice (brand pattern, gold on black) — screen-blended
+              so only the gold lines show over the navy, fading at the edges. */}
           <div
-            className="absolute inset-0 opacity-[0.05]"
+            className="absolute inset-0 opacity-[0.05] mix-blend-screen"
             style={{
-              backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
-              backgroundSize: "44px 44px",
+              backgroundImage: "url(/patterns/khatam-lattice.webp)",
+              backgroundSize: "620px",
+              backgroundPosition: "center",
               maskImage:
                 "radial-gradient(ellipse 90% 85% at 50% 35%, black, transparent)",
               WebkitMaskImage:
                 "radial-gradient(ellipse 90% 85% at 50% 35%, black, transparent)",
             }}
           />
+          {/* Still gold/green washes — plain radial gradients (already soft, so
+              no blur filter, which Safari composites badly when animated). */}
           <div
-            className="animate-aurora absolute -left-[12%] top-[-25%] h-[520px] w-[640px] rounded-full opacity-60 blur-3xl"
+            className="absolute -left-[12%] top-[-25%] h-[520px] w-[640px] opacity-60"
             style={{
               background:
-                "radial-gradient(closest-side, rgba(201,169,97,0.32), transparent)",
+                "radial-gradient(closest-side, rgba(201,169,97,0.30), transparent 70%)",
             }}
           />
           <div
-            className="animate-aurora-slow absolute bottom-[-30%] right-[-18%] h-[480px] w-[560px] rounded-full opacity-45 blur-3xl"
+            className="absolute bottom-[-30%] right-[-18%] h-[480px] w-[560px] opacity-45"
             style={{
               background:
-                "radial-gradient(closest-side, rgba(52,178,123,0.18), transparent)",
+                "radial-gradient(closest-side, rgba(52,178,123,0.17), transparent 70%)",
             }}
           />
           {/* Base hairline with a travelling gold glint. */}
@@ -120,7 +123,7 @@ export default async function Home() {
           <div className="text-center lg:text-left">
             <p className="animate-fade-up inline-flex items-center gap-2.5 rounded-full border border-cream/15 bg-cream/[0.06] px-3.5 py-1.5 text-sm text-cream/80">
               <span className="relative flex size-2" aria-hidden>
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold/70" />
+                <span className="animate-glow-pulse absolute -inset-1 rounded-full bg-gold/40 blur-[3px]" />
                 <span className="relative inline-flex size-2 rounded-full bg-gold" />
               </span>
               By Al-Waseelah Tours · UK Umrah operator
@@ -193,26 +196,26 @@ export default async function Home() {
       <section className="relative isolate mt-16 overflow-hidden bg-navy text-cream sm:mt-20">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <div
-            className="absolute right-[8%] top-1/2 h-[520px] w-[620px] max-w-[60%] -translate-y-1/2 rounded-full opacity-50 blur-3xl"
+            className="absolute right-[8%] top-1/2 h-[520px] w-[620px] max-w-[60%] -translate-y-1/2 opacity-50"
             style={{
               background:
-                "radial-gradient(closest-side, rgba(201,169,97,0.22), transparent)",
+                "radial-gradient(closest-side, rgba(201,169,97,0.22), transparent 70%)",
             }}
           />
           <div
-            className="absolute -bottom-1/4 left-[2%] h-[420px] w-[520px] max-w-[55%] rounded-full opacity-40 blur-3xl"
+            className="absolute -bottom-1/4 left-[2%] h-[420px] w-[520px] max-w-[55%] opacity-40"
             style={{
               background:
-                "radial-gradient(closest-side, rgba(52,178,123,0.16), transparent)",
+                "radial-gradient(closest-side, rgba(52,178,123,0.16), transparent 70%)",
             }}
           />
-          {/* Faint tech grid, masked to fade at the edges. */}
+          {/* Khatam star lattice, masked to fade at the edges. */}
           <div
-            className="absolute inset-0 opacity-[0.04]"
+            className="absolute inset-0 opacity-[0.04] mix-blend-screen"
             style={{
-              backgroundImage:
-                "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)",
-              backgroundSize: "52px 52px",
+              backgroundImage: "url(/patterns/khatam-lattice.webp)",
+              backgroundSize: "620px",
+              backgroundPosition: "center",
               maskImage:
                 "radial-gradient(ellipse at center, black, transparent 75%)",
               WebkitMaskImage:
@@ -224,8 +227,8 @@ export default async function Home() {
         <Reveal className="container grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="text-center lg:text-left">
             <p className="inline-flex items-center gap-2.5 rounded-full border border-cream/15 bg-cream/[0.06] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-gold-pale backdrop-blur-sm">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34b27b]/70" />
+              <span className="relative flex size-2" aria-hidden>
+                <span className="animate-glow-pulse absolute -inset-1 rounded-full bg-[#34b27b]/40 blur-[3px]" />
                 <span className="relative inline-flex size-2 rounded-full bg-[#34b27b]" />
               </span>
               Pilgrims from every corner
@@ -242,17 +245,15 @@ export default async function Home() {
               roaming bills.
             </p>
 
-            <ul className="mx-auto mt-8 grid max-w-xl gap-3 text-left lg:mx-0">
+            {/* Editorial rows with hairline rules — quieter than boxed
+                icon-cards, and the copy carries the weight. */}
+            <ul className="mx-auto mt-8 max-w-xl divide-y divide-cream/10 border-y border-cream/10 text-left lg:mx-0">
               {GLOBE_FEATURES.map((f) => (
-                <li
-                  key={f.title}
-                  className="group flex items-start gap-4 rounded-2xl border border-cream/10 bg-cream/[0.04] p-4 transition-colors duration-200 ease-out-strong hover:border-gold/30 hover:bg-cream/[0.07]"
-                >
-                  <span
-                    className={`inline-flex size-11 shrink-0 items-center justify-center rounded-xl ${FEATURE_TONE[f.tone]}`}
-                  >
-                    <f.icon className="size-5" aria-hidden />
-                  </span>
+                <li key={f.title} className="flex items-start gap-4 py-4">
+                  <f.icon
+                    className={`mt-0.5 size-5 shrink-0 ${FEATURE_TONE[f.tone]}`}
+                    aria-hidden
+                  />
                   <div>
                     <p className="font-semibold text-cream">{f.title}</p>
                     <p className="mt-0.5 text-sm leading-relaxed text-cream/60">

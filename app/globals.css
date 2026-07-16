@@ -149,17 +149,6 @@
   (transform/opacity/filter only). All decorative; the reduced-motion block
   below freezes them. Decorative layers must be aria-hidden.
 */
-@keyframes aurora-drift {
-  0% {
-    transform: translate3d(-8%, -4%, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(8%, 6%, 0) scale(1.18);
-  }
-  100% {
-    transform: translate3d(-8%, -4%, 0) scale(1);
-  }
-}
 @keyframes float-slow {
   0%,
   100% {
@@ -219,14 +208,6 @@
 }
 
 @layer utilities {
-  .animate-aurora {
-    animation: aurora-drift 18s var(--ease-in-out) infinite;
-    will-change: transform;
-  }
-  .animate-aurora-slow {
-    animation: aurora-drift 26s var(--ease-in-out) infinite;
-    will-change: transform;
-  }
   .animate-float-slow {
     animation: float-slow 6s ease-in-out infinite;
     will-change: transform;
