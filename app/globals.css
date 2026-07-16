@@ -135,6 +135,14 @@
     }
   }
 
+  /* Hide the horizontal scrollbar on carousel tracks (scroll still works). */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   /* 1px gold hairline divider — premium alternative to grey borders. */
   .hairline {
     border-color: var(--line);

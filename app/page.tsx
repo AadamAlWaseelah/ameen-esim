@@ -5,7 +5,7 @@ import { ArrowRight, Check, MailCheck, Smartphone, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/site/reveal";
-import { TrustBar } from "@/components/site/trust-bar";
+import { TrustCarousel } from "@/components/site/trust-carousel";
 import { HeroVisual } from "@/components/site/hero-visual";
 import { HaramainGlobe } from "@/components/site/haramain-globe";
 import { HaramainGalleryImage } from "@/components/site/haramain-gallery-image";
@@ -113,8 +113,10 @@ export default async function Home() {
                 "radial-gradient(closest-side, rgba(52,178,123,0.17), transparent 70%)",
             }}
           />
-          {/* Base hairline with a travelling gold glint. */}
-          <div className="absolute inset-x-0 bottom-0 h-px overflow-hidden bg-cream/10">
+          {/* Base line marking the navy → cream border: a gold hairline that
+              breathes, with a travelling glint riding along it. */}
+          <div className="absolute inset-x-0 bottom-0 h-[2px] overflow-hidden bg-gold/15">
+            <div className="animate-glow-pulse absolute inset-0 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
             <div className="animate-beam h-full w-1/3 bg-gradient-to-r from-transparent via-gold to-transparent" />
           </div>
         </div>
@@ -185,15 +187,16 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Trust signals — honest credibility, Trust & Authority pattern. */}
-      <section className="container pt-12 sm:pt-16">
-        <Reveal>
-          <TrustBar />
+      {/* "Why Ameen" — a full-bleed cream chapter between the two navy bands,
+          breaking up the blue. Kept plain so the icon tiles carry it. */}
+      <section className="relative isolate overflow-hidden bg-cream">
+        <Reveal className="container py-12 sm:py-16">
+          <TrustCarousel />
         </Reveal>
       </section>
 
-      {/* Global reach — full-bleed tech band: the world connecting to the Haramain. */}
-      <section className="relative isolate mt-16 overflow-hidden bg-navy text-cream sm:mt-20">
+      {/* Global reach — full-bleed band: the world connecting to the Haramain. */}
+      <section className="relative isolate overflow-hidden bg-navy text-cream">
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
           <div
             className="absolute right-[8%] top-1/2 h-[520px] w-[620px] max-w-[60%] -translate-y-1/2 opacity-50"
@@ -209,19 +212,8 @@ export default async function Home() {
                 "radial-gradient(closest-side, rgba(52,178,123,0.16), transparent 70%)",
             }}
           />
-          {/* Khatam star lattice, masked to fade at the edges. */}
-          <div
-            className="absolute inset-0 opacity-[0.04] mix-blend-screen"
-            style={{
-              backgroundImage: "url(/patterns/khatam-lattice.webp)",
-              backgroundSize: "620px",
-              backgroundPosition: "center",
-              maskImage:
-                "radial-gradient(ellipse at center, black, transparent 75%)",
-              WebkitMaskImage:
-                "radial-gradient(ellipse at center, black, transparent 75%)",
-            }}
-          />
+          {/* No lattice here — the pattern stays the hero's signature, and the
+              globe + photography carry this section instead. */}
         </div>
 
         <Reveal className="container grid items-center gap-12 py-20 sm:py-28 lg:grid-cols-[0.95fr_1.05fr]">
