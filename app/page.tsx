@@ -113,11 +113,13 @@ export default async function Home() {
                 "radial-gradient(closest-side, rgba(52,178,123,0.17), transparent 70%)",
             }}
           />
-          {/* Base line marking the navy → cream border: a gold hairline that
-              breathes, with a travelling glint riding along it. */}
-          <div className="absolute inset-x-0 bottom-0 h-[2px] overflow-hidden bg-gold/15">
-            <div className="animate-glow-pulse absolute inset-0 bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
-            <div className="animate-beam h-full w-1/3 bg-gradient-to-r from-transparent via-gold to-transparent" />
+          {/* Base line marking the navy → cream border: a solid gold hairline,
+              a soft blurred glow that breathes above it, and a travelling
+              glint riding along it. */}
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
+          <div className="animate-glow-pulse absolute inset-x-0 bottom-0 h-[5px] bg-gradient-to-r from-transparent via-gold to-transparent blur-[3px]" />
+          <div className="absolute inset-x-0 bottom-0 h-px overflow-hidden">
+            <div className="animate-beam h-full w-1/3 bg-gradient-to-r from-transparent via-gold-pale to-transparent" />
           </div>
         </div>
 

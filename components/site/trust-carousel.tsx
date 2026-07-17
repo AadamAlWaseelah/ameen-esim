@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
   "Why Ameen" carousel — the cream chapter between the navy hero and the navy
   globe band. Honest trust signals only (brand rule: every claim true today).
   Add a slide by adding an entry to SLIDES; the track, arrows and auto-advance
-  adapt. Icons are bespoke gold line art, each on a raised white tile that
+  adapt. Icons are bespoke gold line art, each on a soft white disc that
   separates it from the cream background.
 
   Motion: native scroll-snap (swipe on touch), arrow buttons, and a gentle
@@ -160,17 +160,17 @@ export function TrustCarousel() {
             aria-label={`${i + 1} of ${SLIDES.length}`}
             className="w-[72%] shrink-0 snap-start sm:w-[42%] lg:w-[28%] xl:w-[22%]"
           >
-            {/* Icon on a raised white tile so it reads as its own object
-                against the cream, not artwork floating on the background. */}
-            <span className="inline-flex size-16 items-center justify-center rounded-2xl bg-paper shadow-[0_14px_28px_-14px_rgba(25,32,46,0.35),0_2px_6px_-2px_rgba(25,32,46,0.12)] ring-1 ring-line/70">
+            {/* Icon on a soft white disc — a warm (not navy) shadow lifts it
+                off the cream without the cold, app-icon look of a boxed tile. */}
+            <span className="inline-flex size-16 items-center justify-center rounded-full bg-paper shadow-[0_12px_26px_-14px_rgba(120,92,40,0.45)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={slide.icon}
                 alt=""
-                width={56}
-                height={56}
+                width={52}
+                height={52}
                 loading="lazy"
-                className="size-14"
+                className="size-[52px]"
               />
             </span>
             <p className="mt-3 font-medium text-navy">{slide.title}</p>
