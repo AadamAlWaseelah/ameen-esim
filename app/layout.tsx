@@ -36,6 +36,19 @@ export const metadata: Metadata = {
       "Instant Saudi data eSIMs for pilgrims. Honest data, delivered by email.",
     siteName: "Ameen eSIM",
     type: "website",
+    // Composed from the real brand assets (A-mark, Space Grotesk, khatam
+    // lattice). Kept ~120KB — WhatsApp skips og:images much above ~300KB.
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Ameen eSIM — Saudi data eSIMs for Umrah & Hajj",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 
