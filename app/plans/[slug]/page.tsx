@@ -184,11 +184,54 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-// Network stat with the operator's logo where we have one (Saudi plans run
-// on stc). Falls back to the plain text card for other networks.
+/*
+  Operator logos for the Network card. A plan matches when its `network`
+  field mentions the operator name (case-insensitive). To support a new
+  operator: drop the logo under public/brand/networks/ and add a row here —
+  then set the plan's network in admin to e.g. "Zain · 4G/5G" and the logo
+  shows automatically. Only ever name the operator we actually fulfil on.
+*/
+const NETWORK_LOGOS: {
+  match: string;
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  className: string;
+}[] = [
+  {
+    match: "stc",
+    src: "/brand/stc-logo.png",
+    alt: "stc (Saudi Telecom Company)",
+    width: 54,
+    height: 27,
+    className: "h-[22px] w-auto",
+  },
+  {
+    match: "zain",
+    src: "/brand/networks/zain-ksa.svg",
+    alt: "Zain Saudi Arabia",
+    width: 28,
+    height: 28,
+    className: "h-[26px] w-auto",
+  },
+  {
+    match: "three",
+    src: "/brand/networks/three-uk.png",
+    alt: "Three UK",
+    width: 48,
+    height: 27,
+    className: "h-[24px] w-auto",
+  },
+];
+
+// Network stat with the operator's logo where we have one. Falls back to the
+// plain text card for unnamed networks.
 function NetworkStat({ network }: { network: string | null }) {
-  const isStc = network?.toLowerCase().includes("stc") ?? false;
-  if (!isStc) {
+  const logo = network
+    ? NETWORK_LOGOS.find((l) => network.toLowerCase().includes(l.match))
+    : undefined;
+  if (!logo) {
     // Plans without a mapped network name fall back to honest generic copy —
     // never a template placeholder in customer-facing UI.
     return <Stat label="Network" value={network ?? "Local networks"} />;
@@ -200,11 +243,11 @@ function NetworkStat({ network }: { network: string | null }) {
       <p className="text-sm text-slate">Network</p>
       <div className="mt-1.5 flex items-center gap-2.5">
         <Image
-          src="/brand/stc-logo.png"
-          alt="stc (Saudi Telecom Company)"
-          width={54}
-          height={27}
-          className="h-[22px] w-auto"
+          src={logo.src}
+          alt={logo.alt}
+          width={logo.width}
+          height={logo.height}
+          className={logo.className}
         />
         {suffix ? (
           <span className="font-medium text-navy">{suffix}</span>
