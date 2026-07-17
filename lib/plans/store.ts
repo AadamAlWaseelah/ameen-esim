@@ -25,8 +25,37 @@ function setLocalPlans(plans: PlanRecord[]) {
   globalThis.__ameenPlans = plans;
 }
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __ameenSeedFallbackAlerted: boolean | undefined;
+}
+
 function hasDatabase() {
-  return Boolean(process.env.DATABASE_URL);
+  if (process.env.DATABASE_URL) return true;
+
+  // In production this fallback means the site is silently showing the
+  // built-in seed catalogue — prices and mappings frozen at the last seed
+  // sync, not the admin-managed DB. Browsing stays up (fail-soft), but the
+  // owner must know immediately. Alert once per instance; dynamic import
+  // avoids the plans → alert → order-email → plans import cycle.
+  if (process.env.NODE_ENV === "production" && !globalThis.__ameenSeedFallbackAlerted) {
+    globalThis.__ameenSeedFallbackAlerted = true;
+    console.error(
+      "[plans] DATABASE_URL is not set in production — serving built-in SEED plans.",
+    );
+    void import("@/lib/email/alert")
+      .then(({ sendOwnerAlert }) =>
+        sendOwnerAlert("Site is serving SEED plans (no database)", [
+          "DATABASE_URL is not set (or unreadable) in production.",
+          "The storefront is showing the built-in seed catalogue — prices and provider mappings may be stale.",
+          "Checkout is blocked separately, but fix the env var and redeploy now.",
+        ]),
+      )
+      .catch(() => {
+        // Alerting is best-effort; the console.error above already records it.
+      });
+  }
+  return false;
 }
 
 function sortPlans(plans: PlanRecord[]) {

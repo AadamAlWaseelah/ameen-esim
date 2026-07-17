@@ -1,5 +1,11 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    // Required on Next 14 for instrumentation.ts (Sentry init per runtime).
+    instrumentationHook: true,
+  },
   async headers() {
     return [
       {
@@ -23,4 +29,12 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// withSentryConfig injects the client init (sentry.client.config.ts) into the
+// browser bundle — on Next 14 nothing else loads it. Source-map upload is
+// disabled so no SENTRY_AUTH_TOKEN is required; monitoring itself only
+// activates when NEXT_PUBLIC_SENTRY_DSN is set.
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  sourcemaps: { disable: true },
+  telemetry: false,
+});

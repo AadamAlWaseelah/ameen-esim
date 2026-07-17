@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, lt } from "drizzle-orm";
 
 import { getDb, schema } from "@/lib/db";
 import type { NewOrder, Order } from "@/lib/db/schema";
@@ -105,6 +105,36 @@ export async function listProvisioningOrders(): Promise<Order[]> {
       .where(eq(schema.orders.status, "provisioning"));
   }
   return getLocalOrders().filter((o) => o.status === "provisioning");
+}
+
+/*
+  Remove abandoned checkouts. A `pending` order only becomes `paid` via the
+  Stripe webhook, and Checkout Sessions expire after 24 hours — so a pending
+  row older than the cutoff can never be paid and is pure noise. 48h keeps a
+  generous margin over the session lifetime.
+*/
+export const STALE_PENDING_MS = 48 * 60 * 60 * 1000;
+
+export async function deleteStalePendingOrders(): Promise<number> {
+  const cutoff = new Date(Date.now() - STALE_PENDING_MS);
+
+  if (hasDatabase()) {
+    const deleted = await getDb()
+      .delete(schema.orders)
+      .where(
+        and(eq(schema.orders.status, "pending"), lt(schema.orders.createdAt, cutoff)),
+      )
+      .returning({ id: schema.orders.id });
+    return deleted.length;
+  }
+
+  const orders = getLocalOrders();
+  const keep = orders.filter(
+    (o) => o.status !== "pending" || o.createdAt >= cutoff,
+  );
+  const removed = orders.length - keep.length;
+  globalThis.__ameenOrders = keep;
+  return removed;
 }
 
 export async function updateOrder(

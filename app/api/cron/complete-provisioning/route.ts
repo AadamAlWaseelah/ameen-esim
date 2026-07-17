@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
 import { refreshProvisioning } from "@/lib/orders/provision";
-import { listProvisioningOrders } from "@/lib/orders/store";
+import {
+  deleteStalePendingOrders,
+  listProvisioningOrders,
+} from "@/lib/orders/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,5 +33,16 @@ export async function GET(request: Request) {
     results.push({ id: order.id, status: updated?.status ?? order.status });
   }
 
-  return NextResponse.json({ checked: parked.length, results });
+  // Housekeeping on the same schedule: drop abandoned checkouts whose Stripe
+  // session has long expired (see deleteStalePendingOrders).
+  let stalePendingDeleted = 0;
+  try {
+    stalePendingDeleted = await deleteStalePendingOrders();
+  } catch (err) {
+    console.error(
+      `[cron] Stale-pending cleanup failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  return NextResponse.json({ checked: parked.length, results, stalePendingDeleted });
 }
