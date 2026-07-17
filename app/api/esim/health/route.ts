@@ -21,6 +21,11 @@ export const dynamic = "force-dynamic";
     2. balance — best-effort reseller balance. A wrong/unsupported endpoint
                  must NOT fail the check (auth is already proven above), so a
                  failure here is reported but does not flip `ok`.
+
+  Also reports `config`: booleans for whether each required env var is set
+  (never their values), so one authenticated URL confirms a deployment is
+  wired correctly after any env change. `configOk` is true when every var
+  the app needs in production is present.
 */
 
 type ProbeResult =
@@ -33,6 +38,40 @@ type BalanceResult =
 
 function message(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
+}
+
+function stripeMode(): "live" | "test" | null {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (key?.startsWith("sk_live_")) return "live";
+  if (key?.startsWith("sk_test_")) return "test";
+  return null;
+}
+
+/*
+  Presence-only report of the env config. Booleans, never values. `required`
+  are the vars the app needs to sell + deliver in production; `recommended`
+  degrade gracefully if missing (e.g. no RESEND_API_KEY just means no emails).
+*/
+function configReport() {
+  const required = {
+    databaseUrl: Boolean(process.env.DATABASE_URL),
+    siteUrl: Boolean(process.env.NEXT_PUBLIC_SITE_URL),
+    stripeSecretKey: Boolean(process.env.STRIPE_SECRET_KEY),
+    stripeWebhookSecret: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+    adminPassword: Boolean(process.env.ADMIN_PASSWORD),
+  };
+  const recommended = {
+    adminSessionSecret: Boolean(process.env.ADMIN_SESSION_SECRET),
+    cronSecret: Boolean(process.env.CRON_SECRET),
+    resendApiKey: Boolean(process.env.RESEND_API_KEY),
+    orderEmailFrom: Boolean(process.env.ORDER_EMAIL_FROM),
+  };
+  return {
+    configOk: Object.values(required).every(Boolean),
+    stripeMode: stripeMode(),
+    required,
+    recommended,
+  };
 }
 
 export async function GET() {
@@ -61,7 +100,14 @@ export async function GET() {
 
   const ok = auth.ok;
   return NextResponse.json(
-    { ok, providerId, auth, balance, elapsedMs: Date.now() - startedAt },
+    {
+      ok,
+      providerId,
+      auth,
+      balance,
+      config: configReport(),
+      elapsedMs: Date.now() - startedAt,
+    },
     { status: ok ? 200 : 502 },
   );
 }

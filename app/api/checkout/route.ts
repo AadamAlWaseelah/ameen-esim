@@ -12,7 +12,50 @@ export const dynamic = "force-dynamic";
 // API calls from paying for profiles that would never be delivered.
 const MAX_QUANTITY = 1;
 
+/*
+  Per-IP rate limit. Each POST creates a Stripe Checkout Session and a pending
+  order row, so an unthrottled endpoint lets anyone flood both. A real shopper
+  clicks buy a handful of times at most; 8 per minute is generous for that and
+  still throttles abuse. In-memory (per serverless instance), best-effort like
+  the admin-login limiter; kept on globalThis to survive dev hot reloads.
+*/
+const RATE_LIMIT_MAX = 8;
+const RATE_WINDOW_MS = 60 * 1000;
+
+type RateHits = { count: number; resetAt: number };
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __ameenCheckoutHits: Map<string, RateHits> | undefined;
+}
+
+function clientIp(request: Request): string {
+  const fwd = request.headers.get("x-forwarded-for");
+  return fwd?.split(",")[0]?.trim() || "unknown";
+}
+
+// Returns true if this IP is over its allowance for the current window.
+function rateLimited(ip: string): boolean {
+  globalThis.__ameenCheckoutHits ??= new Map();
+  const map = globalThis.__ameenCheckoutHits;
+  const now = Date.now();
+  const hits = map.get(ip);
+  if (!hits || hits.resetAt <= now) {
+    map.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return false;
+  }
+  hits.count += 1;
+  return hits.count > RATE_LIMIT_MAX;
+}
+
 export async function POST(request: Request) {
+  if (rateLimited(clientIp(request))) {
+    return NextResponse.json(
+      { error: "Too many checkout attempts. Please wait a moment and try again." },
+      { status: 429 },
+    );
+  }
+
   if (!isStripeConfigured()) {
     return NextResponse.json(
       { error: "Checkout is not configured yet. STRIPE_SECRET_KEY is missing." },
