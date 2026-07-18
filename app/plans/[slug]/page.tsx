@@ -226,10 +226,13 @@ const NETWORK_LOGOS: {
 ];
 
 // Network stat with the operator's logo where we have one. Falls back to the
-// plain text card for unnamed networks.
+// plain text card for unnamed networks. The match is exact on the name part
+// (before the "·") so multi-network text like "Three, O2 & T-Mobile · 5G" or
+// "6 Gulf networks incl. STC" never triggers a single operator's logo.
 function NetworkStat({ network }: { network: string | null }) {
-  const logo = network
-    ? NETWORK_LOGOS.find((l) => network.toLowerCase().includes(l.match))
+  const namePart = network?.split("·")[0]?.trim().toLowerCase();
+  const logo = namePart
+    ? NETWORK_LOGOS.find((l) => namePart === l.match)
     : undefined;
   if (!logo) {
     // Plans without a mapped network name fall back to honest generic copy —
