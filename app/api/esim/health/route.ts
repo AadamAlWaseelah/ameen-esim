@@ -52,6 +52,27 @@ function stripeMode(): "live" | "test" | null {
   are the vars the app needs to sell + deliver in production; `recommended`
   degrade gracefully if missing (e.g. no RESEND_API_KEY just means no emails).
 */
+/*
+  Which database is this runtime actually pointed at? Hostname + db name only
+  (never credentials) — enough to diagnose env/branch mix-ups from the admin
+  side without exposing anything sensitive.
+*/
+function databaseFingerprint() {
+  const url = process.env.DATABASE_URL;
+  if (!url) return { present: false as const };
+  try {
+    const parsed = new URL(url);
+    return {
+      present: true as const,
+      validUrl: true as const,
+      host: parsed.hostname,
+      database: parsed.pathname.slice(1),
+    };
+  } catch {
+    return { present: true as const, validUrl: false as const };
+  }
+}
+
 function configReport() {
   const required = {
     databaseUrl: Boolean(process.env.DATABASE_URL),
@@ -69,6 +90,7 @@ function configReport() {
   return {
     configOk: Object.values(required).every(Boolean),
     stripeMode: stripeMode(),
+    database: databaseFingerprint(),
     required,
     recommended,
   };
